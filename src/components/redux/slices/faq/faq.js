@@ -1,11 +1,12 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+import { getAPIURL } from "../../../../utils/utils";
  
 export const fetchCategories = createAsyncThunk(
   "faq/fetchCategories",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get("http://localhost:5353/categories");
+      const response = await axios.get(`${getAPIURL()}/categories`);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);
@@ -20,7 +21,7 @@ export const createFAQ = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const response = await axios.post("http://localhost:5353/create/faq", {
+      const response = await axios.post(`${getAPIURL()}/create/faq`, {
         faqItems,
         course: selectedCourse !== null ? selectedCourse._id : null,
         degree_program:
@@ -38,7 +39,7 @@ export const fetchAllFAQs = createAsyncThunk(
   "faq/fetchAllFAQs",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get("http://localhost:5353/getAll/faq");
+      const response = await axios.get(`${getAPIURL()}/getAll/faq`);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);
@@ -51,7 +52,7 @@ export const fetchFAQById = createAsyncThunk(
   async (faqId, { rejectWithValue }) => {
     try {
       const response = await axios.get(
-        `http://localhost:5353/get/faq/${faqId}`
+        `${getAPIURL()}/get/faq/${faqId}`
       );
       return response.data;
     } catch (error) {
@@ -65,7 +66,7 @@ export const deleteFAQById = createAsyncThunk(
   async (faqId, { rejectWithValue }) => {
     try {
       const response = await axios.delete(
-        `http://localhost:5353/delete/faq/${faqId}`
+        `${getAPIURL()}/delete/faq/${faqId}`
       );
       return response.data;
     } catch (error) {
@@ -79,7 +80,7 @@ export const updateFAQ = createAsyncThunk(
   async ({ faqId, formData }, { rejectWithValue }) => {
     try {
       const response = await axios.put(
-        `http://localhost:5353/faq/update/${faqId}`,
+        `${getAPIURL()}/faq/update/${faqId}`,
         formData
       );
       return response.data;

@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { errorToast, successToast } from "../../../toaster";
+import { getAPIURL } from "../../../../utils/utils";
 
 export const postSignIn = createAsyncThunk(
   "postSignIn",
@@ -11,7 +12,7 @@ export const postSignIn = createAsyncThunk(
     };
     try {
       const res = await axios.post(
-        "http://localhost:5353/Signin",
+        `${getAPIURL()}/Signin`,
         data,
         {
           withCredentials: true,
@@ -39,7 +40,7 @@ export const userVerify = createAsyncThunk(
     try {
       console.log(`token=${token}`);
       const res = await axios.get(
-        "http://localhost:5353/userVerify",
+        `${getAPIURL()}/userVerify`,
         {
           withCredentials: true,
           headers: { Authorization: `Bearer ${token}` },

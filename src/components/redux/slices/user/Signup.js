@@ -2,6 +2,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { errorToast, successToast } from "../../../toaster";
+import { getAPIURL } from "../../../../utils/utils";
 
 export const postSignUp = createAsyncThunk(
   "signup/postSignUp",
@@ -22,7 +23,7 @@ export const postSignUp = createAsyncThunk(
       }
 
       const response = await axios.post(
-        "http://localhost:5353/signup",
+        `${getAPIURL()}/signup`,
         formData,
         {
           headers: {

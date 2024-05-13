@@ -31,6 +31,9 @@ import testimonialReducer from "./slices/services/testimonial/Testimonial";
 import galleryReducer from "./slices/services/gallery/Gallery";
 import managedCampusReducer from "./slices/services/managedCampus/managedCampus";
 import hiringReducer from "./slices/hiring/hiring/Hiring";
+import keyElementsReducer from "./slices/business/keyElements/keyElements";
+import placementTestimonialReducer from "./slices/business/placementTestimonial/placementTestimonial";
+import engagedGovernanceReducer from "./slices/business/engagedGovernance/engagedGovernance";
 
 export default configureStore({
   reducer: {
@@ -62,9 +65,11 @@ export default configureStore({
     executionOverviews: executionOverviewsReducer,
     testimonial: testimonialReducer,
     gallery: galleryReducer,
-    batches:batchesReducer,
-    managedCampus:managedCampusReducer,
+    batches: batchesReducer,
+    managedCampus: managedCampusReducer,
     hiring: hiringReducer,
-    
+    keyElements: keyElementsReducer,
+    placementTestimonial: placementTestimonialReducer,
+    engagedGovernance: engagedGovernanceReducer,
   },
 });

@@ -11,6 +11,7 @@ import { MenuItem, Paper, Chip, IconButton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { DropzoneArea } from "material-ui-dropzone";
 import axios from "axios";
+import { getAPIURL } from "../../../../utils/utils";
 
 // Styles
 const useStyles = makeStyles((theme) => ({
@@ -76,7 +77,7 @@ const HiringAddForm = () => {
     }
     try {
       const response = await axios.post(
-        "http://localhost:5353/create/hiring",
+        `${getAPIURL()}/create/hiring`,
         formData,
         {
           headers: {

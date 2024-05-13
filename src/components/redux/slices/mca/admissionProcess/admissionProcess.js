@@ -75,7 +75,7 @@ export const getAllAdmissionProcess = createAsyncThunk(
     "admission/delete",
     async (admissionId, { rejectWithValue }) => {
       try {
-        const response = await axios.delete(`http://localhost:5353/delete/admission/${admissionId}`);
+        const response = await axios.delete(`${getAPIURL()}/delete/admission/${admissionId}`);
         return response.data.message;
       } catch (error) {
         return rejectWithValue(error.response.data.message);

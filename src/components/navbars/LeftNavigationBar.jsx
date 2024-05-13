@@ -48,9 +48,9 @@ import { CheckCircle } from "@material-ui/icons";
 import StepsIcon from "@material-ui/icons/ViewList";
 import { resetSignIn } from "../redux/slices/user/Signin";
 import { useDispatch } from "react-redux";
- 
+
 const drawerWidth = 240;
- 
+
 const openedMixin = (theme) => ({
   width: drawerWidth,
   transition: theme.transitions.create("width", {
@@ -59,7 +59,7 @@ const openedMixin = (theme) => ({
   }),
   overflowX: "hidden",
 });
- 
+
 const closedMixin = (theme) => ({
   transition: theme.transitions.create("width", {
     easing: theme.transitions.easing.sharp,
@@ -71,7 +71,7 @@ const closedMixin = (theme) => ({
     width: `calc(${theme.spacing(8)} + 1px)`,
   },
 });
- 
+
 const DrawerHeader = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
@@ -79,11 +79,11 @@ const DrawerHeader = styled("div")(({ theme }) => ({
   padding: theme.spacing(0, 1),
   ...theme.mixins.toolbar,
 }));
- 
+
 const orangeIconStyle = {
   color: "orange",
 };
- 
+
 const AppBar = styled(MuiAppBar, {
   shouldForwardProp: (prop) => prop !== "open",
 })(({ theme, open }) => ({
@@ -101,7 +101,7 @@ const AppBar = styled(MuiAppBar, {
     }),
   }),
 }));
- 
+
 const Drawer = styled(MuiDrawer, {
   shouldForwardProp: (prop) => prop !== "open",
 })(({ theme, open }) => ({
@@ -118,13 +118,13 @@ const Drawer = styled(MuiDrawer, {
     "& .MuiDrawer-paper": closedMixin(theme),
   }),
 }));
- 
+
 export default function LeftNavigationBar({ Content }) {
   const dispatch = useDispatch();
- 
+
   const navigate = useNavigate();
   const [cookies, removeCookie] = useCookies(["token"]);
- 
+
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
   const [carrieroppDropdownOpen, setCarrieroppDropdownOpen] =
@@ -141,13 +141,12 @@ export default function LeftNavigationBar({ Content }) {
 
   const [batchesDropdownOpen, setBatchesDropdownOpen] = React.useState(false);
 
-
   const [adduserDropdownOpen, setAdduserDropdownOpen] = React.useState(false);
   const [degreeprogramDropdownOpen, setdegreeprogramDropdownOpen] =
     React.useState(false);
   const [ourProgramDropdownOpen, setOurProgramDropdownOpen] =
     React.useState(false);
-    const [highlightDropdownOpen, setHighlightDropdownOpen] =
+  const [highlightDropdownOpen, setHighlightDropdownOpen] =
     React.useState(false);
   const [semesterDropdownOpen, setSemesterDropdownOpen] = React.useState(false);
   const [eligibilityCriteriaDropdownOpen, setEligibilityCriteriaDropdownOpen] =
@@ -156,7 +155,7 @@ export default function LeftNavigationBar({ Content }) {
     React.useState(false);
   const [programFeesDropdownOpen, setProgramFeesDropdownOpen] =
     React.useState(false);
- 
+
   const [anchorEl, setAnchorEl] = React.useState(false);
   const [admissionDropdownOpen, setAdmissionDropdownOpen] =
     React.useState(false);
@@ -167,25 +166,35 @@ export default function LeftNavigationBar({ Content }) {
     React.useState(false);
   const [executionOverviewDropdownOpen, setExecutionOverviewDropdownOpen] =
     React.useState(false);
-    const [servicesTestimonialDropdownOpen, setServicesTestimonialDropdownOpen] = React.useState(false);
-    const [galleryDropdownOpen, setGalleryDropdownOpen] = React.useState(false);
-    const [managedCampusDropdownOpen, setManagedCampusDropdownOpen] = React.useState(false);
-    const [hiringDropdownOpen, setHiringDropdownOpen] = React.useState(false);
+  const [servicesTestimonialDropdownOpen, setServicesTestimonialDropdownOpen] =
+    React.useState(false);
+  const [galleryDropdownOpen, setGalleryDropdownOpen] = React.useState(false);
+  const [managedCampusDropdownOpen, setManagedCampusDropdownOpen] =
+    React.useState(false);
+  const [hiringDropdownOpen, setHiringDropdownOpen] = React.useState(false);
+  const [keyelementsDropdownOpen, setKeyelementsDropdownOpen] =
+    React.useState(false);
+  const [
+    placementTestimonialDropdownOpen,
+    setPlacementTestimonialDropdownOpen,
+  ] = React.useState(false);
+  const [engagedGovernanceDropdownOpen, setEngagedGovernanceDropdownOpen] =
+    React.useState(false);
 
   const opens = Boolean(anchorEl);
- 
+
   const handleClose = () => {
     setAnchorEl(null);
   };
- 
+
   const handleDrawerOpen = () => {
     setOpen(true);
   };
- 
+
   const handleDrawerClose = () => {
     setOpen(false);
   };
- 
+
   const handleDropdownToggle = (dropdown) => {
     switch (dropdown) {
       case "Career_Opportunities":
@@ -209,9 +218,9 @@ export default function LeftNavigationBar({ Content }) {
       case "Course":
         setCourseDropdownOpen(!courseDropdownOpen);
         break;
-        case "Batch":
-          setBatchesDropdownOpen(!batchesDropdownOpen);
-          break;
+      case "Batch":
+        setBatchesDropdownOpen(!batchesDropdownOpen);
+        break;
       case "Add_User":
         setAdduserDropdownOpen(!adduserDropdownOpen);
         break;
@@ -236,9 +245,9 @@ export default function LeftNavigationBar({ Content }) {
       case "AdmissionProcess":
         setAdmissionDropdownOpen(!admissionDropdownOpen);
         break;
-        case "Highlight":
-          setHighlightDropdownOpen(!highlightDropdownOpen);
-          break;
+      case "Highlight":
+        setHighlightDropdownOpen(!highlightDropdownOpen);
+        break;
       case "Services":
         setServicesDropdownOpen(!servicesDropdownOpen);
         break;
@@ -251,52 +260,60 @@ export default function LeftNavigationBar({ Content }) {
       case "Execution_Overview":
         setExecutionOverviewDropdownOpen(!executionOverviewDropdownOpen);
         break;
-        case "Service_Testimonial":
+      case "Service_Testimonial":
         setServicesTestimonialDropdownOpen(!servicesTestimonialDropdownOpen);
         break;
-        case "Gallery":
-          setGalleryDropdownOpen(!galleryDropdownOpen);
-          break;
-          case "managed_Campus":
-          setManagedCampusDropdownOpen(!managedCampusDropdownOpen);
-          break;
-          case "hiring":
-            setHiringDropdownOpen(!hiringDropdownOpen);
-            break;
-    
+      case "Gallery":
+        setGalleryDropdownOpen(!galleryDropdownOpen);
+        break;
+      case "managed_Campus":
+        setManagedCampusDropdownOpen(!managedCampusDropdownOpen);
+        break;
+      case "hiring":
+        setHiringDropdownOpen(!hiringDropdownOpen);
+        break;
+      case "key_elements":
+        setKeyelementsDropdownOpen(!keyelementsDropdownOpen);
+        break;
+      case "placement_testimonial":
+        setPlacementTestimonialDropdownOpen(!placementTestimonialDropdownOpen);
+        break;
+      case "engaged_Governance":
+        setEngagedGovernanceDropdownOpen(!engagedGovernanceDropdownOpen);
+        break;
       case "Outcomes":
         setOutcomesDropdownOpen(!outcomesDropdownOpen);
       default:
         break;
     }
   };
- 
+
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
- 
+
   const handleLogout = () => {
     document.cookie.split(";").forEach((c) => {
       document.cookie = c
         .replace(/^ +/, "")
         .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
     });
- 
+
     dispatch(resetSignIn());
     navigate(0);
   };
- 
+
   const handleNavigation = (dropdown, action) => {
     // Define routes based on dropdown and action
     const routes = {
       add: `/${dropdown}-add`,
       control: `/${dropdown}-control`,
     };
- 
+
     // Navigate to the specified route
     navigate(routes[action]);
   };
- 
+
   return (
     <Box sx={{ display: "flex" }}>
       <CssBaseline />
@@ -314,7 +331,7 @@ export default function LeftNavigationBar({ Content }) {
           >
             <MenuIcon />
           </IconButton>
- 
+
           <div style={{ flexGrow: 1 }} />
           <Tooltip title="Account settings">
             <IconButton
@@ -373,7 +390,7 @@ export default function LeftNavigationBar({ Content }) {
               </ListItemIcon>
               Edit Profile
             </MenuItem>
- 
+
             <MenuItem
               onClick={() => {
                 dispatch(resetSignIn());
@@ -396,7 +413,7 @@ export default function LeftNavigationBar({ Content }) {
             alt="Logo"
             style={{ width: "100%", height: "30px" }}
           />
- 
+
           <IconButton onClick={handleDrawerClose}>
             {theme.direction === "rtl" ? (
               <ChevronRightIcon />
@@ -406,7 +423,7 @@ export default function LeftNavigationBar({ Content }) {
           </IconButton>
         </DrawerHeader>
         <Divider />
- 
+
         <List>
           {[
             {
@@ -539,7 +556,21 @@ export default function LeftNavigationBar({ Content }) {
               icon: <RememberMe style={orangeIconStyle} />,
               dropdown: "hiring",
             },
-
+            {
+              text: "key_elements",
+              icon: <RememberMe style={orangeIconStyle} />,
+              dropdown: "key_elements",
+            },
+            {
+              text: "placement_testimonial",
+              icon: <RememberMe style={orangeIconStyle} />,
+              dropdown: "placement_testimonial",
+            },
+            {
+              text: "engaged_Governance",
+              icon: <RememberMe style={orangeIconStyle} />,
+              dropdown: "engaged_Governance",
+            },
           ].map(({ text, icon, dropdown }) => (
             <React.Fragment key={text}>
               <ListItem
@@ -633,19 +664,29 @@ export default function LeftNavigationBar({ Content }) {
                   executionOverviewDropdownOpen ? (
                     <></>
                   ) : null}
-                   {dropdown === "Service_Testimonial" && servicesTestimonialDropdownOpen ? (
+                  {dropdown === "Service_Testimonial" &&
+                  servicesTestimonialDropdownOpen ? (
                     <></>
                   ) : null}
-                  {dropdown === "Gallery" && galleryDropdownOpen ? (
+                  {dropdown === "Gallery" && galleryDropdownOpen ? <></> : null}
+                  {dropdown === "managed_Campus" &&
+                  managedCampusDropdownOpen ? (
                     <></>
                   ) : null}
-                  {dropdown === "managed_Campus" && managedCampusDropdownOpen ? (
+                  {dropdown === "hiring" && hiringDropdownOpen ? <></> : null}
+                  {dropdown === "key_elements" && keyelementsDropdownOpen ? (
                     <></>
                   ) : null}
-                                    {dropdown === "hiring" && hiringDropdownOpen ? <></> : null}
-
+                  {dropdown === "placement_testimonial" &&
+                  placementTestimonialDropdownOpen ? (
+                    <></>
+                  ) : null}
+                  {dropdown === "engaged_Governance" &&
+                  engagedGovernanceDropdownOpen ? (
+                    <></>
+                  ) : null}
                 </ListItemButton>
- 
+
                 {/* Dropdown Menus */}
                 <Collapse
                   in={
@@ -659,7 +700,6 @@ export default function LeftNavigationBar({ Content }) {
                     (dropdown === "FAQ" && faqDropdownOpen) ||
                     (dropdown === "Course" && courseDropdownOpen) ||
                     (dropdown === "Batch" && batchesDropdownOpen) ||
-
                     (dropdown === "Add_User" && adduserDropdownOpen) ||
                     (dropdown === "Degree_Program" &&
                       degreeprogramDropdownOpen) ||
@@ -672,9 +712,7 @@ export default function LeftNavigationBar({ Content }) {
                     (dropdown === "ProgramFees" && programFeesDropdownOpen) ||
                     (dropdown === "AdmissionProcess" &&
                       admissionDropdownOpen) ||
-                      
-                      (dropdown === "Highlight" && highlightDropdownOpen) ||
-
+                    (dropdown === "Highlight" && highlightDropdownOpen) ||
                     (dropdown === "Outcomes" && outcomesDropdownOpen) ||
                     (dropdown === "Services" && servicesDropdownOpen) ||
                     (dropdown === "Client" && clientDropdownOpen) ||
@@ -682,16 +720,18 @@ export default function LeftNavigationBar({ Content }) {
                       executionHighligtsDropdownOpen) ||
                     (dropdown === "Execution_Overview" &&
                       executionOverviewDropdownOpen) ||
-                      (dropdown === "Service_Testimonial" && servicesTestimonialDropdownOpen) ||
-                      (dropdown === "Gallery" && galleryDropdownOpen) ||
-                      (dropdown === "managed_Campus" && managedCampusDropdownOpen) ||
-                      (dropdown === "hiring" && hiringDropdownOpen)
-
-
-
-
+                    (dropdown === "Service_Testimonial" &&
+                      servicesTestimonialDropdownOpen) ||
+                    (dropdown === "Gallery" && galleryDropdownOpen) ||
+                    (dropdown === "managed_Campus" &&
+                      managedCampusDropdownOpen) ||
+                    (dropdown === "hiring" && hiringDropdownOpen) ||
+                    (dropdown === "key_elements" && keyelementsDropdownOpen) ||
+                    (dropdown === "placement_testimonial" &&
+                      placementTestimonialDropdownOpen) ||
+                    (dropdown === "engaged_Governance" &&
+                      engagedGovernanceDropdownOpen)
                   }
-                  
                   timeout="auto"
                   unmountOnExit
                 >
@@ -726,7 +766,7 @@ export default function LeftNavigationBar({ Content }) {
           ))}
         </List>
       </Drawer>
- 
+
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
         <DrawerHeader />
         {Content}
@@ -734,4 +774,3 @@ export default function LeftNavigationBar({ Content }) {
     </Box>
   );
 }
- 

@@ -17,7 +17,7 @@ export const fetchHiringById = createAsyncThunk(
   "hiring/fetchById",
   async ({ id, token }, thunkAPI) => {
     try {
-      const response = await axios.get(`http://localhost:5353/getById/hiring/${id}`, {
+      const response = await axios.get(`${getAPIURL()}/getById/hiring/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -34,7 +34,7 @@ export const updateHiring = createAsyncThunk(
   "hiring/update",
   async ({ id, formData, token }, thunkAPI) => {
     try {
-      const response = await axios.put(`http://localhost:5353/update/hiring/${id}`, formData, {
+      const response = await axios.put(`${getAPIURL()}/update/hiring/${id}`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${token}`,

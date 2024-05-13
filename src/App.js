@@ -87,6 +87,15 @@ import ManagedCampusEditForm from "./components/pages/services/managedCampus/Man
 import HiringAddForm from "./components/pages/hiring/hiring/HiringAddForm";
 import HiringControll from "./components/pages/hiring/hiring/HiringControl";
 import HiringUpdateForm from "./components/pages/hiring/hiring/HiringEditForm";
+import KeyElementsAddForm from "./components/pages/business/keyelements/KeyElementsAddForm";
+import KeyElementsControl from "./components/pages/business/keyelements/KeyElementsControl";
+import KeyElementsEditForm from "./components/pages/business/keyelements/KeyElementsEditForm";
+import PlacementTestimonialAddForm from "./components/pages/business/placementTestimonial/PlacementTestimonialAddForm";
+import PlacementControl from "./components/pages/business/placementTestimonial/PlacementTestimonialControl";
+import PlacementTestimonialEditForm from "./components/pages/business/placementTestimonial/PlacementTestimonialEditForm";
+import EngagedGovernanceAddForm from "./components/pages/business/engagedGovernance/EngagedGovernanceAddForm";
+import EngagedGovernanceControl from "./components/pages/business/engagedGovernance/EngagedGovernanceControl";
+import EngagedGovernanceEditForm from "./components/pages/business/engagedGovernance/EngagedGovernanceEditForm";
 
 function App() {
   const router = createBrowserRouter(
@@ -149,24 +158,30 @@ function App() {
         <Route path="Course-control" element={<CourseControl />} />
         <Route path="Course-edit/:courseId" element={<CourseEditForm />} />
 
-
         <Route path="Batch-add" element={<BatchAddForm />} />
         <Route path="Batch-control" element={<BatchControl />} />
         <Route path="Batch-edit/:batchId" element={<BatchEditForm />} />
-
 
         <Route path="Signup" element={<SignUpForm />} />
 
         {/* MCA Program */}
 
-
         <Route path="Degree_Program-add" element={<DegreeProgramAddForm />} />
-        <Route path="Degree_Program-control" element={<DegreeProgramControl />} />
-        <Route path="Degree_Program-edit/:degreeProgramId" element={<DegreeProgramEditForm />} />
+        <Route
+          path="Degree_Program-control"
+          element={<DegreeProgramControl />}
+        />
+        <Route
+          path="Degree_Program-edit/:degreeProgramId"
+          element={<DegreeProgramEditForm />}
+        />
 
         <Route path="Our_Program-add" element={<AddOurProgramForm />} />
         <Route path="Our_Program-Control" element={<OurProgramControl />} />
-        <Route path="Our_Program-edit/:programId" element={<Our_ProgramEditForm />} />
+        <Route
+          path="Our_Program-edit/:programId"
+          element={<Our_ProgramEditForm />}
+        />
 
         <Route path="Semester-add" element={<AddSemesterForm />} />
         <Route path="Semester-control" element={<SemesterControl />} />
@@ -179,11 +194,11 @@ function App() {
           path="EligibilityCriteria-add"
           element={<EligibilityCriteriaAddForm />}
         />
-         <Route
+        <Route
           path="EligibilityCriteria-control"
           element={<EligibilityCriteriaControll />}
         />
-         <Route
+        <Route
           path="EligibilityCriteria-edit/:id"
           element={<EligibilityCriteriaEditForm />}
         />
@@ -192,27 +207,42 @@ function App() {
           path="ProgramMentor-control"
           element={<ProgramMentorControl />}
         />
-                <Route path="Program_Mentor-edit/:mentorId" element={<ProgramMentorEditForm />} />
-
+        <Route
+          path="Program_Mentor-edit/:mentorId"
+          element={<ProgramMentorEditForm />}
+        />
 
         <Route path="ProgramFees-add" element={<ProgramFeesAddForm />} />
         <Route path="ProgramFees-control" element={<ProgramFeesControl />} />
-        <Route path="Program_Fees-edit/:feesId" element={<ProgramfeesEditForm />} />
+        <Route
+          path="Program_Fees-edit/:feesId"
+          element={<ProgramfeesEditForm />}
+        />
 
-
-        <Route path="AdmissionProcess-add" element={<AdmissionProcessAddForm />} />
-        <Route path="AdmissionProcess-control" element={<AdmissionProcessControl />} />
-        <Route path="Admission_Process-edit/:admissionId" element={<AdmissionProcessEditForm />} />
+        <Route
+          path="AdmissionProcess-add"
+          element={<AdmissionProcessAddForm />}
+        />
+        <Route
+          path="AdmissionProcess-control"
+          element={<AdmissionProcessControl />}
+        />
+        <Route
+          path="Admission_Process-edit/:admissionId"
+          element={<AdmissionProcessEditForm />}
+        />
 
         <Route path="Outcomes-add" element={<OutcomesAddForm />} />
         <Route path="Outcomes-control" element={<OutcomeControl />} />
         <Route path="Outcome-edit/:outcomeId" element={<OutcomesEditForm />} />
 
-
         <Route path="Highlight-add" element={<HighlightForm />} />
         <Route path="Highlight-control" element={<HighlightsControl />} />
-        <Route path="Highlight-edit/:highlightId" element={<HighlightsEditForm />} />
-        
+        <Route
+          path="Highlight-edit/:highlightId"
+          element={<HighlightsEditForm />}
+        />
+
         {/* service */}
 
         <Route path="Services-add" element={<ServicesAddForm />} />
@@ -249,25 +279,71 @@ function App() {
           element={<ExecutionOverviewEditForm />}
         />
 
-        <Route path="Service_Testimonial-add" element={<TestimonialAddForm />} />
-        <Route path="Service_Testimonial-control" element={<TestimonialControl />} />
-        <Route path="Service_Testimonial-edit/:id" element={<TestimonialEditForm />} />
+        <Route
+          path="Service_Testimonial-add"
+          element={<TestimonialAddForm />}
+        />
+        <Route
+          path="Service_Testimonial-control"
+          element={<TestimonialControl />}
+        />
+        <Route
+          path="Service_Testimonial-edit/:id"
+          element={<TestimonialEditForm />}
+        />
 
         <Route path="Gallery-add" element={<GalleryAddForm />} />
         <Route path="Gallery-control" element={<GalleryControl />} />
         <Route path="Gallery-edit/:id" element={<GalleryEditForm />} />
 
         <Route path="managed_Campus-add" element={<ManagedCampusAddForm />} />
-        <Route path="managed_Campus-control" element={<ManagedCampusControl />} />
-        <Route path="managed_Campus-edit/:id" element={<ManagedCampusEditForm />} />
+        <Route
+          path="managed_Campus-control"
+          element={<ManagedCampusControl />}
+        />
+        <Route
+          path="managed_Campus-edit/:id"
+          element={<ManagedCampusEditForm />}
+        />
 
-        <Route path="ProgramRegister-control" element={<ProgramRegisterControl />} />
+        <Route
+          path="ProgramRegister-control"
+          element={<ProgramRegisterControl />}
+        />
 
         <Route path="hiring-add" element={<HiringAddForm />} />
         <Route path="hiring-control" element={<HiringControll />} />
         <Route path="hiring-edit/:id" element={<HiringUpdateForm />} />
 
+        <Route path="key_elements-add" element={<KeyElementsAddForm />} />
+        <Route path="key_elements-control" element={<KeyElementsControl />} />
+        <Route path="key_elements-edit/:id" element={<KeyElementsEditForm />} />
 
+        <Route
+          path="placement_testimonial-add"
+          element={<PlacementTestimonialAddForm />}
+        />
+        <Route
+          path="placement_testimonial-control"
+          element={<PlacementControl />}
+        />
+        <Route
+          path="placement_testimonial-edit/:id"
+          element={<PlacementTestimonialEditForm />}
+        />
+
+        <Route
+          path="engaged_Governance-add"
+          element={<EngagedGovernanceAddForm />}
+        />
+        <Route
+          path="engaged_Governance-control"
+          element={<EngagedGovernanceControl />}
+        />
+        <Route
+          path="engaged_Governance-edit/:id"
+          element={<EngagedGovernanceEditForm />}
+        />
       </Route>
     )
   );
@@ -276,7 +352,6 @@ function App() {
     <>
       <RouterProvider router={router} />
       <ToastContainer />
-
     </>
   );
 }

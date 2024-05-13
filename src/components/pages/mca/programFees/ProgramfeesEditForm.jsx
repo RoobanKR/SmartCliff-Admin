@@ -12,32 +12,38 @@ import {
 import { DropzoneArea } from "material-ui-dropzone";
 import LeftNavigationBar from "../../../navbars/LeftNavigationBar";
 import { useDispatch, useSelector } from "react-redux";
-import { createProgramFees, getProgramFeesById, updateProgramFees } from "../../../redux/slices/mca/programFees/programfees";
+import {
+  createProgramFees,
+  getProgramFeesById,
+  updateProgramFees,
+} from "../../../redux/slices/mca/programFees/programfees";
 import { fetchDegreeProgramData } from "../../../redux/slices/mca/degreeProgram/degreeProgram";
 import { useNavigate, useParams } from "react-router-dom";
 
 const ProgramfeesEditForm = () => {
-    const { feesId } = useParams();
+  const { feesId } = useParams();
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const programFeesById = useSelector((state) => state.programFees.programFeesById);
+  const programFeesById = useSelector(
+    (state) => state.programFees.programFeesById
+  );
 
   const [icon, setIcon] = useState(null);
   const [error, setError] = useState(null);
   const [existingIcon, setExistingIcon] = useState("");
   const [degreeProgram, setDegreeProgram] = useState(null);
-console.log("programFeesById",programFeesById);
+  console.log("programFeesById", programFeesById);
   const degreeProgramData = useSelector(
     (state) => state.degreeProgram.degreeProgramData
   );
-  
+
   useEffect(() => {
     dispatch(getProgramFeesById(feesId));
-    dispatch(fetchDegreeProgramData()); 
+    dispatch(fetchDegreeProgramData());
   }, [dispatch, feesId]);
 
   useEffect(() => {
@@ -57,8 +63,8 @@ console.log("programFeesById",programFeesById);
     formData.append("description", description);
     formData.append("degree_program", degreeProgram?._id || "");
     if (icon) {
-        formData.append("icon", icon);
-      }
+      formData.append("icon", icon);
+    }
     try {
       await dispatch(updateProgramFees({ feesId, formData }));
       navigate(`/ProgramFees-control`);
@@ -81,29 +87,29 @@ console.log("programFeesById",programFeesById);
               component="div"
               style={{ fontFamily: "Serif" }}
             >
-              Add Program Fees
+              Edit Program Fees
             </Typography>
             <form onSubmit={handleSubmit}>
-            <DropzoneArea
-                    onChange={(fileArray) => setIcon(fileArray[0])}
-                    acceptedFiles={["image/*"]}
-            filesLimit={1}
-            showPreviews={false}
-            showPreviewsInDropzone={true}
-            dropzoneText="Drag and drop an icon here or click"
-          />
-          <Typography
-            variant="subtitle1"
-            color="textSecondary"
-            style={{ marginTop: "16px" }}
-          >
-            Existing Image:
-          </Typography>
-          {existingIcon && (
-            <Typography style={{ marginLeft: "16px" }}>
-              {existingIcon.split("/").pop()}
-            </Typography>
-          )}
+              <DropzoneArea
+                onChange={(fileArray) => setIcon(fileArray[0])}
+                acceptedFiles={["image/*"]}
+                filesLimit={1}
+                showPreviews={false}
+                showPreviewsInDropzone={true}
+                dropzoneText="Drag and drop an icon here or click"
+              />
+              <Typography
+                variant="subtitle1"
+                color="textSecondary"
+                style={{ marginTop: "16px" }}
+              >
+                Existing Image:
+              </Typography>
+              {existingIcon && (
+                <Typography style={{ marginLeft: "16px" }}>
+                  {existingIcon.split("/").pop()}
+                </Typography>
+              )}
 
               <TextField
                 margin="normal"
@@ -127,22 +133,22 @@ console.log("programFeesById",programFeesById);
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
               />
-                <FormControl fullWidth>
+              <FormControl fullWidth>
                 <Autocomplete
-            id="degree_program"
-            options={degreeProgramData}
-            getOptionLabel={(option) => option.program_name || ""}
-            value={degreeProgram}
-            onChange={(_, newValue) => setDegreeProgram(newValue)}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                variant="outlined"
-                label="Degree Program"
-                fullWidth
-              />
-            )}
-          />
+                  id="degree_program"
+                  options={degreeProgramData}
+                  getOptionLabel={(option) => option.program_name || ""}
+                  value={degreeProgram}
+                  onChange={(_, newValue) => setDegreeProgram(newValue)}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      variant="outlined"
+                      label="Degree Program"
+                      fullWidth
+                    />
+                  )}
+                />
               </FormControl>
               <Button
                 type="submit"
