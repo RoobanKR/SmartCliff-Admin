@@ -1,27 +1,28 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
+import { getAPIURL } from '../../../../../utils/utils';
 
 // Async thunk for fetching shines
 export const fetchShines = createAsyncThunk('shines/fetchShines', async () => {
-  const response = await axios.get('http://localhost:5353/getAll/about/shine');
+  const response = await axios.get(`${getAPIURL()}/getAll/about/shine`);
   return response.data.get_all_shine;
 });
 
 // Async thunk for fetching a shine by ID
 export const fetchShineById = createAsyncThunk('shines/fetchShineById', async (id) => {
-  const response = await axios.get(`http://localhost:5353/getById/about/shine/${id}`);
+  const response = await axios.get(`${getAPIURL()}/getById/about/shine/${id}`);
   return response.data.shineById; // Return the shine data
 });
 
 // Async thunk for deleting a shine
 export const deleteShine = createAsyncThunk('shines/deleteShine', async (id) => {
-  const response = await axios.delete(`http://localhost:5353/delete/about/shine/${id}`);
+  const response = await axios.delete(`${getAPIURL()}/delete/about/shine/${id}`);
   return { id, message: response.data.message[0].value };
 });
 
 // Async thunk for creating a shine
 export const createShine = createAsyncThunk('shines/createShine', async (formData) => {
-  const response = await axios.post('http://localhost:5353/create/about/shine', formData, {
+  const response = await axios.post(`${getAPIURL()}/create/about/shine`, formData, {
     headers: { 'Content-Type': 'multipart/form-data' }
   });
   return response.data.message[0].value; // Return the success message
@@ -29,7 +30,7 @@ export const createShine = createAsyncThunk('shines/createShine', async (formDat
 
 // Async thunk for updating a shine
 export const updateShine = createAsyncThunk('shines/updateShine', async ({ id, formData }) => {
-  const response = await axios.put(`http://localhost:5353/update/about/shine/${id}`, formData, {
+  const response = await axios.put(`${getAPIURL()}/update/about/shine/${id}`, formData, {
     headers: { 'Content-Type': 'multipart/form-data' }
   });
   return response.data.message[0].value; // Return the success message

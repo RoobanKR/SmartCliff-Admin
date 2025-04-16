@@ -30,7 +30,7 @@ export const getAllServiceAbout = createAsyncThunk(
   "serviceAbout/getAll",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get('http://localhost:5353/getAll/service-about');
+      const response = await axios.get(`${getAPIURL()}/getAll/service-about`);
       return response.data.get_all_services_about;
     } catch (error) {
       return rejectWithValue(error.response.data);
@@ -78,7 +78,7 @@ export const deleteServiceAbout = createAsyncThunk(
   "serviceAbout/deleteServiceAbout",
   async (id, { rejectWithValue }) => {
     try {
-      await axios.delete(`http://localhost:5353/delete/service-about/${id}`);
+      await axios.delete(`${getAPIURL()}/delete/service-about/${id}`);
       return id;
     } catch (error) {
       return rejectWithValue(error.response.data);
