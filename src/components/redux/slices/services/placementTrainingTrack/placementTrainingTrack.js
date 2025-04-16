@@ -1,12 +1,13 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+import { getAPIURL } from "../../../../../utils/utils";
 
 // Async Thunk to fetch placement training tracks
 export const fetchPlacementTrainingTracks = createAsyncThunk(
   "placementTrainingTrack/fetchPlacementTrainingTracks",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get("http://localhost:5353/getAll/service/placement-training-tracks");
+      const response = await axios.get(`${getAPIURL()}/getAll/service/placement-training-tracks`);
       return response.data.getAllPlacementtrainingtrack;
     } catch (error) {
       return rejectWithValue(error.response?.data || "Failed to fetch training tracks");
@@ -20,7 +21,7 @@ export const createPlacementTrainingTrack = createAsyncThunk(
   async (trackData, { rejectWithValue }) => {
     try {
       const response = await axios.post(
-        "http://localhost:5353/create/service/placement-training-track",
+        `${getAPIURL()}/service/placement-training-track`,
         trackData
       );
       return response.data;
@@ -36,7 +37,7 @@ export const deletePlacementTrainingTrack = createAsyncThunk(
   async (trackId, { rejectWithValue }) => {
     try {
       const response = await axios.delete(
-        `http://localhost:5353/delete/service/placement-training-track/${trackId}`
+        `${getAPIURL()}/delete/service/placement-training-track/${trackId}`
       );
       if (response.data.success) {
         return trackId; // Return deleted track ID for state update
@@ -54,7 +55,7 @@ export const fetchPlacementTrainingTrackById = createAsyncThunk(
     async (id, { rejectWithValue }) => {
       try {
         const response = await axios.get(
-          `http://localhost:5353/getById/service/placement-training-track/${id}`
+         `${getAPIURL()}/getById/service/placement-training-track/${id}`
         );
         console.log("Fetched track data:", response.data);
         return response.data.placementtrainingtrackById; // Make sure this is the correct key
@@ -69,7 +70,7 @@ export const fetchPlacementTrainingTrackById = createAsyncThunk(
     async ({ id, updatedData }, { rejectWithValue }) => {
       try {
         const response = await axios.put(
-          `http://localhost:5353/update/service/placement-training-track/${id}`,
+          `${getAPIURL()}/update/service/placement-training-track/${id}`,
           updatedData
         );
         return response.data;

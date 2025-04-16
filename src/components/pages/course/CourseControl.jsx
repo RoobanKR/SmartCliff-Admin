@@ -30,6 +30,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { useCookies } from "react-cookie";
 import { resetSignIn, userVerify } from "../../redux/slices/user/Signin";
+import { getAPIURL } from "../../../utils/utils";
 
 const CourseControl = () => {
   const dispatch = useDispatch();
@@ -75,7 +76,7 @@ const CourseControl = () => {
   const toggleCourseStatus = async (courseId, currentStatus) => {
     try {
       const response = await axios.put(
-        `http://localhost:5353/update/course/isopen/${courseId}`,
+        `${getAPIURL()}/update/course/isopen/${courseId}`,
         {},
         {
           headers: {
