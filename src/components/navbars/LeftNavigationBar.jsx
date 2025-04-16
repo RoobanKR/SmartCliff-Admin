@@ -1,6 +1,3 @@
-
-
-
 import * as React from "react";
 import { styled, useTheme } from "@mui/material/styles";
 import Box from "@mui/material/Box";
@@ -73,18 +70,30 @@ import EventIcon from "@mui/icons-material/Event";
 import BookIcon from "@mui/icons-material/Book";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import CodeIcon from "@mui/icons-material/Code";
-import { BusinessCenterSharp, CheckCircle, LocalPostOfficeOutlined, PriorityHighTwoTone } from "@material-ui/icons";
+import {
+  BusinessCenterSharp,
+  CheckCircle,
+  LocalPostOfficeOutlined,
+  PriorityHighTwoTone,
+} from "@material-ui/icons";
 import StepsIcon from "@material-ui/icons/ViewList";
 import { resetSignIn, userVerify } from "../redux/slices/user/Signin";
 import { useDispatch } from "react-redux";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-
-import { faBusinessTime, faGraduationCap,  faMessage, faComment, faQuestion, faAddressCard, faHome, faHistory } from '@fortawesome/free-solid-svg-icons'; // Import your desired icons
-import { useAppSelector } from "../redux/hooks";
-import { getAllUsers } from "../redux/slices/user/admin";
-
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+ 
+import {
+  faBusinessTime,
+  faGraduationCap,
+  faMessage,
+  faComment,
+  faQuestion,
+  faAddressCard,
+  faHome,
+  faHistory,
+} from "@fortawesome/free-solid-svg-icons"; // Import your desired icons
+ 
 const drawerWidth = 300;
-
+ 
 const openedMixin = (theme) => ({
   width: drawerWidth,
   transition: theme.transitions.create("width", {
@@ -93,7 +102,7 @@ const openedMixin = (theme) => ({
   }),
   overflowX: "hidden",
 });
-
+ 
 const closedMixin = (theme) => ({
   transition: theme.transitions.create("width", {
     easing: theme.transitions.easing.sharp,
@@ -105,7 +114,7 @@ const closedMixin = (theme) => ({
     width: `calc(${theme.spacing(8)} + 1px)`,
   },
 });
-
+ 
 const DrawerHeader = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
@@ -113,11 +122,11 @@ const DrawerHeader = styled("div")(({ theme }) => ({
   padding: theme.spacing(0, 1),
   ...theme.mixins.toolbar,
 }));
-
+ 
 const orangeIconStyle = {
-  color: "orange",
+  color: "#1976d2",
 };
-
+ 
 const AppBar = styled(MuiAppBar, {
   shouldForwardProp: (prop) => prop !== "open",
 })(({ theme, open }) => ({
@@ -135,7 +144,7 @@ const AppBar = styled(MuiAppBar, {
     }),
   }),
 }));
-
+ 
 const Drawer = styled(MuiDrawer, {
   shouldForwardProp: (prop) => prop !== "open",
 })(({ theme, open }) => ({
@@ -152,42 +161,34 @@ const Drawer = styled(MuiDrawer, {
     "& .MuiDrawer-paper": closedMixin(theme),
   }),
 }));
-
+ 
 export default function LeftNavigationBar({ Content }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [cookies, removeCookie] = useCookies(["token"]);
   const [anchorEl, setAnchorEl] = React.useState(false);
-
+ 
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
   const [dropdownStates, setDropdownStates] = React.useState({});
-
+ 
   const opens = Boolean(anchorEl);
-
+ 
   const handleClose = () => {
     setAnchorEl(null);
   };
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
-
+ 
   const handleDrawerOpen = () => {
     setOpen(true);
   };
-
+ 
   const handleDrawerClose = () => {
     setOpen(false);
   };
-  const user = useAppSelector((state) => state.userSignIn.user);
-  React.useEffect(() => {
-    const fetchUsers = async () => {
-      await dispatch(getAllUsers({ token: cookies.token }));
-    };
-    fetchUsers();
-  }, [dispatch, cookies.token]);
-
-
+ 
   React.useEffect(() => {
     if (!cookies.token || cookies.token === undefined) {
       dispatch(resetSignIn());
@@ -197,92 +198,94 @@ export default function LeftNavigationBar({ Content }) {
       console.log("user verify called");
     }
   }, [cookies]);
-
+ 
   const handleDropdownToggle = (dropdown) => {
     setDropdownStates((prev) => ({
       ...prev,
       [dropdown]: !prev[dropdown],
     }));
   };
-
+ 
   const handleLogout = () => {
     document.cookie.split(";").forEach((c) => {
       document.cookie = c
         .replace(/^ +/, "")
         .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
     });
-
+ 
     dispatch(resetSignIn());
     navigate(0);
   };
-
+ 
   const handleNavigation = (dropdown, action) => {
     const routes = {
       control: `/${dropdown}-control`,
       control: `/${dropdown}-control`,
     };
-
+ 
     navigate(routes[action]);
   };
-
+ 
   const modules = [
     {
       text: "Services",
-      icon: <FontAwesomeIcon icon={faBusinessTime} style={{ color: "orange" }} />,
+      icon: <FontAwesomeIcon icon={faBusinessTime} style={orangeIconStyle} />,
       dropdown: "Services",
       submodules: [
         {
           text: "Business Services",
-          link:"Business-Services",
+          link: "Business-Services",
           icon: <Business style={orangeIconStyle} />,
         },
         {
           text: "Services",
-          link:"Services",
+          link: "Services",
           icon: <DesignServicesRounded style={orangeIconStyle} />,
         },
         {
           text: "Services About",
-          link:"Services-About",
+          link: "Services-About",
           icon: <AbcOutlined style={orangeIconStyle} />,
         },
         {
           text: "Services Process",
-          link:"Services-Process",
-
+          link: "Services-Process",
+ 
           icon: <WifiProtectedSetupSharp style={orangeIconStyle} />,
         },
         {
           text: "Execution Highlights",
-          link:"Execution_Highlights",
+          link: "Execution_Highlights",
           icon: <HighlightAlt style={orangeIconStyle} />,
         },
         {
           text: "Execution Overview",
-          link:"Execution_Overview",
+          link: "Execution_Overview",
           icon: <HighQualityOutlined style={orangeIconStyle} />,
         },
         {
           text: "Placement Training Track",
-          link:"Placement-Training-Track",
+          link: "Placement-Training-Track",
           icon: <WorkOff style={orangeIconStyle} />,
         },
         {
           text: "Services Opportunity",
-          link:"Services-Opportunity",
+          link: "Services-Opportunity",
           icon: <SupervisedUserCircle CircleOutlined style={orangeIconStyle} />,
         },
       ],
     },
     {
-      text: "Degree Program", 
+      text: "Degree Program",
       icon: <AccountBalanceIcon style={orangeIconStyle} />,
       dropdown: "Degree Program",
       submodules: [
         {
           text: "College",
           link: "College",
-          icon: <FontAwesomeIcon icon={faGraduationCap} style={{ color: "orange" }} />,
+          icon: (
+            <FontAwesomeIcon icon={faGraduationCap} style={orangeIconStyle} />
+          ),
         },
         {
           text: "Company",
@@ -294,52 +297,52 @@ export default function LeftNavigationBar({ Content }) {
           link: "Degree_Program",
           icon: <Terminal style={orangeIconStyle} />,
         },
-       
+ 
         {
           text: "Our Program",
-          link:"Our_Program",
+          link: "Our_Program",
           icon: <Highlight style={orangeIconStyle} />,
         },
         {
           text: "Semester(Learning Path)",
-          link:"Semester",
+          link: "Semester",
           icon: <SystemSecurityUpdateRounded style={orangeIconStyle} />,
         },
         {
           text: "Skill Vertical",
-          link:"degreeprogram/skill-vertical",
+          link: "degreeprogram/skill-vertical",
           icon: <VerticalAlignCenter style={orangeIconStyle} />,
         },
         {
           text: "Outcomes",
-          link:"Outcomes",
+          link: "Outcomes",
           icon: <CheckCircle style={orangeIconStyle} />,
         },
         {
           text: "Our Partners",
-          link:"degreeprogram/our-partners",
+          link: "degreeprogram/our-partners",
           icon: <Person3TwoTone style={orangeIconStyle} />,
         },
         {
           text: "Our Sponosrs",
-          link:"degreeprogram/our-sponsors",
+          link: "degreeprogram/our-sponosrs",
           icon: <SportsOutlined style={orangeIconStyle} />,
         },
         {
           text: "Target Student",
-          link:"degreeprogram/target-student",
+          link: "degreeprogram/target-student",
           icon: <VerifiedUserOutlined style={orangeIconStyle} />,
         },
       ],
     },
     {
-      text: "Program", 
+      text: "Program",
       icon: <GolfCourse style={orangeIconStyle} />,
       dropdown: "Program",
       submodules: [
         {
           text: "Category",
-          link:"Category",
+          link: "Category",
           icon: <Category style={orangeIconStyle} />,
         },
         {
@@ -355,13 +358,13 @@ export default function LeftNavigationBar({ Content }) {
       ],
     },
     {
-      text: "Bussiness", 
-      icon: <BusinessCenterSharp   style={orangeIconStyle} />,
+      text: "Bussiness",
+      icon: <BusinessCenterSharp style={orangeIconStyle} />,
       dropdown: "Bussiness",
       submodules: [
         {
           text: "Current Availability",
-          link:"business/current-availability",
+          link: "business/current-availability",
           icon: <StayCurrentPortrait style={orangeIconStyle} />,
         },
         {
@@ -384,77 +387,73 @@ export default function LeftNavigationBar({ Content }) {
           link: "business/learningjourney",
           icon: <LeakRemoveTwoTone style={orangeIconStyle} />,
         },
-        
       ],
     },
-   
+ 
     {
-      text: "About", 
-      icon: <FontAwesomeIcon icon={faAddressCard} style={{ color: "orange" }} />,
+      text: "About",
+      icon: <FontAwesomeIcon icon={faAddressCard} style={orangeIconStyle} />,
       dropdown: "About",
       submodules: [
         {
           text: "About Us",
-          link:"about/aboutus",
+          link: "about/aboutus",
           icon: <StayCurrentPortrait style={orangeIconStyle} />,
         },
         {
           text: "Vsion & Mission",
           link: "about/vision-mission",
           icon: <VisibilityOutlined style={orangeIconStyle} />,
-           },
+        },
         {
           text: "Shine",
           link: "about/shine",
           icon: <ShieldMoon style={orangeIconStyle} />,
-        },    
+        },
         {
           text: "Yaerly Service",
           link: "about/yearly-service",
-          icon: <FontAwesomeIcon icon={faHistory} style={{ color: "orange" }} />,
-        },       
+          icon: <FontAwesomeIcon icon={faHistory} style={orangeIconStyle} />,
+        },
       ],
     },
     {
-      text: "Home", 
-      icon: <FontAwesomeIcon icon={faHome} style={{ color: "orange" }} />,
+      text: "Home",
+      icon: <FontAwesomeIcon icon={faHome} style={orangeIconStyle} />,
       dropdown: "Home",
       submodules: [
         {
           text: "Service Count",
-          link:"home/service-count",
+          link: "home/service-count",
           icon: <Numbers style={orangeIconStyle} />,
         },
         {
           text: "Execution Highlights",
-          link:"home/execution-highlights",
+          link: "home/execution-highlights",
           icon: <HighQualityRounded style={orangeIconStyle} />,
         },
-          
       ],
     },
-     {
-      text: "Common", 
-      icon: <FontAwesomeIcon icon={faComment} style={{ color: "orange" }} />,
+    {
+      text: "Common",
+      icon: <FontAwesomeIcon icon={faComment} style={orangeIconStyle} />,
       dropdown: "Common",
       submodules: [
         {
           text: "FAQ",
-          link:"FAQ",
-          icon: <FontAwesomeIcon icon={faQuestion} style={{ color: "orange" }} />,
+          link: "FAQ",
+          icon: <FontAwesomeIcon icon={faQuestion} style={orangeIconStyle} />,
         },
         {
           text: "Review",
-          link:"Review",
+          link: "Review",
           icon: <Reviews style={orangeIconStyle} />,
         },
-          
       ],
     },
     // Add more modules as needed
-    
   ];
-
+ 
   return (
     <Box sx={{ display: "flex" }}>
       <CssBaseline />
@@ -472,7 +471,7 @@ export default function LeftNavigationBar({ Content }) {
           >
             <MenuIcon />
           </IconButton>
-
+ 
           <div style={{ flexGrow: 1 }} />
           <Tooltip title="Account settings">
             <IconButton
@@ -483,11 +482,8 @@ export default function LeftNavigationBar({ Content }) {
               aria-haspopup="true"
               aria-expanded={opens ? "true" : undefined}
             >
-<Avatar
-  src={user ? user.profile_pic : 'default-avatar.png'} // Use a default avatar if user is null
-  sx={{ bgcolor: "#8B5CF6" }}
-/>
-         </IconButton>
+              <Avatar sx={{ width: 32, height: 32 }}></Avatar>
+            </IconButton>
           </Tooltip>
           <Menu
             anchorEl={anchorEl}
@@ -524,15 +520,13 @@ export default function LeftNavigationBar({ Content }) {
             transformOrigin={{ horizontal: "right", vertical: "top" }}
             anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
           >
-            <MenuItem
-             onClick={() => navigate('/admin/control')}
-            >
+            <MenuItem onClick={() => navigate("/admin/control")}>
               <ListItemIcon>
                 <AccountCircleIcon fontSize="small" />
               </ListItemIcon>
-               Users
+              Users
             </MenuItem>
-
+ 
             <MenuItem
               onClick={() => {
                 dispatch(resetSignIn());
@@ -554,53 +548,104 @@ export default function LeftNavigationBar({ Content }) {
             component="img"
             src={logo}
             alt="Logo"
-            sx={{ width: "100%", height: "30px", cursor: "pointer" }}
+            sx={{ width: "100%", height: "50px", cursor: "pointer" }}
             onClick={() => navigate("/adminhome")}
           />
           <IconButton onClick={handleDrawerClose}>
-            {theme.direction === "rtl" ? <ChevronRightIcon /> : <ChevronLeftIcon />}
+            {theme.direction === "rtl" ? (
+              <ChevronRightIcon />
+            ) : (
+              <ChevronLeftIcon />
+            )}
           </IconButton>
         </DrawerHeader>
         <Divider />
-
+ 
         <List>
           {modules.map(({ text, icon, dropdown, submodules }) => (
             <React.Fragment key={text}>
               <ListItem disablePadding sx={{ display: "block", paddingTop: 2 }}>
+                {/* Module */}
                 <ListItemButton
                   sx={{
                     minHeight: 48,
                     justifyContent: open ? "initial" : "center",
-                    px: 2.5,
+                    px: { xs: 1, sm: 2.5 }, // Responsive padding
+                    borderLeft: "5px solid #1976d2",
                   }}
                   onClick={() => handleDropdownToggle(dropdown)}
                 >
                   <ListItemIcon
                     sx={{
                       minWidth: 0,
-                      mr: open ? 3 : "auto",
+                      mr: open ? 2 : "auto",
                       justifyContent: "center",
-                      color: theme.palette.primary.main,
+                      fontSize: { xs: 18, sm: 22 },
                     }}
                   >
-                    {React.cloneElement(icon, { sx: { color: "#F28C28" } })}
+                    {React.cloneElement(icon, {
+                      sx: { color: "#405D72", fontSize: { xs: 20, sm: 24 } },
+                    })}
                   </ListItemIcon>
-                  <ListItemText primary={text} sx={{ opacity: open ? 1 : 0 }} />
+                  <ListItemText
+                    primary={text}
+                    primaryTypographyProps={{
+                      fontWeight: "bold",
+                      color: "#405D72",
+                      fontSize: { xs: "0.9rem", sm: "1rem" },
+                    }}
+                    sx={{ opacity: open ? 1 : 0 }}
+                  />
                 </ListItemButton>
-
+ 
                 {/* Submodules */}
-                <Collapse in={dropdownStates[dropdown]} timeout="auto" unmountOnExit>
+                <Collapse
+                  in={dropdownStates[dropdown]}
+                  timeout="auto"
+                  unmountOnExit
+                >
                   <List component="div" disablePadding>
                     {submodules.map((submodule) => (
                       <ListItemButton
                         key={submodule.text}
-                        onClick={() => handleNavigation(submodule.link, "control")}
-                        sx={{ pl: 4 }}
+                        onClick={() =>
+                          handleNavigation(submodule.link, "control")
+                        }
+                        sx={{
+                          pl: open ? { xs: 4, sm: 6 } : 2,
+                          mt: 1,
+                          borderLeft: "5px solid #F3CA52",
+                          borderRadius: "0 8px 8px 0",
+                          justifyContent: open ? "flex-start" : "center",
+                        }}
                       >
-                        <ListItemIcon>
-                          {React.cloneElement(submodule.icon, { sx: { color: "#F28C28" } })}
+                        <ListItemIcon
+                          sx={{
+                            minWidth: 0,
+                            justifyContent: "center",
+                            mr: open ? 2 : "auto",
+                          }}
+                        >
+                          {React.cloneElement(submodule.icon, {
+                            sx: {
+                              color: "#405D72",
+                              border: "1px solid #1976d2",
+                              borderRadius: "50%",
+                              padding: "4px",
+                              fontSize: { xs: 18, sm: 22 },
+                            },
+                          })}
                         </ListItemIcon>
-                        <ListItemText primary={submodule.text} />
+                        {open && (
+                          <ListItemText
+                            primary={submodule.text}
+                            primaryTypographyProps={{
+                              fontSize: { xs: "0.8rem", sm: "0.9rem" },
+                              fontStyle: "italic",
+                              color: "black",
+                            }}
+                          />
+                        )}
                       </ListItemButton>
                     ))}
                   </List>
@@ -611,7 +656,7 @@ export default function LeftNavigationBar({ Content }) {
           ))}
         </List>
       </Drawer>
-
+ 
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
         <DrawerHeader />
         {Content}
@@ -619,3 +664,5 @@ export default function LeftNavigationBar({ Content }) {
     </Box>
   );
 }
+ 
+ 
