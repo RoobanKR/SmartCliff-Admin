@@ -17,6 +17,8 @@ import {
   Chip,
   Container,
   CircularProgress,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -47,6 +49,7 @@ function TabPanel({ children, value, index, ...other }) {
       id={`course-tabpanel-${index}`}
       aria-labelledby={`course-tab-${index}`}
       {...other}
+      style={{ display: value === index ? 'block' : 'none' }}
     >
       {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
     </div>
@@ -67,6 +70,11 @@ const CourseEditForm = ({ onCancel }) => {
   const [error, setError] = useState(null);
   const [image, setImage] = useState(null);
   const [existingImage, setExistingImage] = useState(null);
+
+  // Snackbar state
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
 
   const [formData, setFormData] = useState({
     slug: "",
@@ -124,17 +132,22 @@ const CourseEditForm = ({ onCancel }) => {
             courseSummary: courseData.courseSummary,
             tool_software: courseData.tool_software || [],
           });
-          setExistingImage(courseData.image); // Set existing image URL
+
+          if (courseData.image) {
+            setExistingImage(courseData.image);
+          }
         })
         .catch((err) => {
           console.error("Error fetching course:", err);
           setError("Failed to load course data");
+          showSnackbar("Failed to load course data", "error");
         })
         .finally(() => {
           setFetchingCourse(false);
         });
     }
   }, [dispatch, courseId, isEditMode]);
+
   useEffect(() => {
     dispatch(fetchSoftwareTools());
     dispatch(fetchCategories());
@@ -150,7 +163,11 @@ const CourseEditForm = ({ onCancel }) => {
   };
 
   const handleFileChange = (files) => {
-    setImage(files[0]);
+    if (files && files.length > 0) {
+      setImage(files[0]);
+    } else {
+      setImage(null);
+    }
   };
 
   const handleOutlineChange = (index, value) => {
@@ -189,6 +206,21 @@ const CourseEditForm = ({ onCancel }) => {
     setFormData({ ...formData, courseSummary: newSummary });
   };
 
+  // Show snackbar with custom message and severity
+  const showSnackbar = (message, severity = 'success') => {
+    setSnackbarMessage(message);
+    setSnackbarSeverity(severity);
+    setSnackbarOpen(true);
+  };
+
+  // Handler for closing the snackbar
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setSnackbarOpen(false);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -211,6 +243,7 @@ const CourseEditForm = ({ onCancel }) => {
         formData.number_of_assessments
       );
       courseFormData.append("projects", formData.projects);
+
       if (formData.tool_software && Array.isArray(formData.tool_software)) {
         const toolIds = formData.tool_software.map((tool) => tool._id);
         courseFormData.append("tool_software", JSON.stringify(toolIds));
@@ -234,16 +267,44 @@ const CourseEditForm = ({ onCancel }) => {
         response = await dispatch(
           updateCourse({ courseId, courseFormData })
         ).unwrap();
-        alert("Course updated successfully!");
+        showSnackbar("Course updated successfully!");
       } else {
         response = await dispatch(createCourse(courseFormData)).unwrap();
-        alert("Course added successfully!");
+        showSnackbar("Course added successfully!");
       }
 
-      navigate("/Course-control");
+      // Navigate after a short delay to allow the user to see the message
+      setTimeout(() => {
+        navigate("/Course-control");
+      }, 2000);
     } catch (error) {
       console.error("Error submitting form:", error);
-      setError("An error occurred while saving the course");
+
+      // Handle different error formats
+      if (error.message && typeof error.message === 'object') {
+        const errorMsg = error.message.find(msg => msg.key === 'error');
+        if (errorMsg) {
+          setError(errorMsg.value);
+          showSnackbar(errorMsg.value, 'error');
+        } else {
+          setError('An error occurred while updating the course');
+          showSnackbar('An error occurred while updating the course', 'error');
+        }
+      } else if (error.data && error.data.message) {
+        const errorMessages = error.data.message;
+        if (Array.isArray(errorMessages)) {
+          const errorMsg = errorMessages.find(msg => msg.key === 'error');
+          const errorText = errorMsg ? errorMsg.value : 'An error occurred while updating the course';
+          setError(errorText);
+          showSnackbar(errorText, 'error');
+        } else {
+          setError('An error occurred while updating the course');
+          showSnackbar('An error occurred while updating the course', 'error');
+        }
+      } else {
+        setError('Network error. Please try again.');
+        showSnackbar('Network error. Please try again.', 'error');
+      }
     } finally {
       setLoading(false);
     }
@@ -260,45 +321,7 @@ const CourseEditForm = ({ onCancel }) => {
         }}
       >
         <CircularProgress />
-            <Typography
-              variant="h4"
-              sx={{
-                position: "relative",
-                padding: 0,
-                margin: 0,
-                fontFamily: 'Merriweather, serif',
-                fontWeight: 700, textAlign: 'center',
-                fontWeight: 300,
-                fontSize: { xs: "32px", sm: "40px" },
-                color: "#747474",
-                textAlign: "center",
-                textTransform: "uppercase",
-                paddingBottom: "5px",
-                mb: 5,
-                "&::before": {
-                  content: '""',
-                  width: "28px",
-                  height: "5px",
-                  display: "block",
-                  position: "absolute",
-                  bottom: "3px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
-                "&::after": {
-                  content: '""',
-                  width: "100px",
-                  height: "1px",
-                  display: "block",
-                  position: "relative",
-                  marginTop: "5px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
-              }}
-            >
+        <Typography variant="h6" sx={{ ml: 2 }}>
           Loading course data...
         </Typography>
       </Box>
@@ -310,45 +333,7 @@ const CourseEditForm = ({ onCancel }) => {
       Content={
         <Container maxWidth="lg" sx={{ mt: 3, mb: 3 }}>
           <Paper sx={{ p: 2, borderRadius: 2 }}>
-            <Typography
-              variant="h4"
-              sx={{
-                position: "relative",
-                padding: 0,
-                margin: 0,
-                fontFamily: 'Merriweather, serif',
-                fontWeight: 700, textAlign: 'center',
-                fontWeight: 300,
-                fontSize: { xs: "32px", sm: "40px" },
-                color: "#747474",
-                textAlign: "center",
-                textTransform: "uppercase",
-                paddingBottom: "5px",
-                mb: 5,
-                "&::before": {
-                  content: '""',
-                  width: "28px",
-                  height: "5px",
-                  display: "block",
-                  position: "absolute",
-                  bottom: "3px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
-                "&::after": {
-                  content: '""',
-                  width: "100px",
-                  height: "1px",
-                  display: "block",
-                  position: "relative",
-                  marginTop: "5px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
-              }}
-            >
+            <Typography variant="h5" gutterBottom>
               {isEditMode ? "Edit Course" : "Add New Course"}
             </Typography>
             {error && (
@@ -371,6 +356,7 @@ const CourseEditForm = ({ onCancel }) => {
               </Tabs>
             </Box>
             <form onSubmit={handleSubmit}>
+              {/* Basic Information Tab */}
               <TabPanel value={activeTab} index={0}>
                 <Grid container spacing={2}>
                   <Grid item xs={12} sm={6}>
@@ -427,7 +413,7 @@ const CourseEditForm = ({ onCancel }) => {
                       </Select>
                     </FormControl>
                   </Grid>
-                  <Grid item xs={12} sm={4}>
+                  <Grid item xs={12} sm={6}>
                     <Autocomplete
                       multiple
                       options={filteredSoftwareTools}
@@ -461,16 +447,36 @@ const CourseEditForm = ({ onCancel }) => {
                     )}
                   </Grid>
                   <Grid item xs={12}>
-                  <DropzoneArea
-      acceptedFiles={["image/*"]}
-      filesLimit={1}
-      dropzoneText={`${
-        isEditMode ? "Replace current image or " : ""
-      }Drag and drop an image here or click`}
-      onChange={handleFileChange}
-      name="image"
-      initialFiles={existingImage ? [existingImage] : []}
-    />
+                    <Typography variant="subtitle1" gutterBottom>
+                      Course Image
+                    </Typography>
+                    {existingImage && (
+                      <Box sx={{ mb: 2 }}>
+                        <Typography variant="caption" display="block" gutterBottom>
+                          Current image:
+                        </Typography>
+                        <img
+                          src={existingImage}
+                          alt="Current course"
+                          style={{
+                            maxWidth: '100%',
+                            maxHeight: '200px',
+                            marginBottom: '16px',
+                            borderRadius: '4px'
+                          }}
+                        />
+                      </Box>
+                    )}
+                    <DropzoneArea
+                      acceptedFiles={["image/*"]}
+                      filesLimit={1}
+                      dropzoneText={`${isEditMode ? "Replace current image or " : ""}Drag and drop an image here or click`}
+                      onChange={handleFileChange}
+                      showPreviews={true}
+                      showPreviewsInDropzone={false}
+                      showFileNames={true}
+                      maxFileSize={5000000}
+                    />
                   </Grid>
                   <Grid item xs={12}>
                     <TextField
@@ -484,7 +490,7 @@ const CourseEditForm = ({ onCancel }) => {
                       rows={3}
                       margin="normal"
                     />
- </Grid>
+                  </Grid>
                   <Grid item xs={12} sm={6}>
                     <TextField
                       fullWidth
@@ -539,23 +545,27 @@ const CourseEditForm = ({ onCancel }) => {
                     />
                   </Grid>
                 </Grid>
-                <Button
-                  onClick={() => setActiveTab(1)}
-                  variant="contained"
-                  color="primary"
-                  disabled={loading}
-                >
-                  Next
-                </Button>
+                <Box sx={{ display: "flex", justifyContent: "end", mt: 3 }}>
+                  <Button
+                    onClick={() => setActiveTab(1)}
+                    variant="contained"
+                    color="primary"
+                    disabled={loading}
+                  >
+                    Next
+                  </Button>
+                </Box>
               </TabPanel>
 
+              {/* Course Outline & Summary Tab */}
               <TabPanel value={activeTab} index={1}>
-                <Grid container spacing={2}>
+                <Grid container spacing={3}>
                   <Grid item xs={12}>
-                    <Typography variant="h6">Course Outline</Typography>
+                    <Typography variant="h6" gutterBottom>Course Outline</Typography>
                     {formData.courseOutline.map((outline, index) => (
-                      <Box key={index} display="flex" alignItems="center">
+                      <Box key={index} display="flex" alignItems="center" sx={{ mb: 2 }}>
                         <TextField
+                          fullWidth
                           label={`Module ${index + 1}`}
                           value={outline.module}
                           onChange={(e) =>
@@ -563,7 +573,10 @@ const CourseEditForm = ({ onCancel }) => {
                           }
                           required
                         />
-                        <IconButton onClick={() => removeOutline(index)}>
+                        <IconButton
+                          onClick={() => removeOutline(index)}
+                          disabled={formData.courseOutline.length <= 1}
+                        >
                           <DeleteIcon />
                         </IconButton>
                       </Box>
@@ -572,14 +585,15 @@ const CourseEditForm = ({ onCancel }) => {
                       onClick={addOutline}
                       startIcon={<AddIcon />}
                       variant="outlined"
+                      sx={{ mt: 1, mb: 3 }}
                     >
                       Add Module
                     </Button>
                   </Grid>
                   <Grid item xs={12}>
-                    <Typography variant="h6">Course Summary</Typography>
+                    <Typography variant="h6" gutterBottom>Course Summary</Typography>
                     {formData.courseSummary.map((summary, index) => (
-                      <Box key={index} display="flex" alignItems="center">
+                      <Box key={index} display="flex" alignItems="center" sx={{ mb: 2 }}>
                         <TextField
                           label={`Elements ${index + 1}`}
                           value={summary.elements}
@@ -591,6 +605,7 @@ const CourseEditForm = ({ onCancel }) => {
                             )
                           }
                           required
+                          sx={{ mr: 2, flexGrow: 1 }}
                         />
                         <TextField
                           label={`Hours ${index + 1}`}
@@ -599,8 +614,12 @@ const CourseEditForm = ({ onCancel }) => {
                             handleSummaryChange(index, "hours", e.target.value)
                           }
                           required
+                          sx={{ width: '120px', mr: 1 }}
                         />
-                        <IconButton onClick={() => removeSummary(index)}>
+                        <IconButton
+                          onClick={() => removeSummary(index)}
+                          disabled={formData.courseSummary.length <= 1}
+                        >
                           <DeleteIcon />
                         </IconButton>
                       </Box>
@@ -609,34 +628,53 @@ const CourseEditForm = ({ onCancel }) => {
                       onClick={addSummary}
                       startIcon={<AddIcon />}
                       variant="outlined"
+                      sx={{ mt: 1 }}
                     >
                       Add Summary
                     </Button>
                   </Grid>
                 </Grid>
+                <Box sx={{ display: "flex", justifyContent: "space-between", mt: 3 }}>
+                  <Button
+                    onClick={() => setActiveTab(0)}
+                    variant="outlined"
+                  >
+                    Back
+                  </Button>
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    color="primary"
+                    disabled={loading}
+                  >
+                    {loading
+                      ? isEditMode
+                        ? "Updating..."
+                        : "Saving..."
+                      : isEditMode
+                        ? "Update Course"
+                        : "Save Course"}
+                  </Button>
+                </Box>
               </TabPanel>
-
-              <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 3 }}>
-                <Button onClick={onCancel} variant="outlined" sx={{ mr: 1 }}>
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  variant="contained"
-                  color="primary"
-                  disabled={loading}
-                >
-                  {loading
-                    ? isEditMode
-                      ? "Updating..."
-                      : "Saving..."
-                    : isEditMode
-                    ? "Update Course"
-                    : "Save Course"}
-                </Button>
-              </Box>
             </form>
           </Paper>
+
+          {/* Snackbar for feedback messages */}
+          <Snackbar
+            open={snackbarOpen}
+            autoHideDuration={6000}
+            onClose={handleSnackbarClose}
+            anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+          >
+            <Alert
+              onClose={handleSnackbarClose}
+              severity={snackbarSeverity}
+              sx={{ width: '100%' }}
+            >
+              {snackbarMessage}
+            </Alert>
+          </Snackbar>
         </Container>
       }
     />

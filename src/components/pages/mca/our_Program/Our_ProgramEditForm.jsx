@@ -22,6 +22,7 @@ import { fetchServices } from "../../../redux/slices/services/services/Services"
 import { getAllBussinessServices } from "../../../redux/slices/services/bussinessServices/BussinessSerives";
 import { getAllCompanies } from "../../../redux/slices/mca/company/company";
 import { getAllColleges } from "../../../redux/slices/mca/college/college";
+import LeftNavigationBar from "../../../navbars/LeftNavigationBar";
 
 const Our_ProgramEditForm = () => {
   const { programId } = useParams();
@@ -208,6 +209,9 @@ const Our_ProgramEditForm = () => {
   };
 
   return (
+        <LeftNavigationBar
+          Content={
+    
     <Container component="main" maxWidth="md">
       <Paper elevation={3} sx={{ padding: 4, marginTop: 4 }}>
             <Typography
@@ -411,6 +415,7 @@ const Our_ProgramEditForm = () => {
         </form>
       </Paper>
     </Container>
+          }/>
   );
 };
 

@@ -14,7 +14,7 @@ import AddIcon from "@material-ui/icons/Add";
 import RemoveIcon from "@material-ui/icons/Remove";
 import { makeStyles } from "@material-ui/core/styles";
 import LeftNavigationBar from "../../navbars/LeftNavigationBar";
-import { Autocomplete, Grid, MenuItem, Tooltip } from "@mui/material";
+import { Alert, Autocomplete, Grid, MenuItem, Snackbar, Tooltip } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { createFAQ } from "../../redux/slices/faq/faq";
 import {
@@ -31,7 +31,8 @@ import {
 import { fetchServices } from "../../redux/slices/services/services/Services";
 import { getAllBussinessServices } from "../../redux/slices/services/bussinessServices/BussinessSerives";
 import { getAllColleges } from "../../redux/slices/mca/college/college";
- 
+import { useNavigate } from "react-router-dom";
+
 const useStyles = makeStyles((theme) => ({
   formContainer: {
     display: "flex",
@@ -64,9 +65,10 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: theme.spacing(2),
   },
 }));
- 
+
 const FAQAddForm = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const classes = useStyles();
   const courses = useSelector(selectCourses);
@@ -75,6 +77,9 @@ const FAQAddForm = () => {
   const [selectedBusinessService, setSelectedBusinessService] = useState(null);
   const [selectedProgram, setSelectedProgram] = useState(null);
   const [selectedCollege, setSelectedCollege] = useState(null);
+  const [openSnackBar, setOpenSnackBar] = useState(false);
+  const [snackMessage, setSnackMessage] = useState('');
+  const [snackSeverity, setSnackSeverity] = useState('success'); // 'success' or 'error'
   const serviceData = useSelector((state) => state.service.serviceData);
   const businessServiceData = useSelector((state) => state.businessService.businessServiceData);
   const degreeProgramData = useSelector((state) => state.degreeProgram.degreeProgramData);
@@ -99,7 +104,7 @@ const FAQAddForm = () => {
     }
   };
   const [faqItems, setFaqItems] = useState([{ question: "", answer: "" }]);
- 
+
   const handleAddItem = () => {
     setFaqItems([...faqItems, { question: "", answer: "" }]);
   };
@@ -108,11 +113,11 @@ const FAQAddForm = () => {
     newFaqItems.splice(index, 1);
     setFaqItems(newFaqItems);
   };
- 
+
   const handleCategoryChange = (event, newValue) => {
     dispatch(setSelectedCourse(newValue));
   };
- 
+
   const handleProgramChange = (event, newValue) => {
     dispatch(setSelectedDegreeProgram(newValue));
   };
@@ -122,60 +127,41 @@ const FAQAddForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
- 
+
     try {
       await dispatch(
-        createFAQ({ faqItems,type, selectedCourse, selectedProgram,selectedService,selectedBusinessService,selectedCollege })
+        createFAQ({ faqItems, type, selectedCourse, selectedProgram, selectedService, selectedBusinessService, selectedCollege })
       );
+      setSnackMessage('FAQ submitted successfully!');
+      setSnackSeverity('success');
+      setOpenSnackBar(true);
+
+      // Redirect after 3 seconds
+      setTimeout(() => {
+        // Replace '/control-page' with your actual control page route
+        navigate('/FAQ-control');
+      }, 3000);
+
     } catch (error) {
-      console.error("Error sending FAQ data:", error);
+      // console.error("Error sending FAQ data:", error);
+      setSnackMessage(`Error submitting FAQ: ${error.message}`);
+      setSnackSeverity('error');
+      setOpenSnackBar(true);
     }
   };
- 
- 
+
+
   return (
     <LeftNavigationBar
       Content={
         <Box className={classes.formContainer}>
           <form className={classes.form} onSubmit={handleSubmit}>
             <Typography
+              gutterBottom
               variant="h4"
-              sx={{
-                position: "relative",
-                padding: 0,
-                margin: 0,
-                fontFamily: 'Merriweather, serif',
-                fontWeight: 700, textAlign: 'center',
-                fontWeight: 300,
-                fontSize: { xs: "32px", sm: "40px" },
-                color: "#747474",
-                textAlign: "center",
-                textTransform: "uppercase",
-                paddingBottom: "5px",
-                mb: 5,
-                "&::before": {
-                  content: '""',
-                  width: "28px",
-                  height: "5px",
-                  display: "block",
-                  position: "absolute",
-                  bottom: "3px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
-                "&::after": {
-                  content: '""',
-                  width: "100px",
-                  height: "1px",
-                  display: "block",
-                  position: "relative",
-                  marginTop: "5px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
-              }}
+              align="center"
+              component="div"
+              style={{ fontFamily: "Serif" }}
             >
               FAQ Add Form
             </Typography>
@@ -220,7 +206,7 @@ const FAQAddForm = () => {
                 )}
               </div>
             ))}
- 
+
             <Tooltip title="Add Module">
               <IconButton
                 className={classes.addModuleButton}
@@ -232,19 +218,19 @@ const FAQAddForm = () => {
             <Divider style={{ margin: "16px 0" }} />
 
             <FormControl fullWidth margin="normal">
-  <InputLabel id="type-label">Business Type</InputLabel>
-  <Select
-    labelId="type-label"
-    name="type"
-    value={type}
-    onChange={handleTypeChange}
-    
-  >
-    <MenuItem value="hirefromus">Hire From Us</MenuItem>
-    <MenuItem value="trainfromus">Train From Us</MenuItem>
-    <MenuItem value="institute">Institute</MenuItem>
-  </Select>
-</FormControl>
+              <InputLabel id="type-label">Business Type</InputLabel>
+              <Select
+                labelId="type-label"
+                name="type"
+                value={type}
+                onChange={handleTypeChange}
+
+              >
+                <MenuItem value="hirefromus">Hire From Us</MenuItem>
+                <MenuItem value="trainfromus">Train From Us</MenuItem>
+                <MenuItem value="institute">Institute</MenuItem>
+              </Select>
+            </FormControl>
             <Divider style={{ margin: "16px 0" }} />
             <FormControl className={classes.formControl} fullWidth>
               <Autocomplete
@@ -263,7 +249,7 @@ const FAQAddForm = () => {
                 )}
               />
             </FormControl>
- 
+
             <Divider style={{ margin: "16px 0" }} />
             <Grid item xs={12}>
               <Autocomplete
@@ -334,6 +320,16 @@ const FAQAddForm = () => {
                 )}
               />
             </Grid><br />
+            <Snackbar
+              open={openSnackBar}
+              autoHideDuration={6000}
+              onClose={() => setOpenSnackBar(false)}
+              anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+            >
+              <Alert onClose={() => setOpenSnackBar(false)} severity={snackSeverity} variant="filled">
+                {snackMessage}
+              </Alert>
+            </Snackbar>
             <Button
               type="submit"
               variant="contained"
@@ -348,6 +344,5 @@ const FAQAddForm = () => {
     />
   );
 };
- 
+
 export default FAQAddForm;
- 

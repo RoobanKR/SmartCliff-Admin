@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { getAPIURL } from "../../../../utils/utils";
- 
+
 export const fetchCategories = createAsyncThunk(
   "faq/fetchCategories",
   async (_, { rejectWithValue }) => {
@@ -13,11 +13,11 @@ export const fetchCategories = createAsyncThunk(
     }
   }
 );
- 
+
 export const createFAQ = createAsyncThunk(
   "faq/createFAQ",
   async (
-    {  faqItems,type, selectedCourse, selectedProgram,selectedService,selectedBusinessService,selectedCollege },
+    { faqItems, type, selectedCourse, selectedProgram, selectedService, selectedBusinessService, selectedCollege },
     { rejectWithValue }
   ) => {
     try {
@@ -25,11 +25,11 @@ export const createFAQ = createAsyncThunk(
         faqItems,
         type,
         course: selectedCourse !== null ? selectedCourse._id : null,
-        degree_program:selectedProgram !== null ? selectedProgram._id:null,
+        degree_program: selectedProgram !== null ? selectedProgram._id : null,
 
-          service:selectedService !== null ? selectedService._id:null,
-          business_service:selectedBusinessService !== null ? selectedBusinessService._id:null,
-          college:selectedCollege !== null ? selectedCollege._id:null,
+        service: selectedService !== null ? selectedService._id : null,
+        business_service: selectedBusinessService !== null ? selectedBusinessService._id : null,
+        college: selectedCollege !== null ? selectedCollege._id : null,
       });
       return response.data;
     } catch (error) {
@@ -37,7 +37,7 @@ export const createFAQ = createAsyncThunk(
     }
   }
 );
- 
+
 export const fetchAllFAQs = createAsyncThunk(
   "faq/fetchAllFAQs",
   async (_, { rejectWithValue }) => {
@@ -49,7 +49,7 @@ export const fetchAllFAQs = createAsyncThunk(
     }
   }
 );
- 
+
 export const fetchFAQById = createAsyncThunk(
   "faq/fetchFAQById",
   async (faqId, { rejectWithValue }) => {
@@ -63,13 +63,13 @@ export const fetchFAQById = createAsyncThunk(
     }
   }
 );
- 
+
 export const deleteFAQById = createAsyncThunk(
   "faq/deleteFAQById",
   async (faqId, { rejectWithValue }) => {
     try {
       const response = await axios.delete(
-        `${getAPIURL()}/delete/faq/${faqId}`
+        `${getAPIURL()}/faq/delete/${faqId}`
       );
       return response.data;
     } catch (error) {
@@ -77,7 +77,7 @@ export const deleteFAQById = createAsyncThunk(
     }
   }
 );
- 
+
 export const updateFAQ = createAsyncThunk(
   "faq/updateFAQ",
   async ({ faqId, formData }, { rejectWithValue }) => {
@@ -92,14 +92,14 @@ export const updateFAQ = createAsyncThunk(
     }
   }
 );
- 
+
 const initialState = {
   categories: [],
   faq: [], // Ensure this is an array
   status: "idle", // Change the state name to 'status'
   selectedCourse: null,
 };
- 
+
 const faqSlice = createSlice({
   name: "faq",
   initialState: {
@@ -154,11 +154,10 @@ const faqSlice = createSlice({
     });
   },
 });
- 
+
 export const { setSelectedCourse } = faqSlice.actions;
 export const selectCategories = (state) => state.faq.categories;
 export const selectSelectedCourse = (state) => state.faq.selectedCourse;
 export const selectFAQs = (state) => state.faq.faq;
 export const selectStatus = (state) => state.faq.status;
 export default faqSlice.reducer;
- 
