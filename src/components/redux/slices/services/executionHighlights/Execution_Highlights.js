@@ -4,11 +4,18 @@ import { getAPIURL } from "../../../../../utils/utils";
 
 export const addExecutionHighlights = createAsyncThunk(
   "executionHighlights/addExecutionHighlights",
-  async (formData) => {
+  async ({formData,token}) => {
     try {
       const response = await Axios.post(
         `${getAPIURL()}/create/execution_highlight`,
-        formData
+        formData,
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       return response.data;
     } catch (error) {
@@ -93,6 +100,10 @@ const executionHighlightsSlice = createSlice({
       state.isError = false;
       state.error = "";
     },
+    clearUpdateStatus: (state) => {
+      state.updateSuccess = false;
+      state.updateError = null;
+    }
   },
   extraReducers: (builder) => {
     builder.addCase(addExecutionHighlights.pending, (state) => {
@@ -141,14 +152,20 @@ const executionHighlightsSlice = createSlice({
     builder.addCase(updateExecutionHighlights.pending, (state) => {
       state.isLoading = true;
       state.error = null;
+      state.updateSuccess = false;
+
     });
     builder.addCase(updateExecutionHighlights.fulfilled, (state, action) => {
       state.isLoading = false;
-      state.instructor = action.payload;
+      state.executionHighlight = action.payload; // Update state with new data
+      state.updateSuccess = true;
+      state.successMessage = action.payload.message || "Update successful";
     });
-    builder.addCase(updateExecutionHighlights.rejected, (state, action) => {
+        builder.addCase(updateExecutionHighlights.rejected, (state, action) => {
       state.isLoading = false;
       state.error = action.error.message;
+      state.updateSuccess = false;
+
     });
     builder.addCase(deleteExecutionHighlights.pending, (state) => {
       state.isLoading = true;
@@ -171,7 +188,7 @@ const executionHighlightsSlice = createSlice({
   },
 });
 
-export const { resetExecutionHighlights } = executionHighlightsSlice.actions;
+export const { resetExecutionHighlights,clearUpdateStatus } = executionHighlightsSlice.actions;
 
 export const selectExecutionHighlightsState = (state) =>
   state.executionHighlight;

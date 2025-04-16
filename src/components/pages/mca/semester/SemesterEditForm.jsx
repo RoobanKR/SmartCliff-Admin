@@ -10,6 +10,8 @@ import {
   Autocomplete,
   Container,
   Typography,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
@@ -33,6 +35,9 @@ function SemesterEditForm() {
   const semesterData = useSelector(selectSemesterData);
   const semesterError = useSelector(selectSemesterError);
 
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+
   useEffect(() => {
     dispatch(fetchDegreeProgramData());
     dispatch(fetchSemesterById(id));
@@ -55,9 +60,10 @@ function SemesterEditForm() {
       ...semesters,
       {
         heading: "",
+        semester: "",
         subheading: "",
         icon: "",
-        submain: [{ inner_heading: "", inner_subheading: "" }],
+        submain: [{ inner_heading: "", inner_subheading: "", inner_url: "" }],
       },
     ]);
   };
@@ -80,7 +86,7 @@ function SemesterEditForm() {
     });
     setSemesters(updatedSemesters);
   };
-  
+
 
   const handleAddInnerSchema = (index) => {
     setSemesters(prevSemesters => {
@@ -92,7 +98,8 @@ function SemesterEditForm() {
               ...semester.submain,
               {
                 inner_heading: "",
-                inner_subheading: ""
+                inner_subheading: "",
+                inner_url: ""
               }
             ]
           };
@@ -102,8 +109,8 @@ function SemesterEditForm() {
       return updatedSemesters;
     });
   };
-  
-  
+
+
 
   const handleRemoveInnerSchema = (semesterIndex, innerIndex) => {
     const updatedSemesters = [...semesters];
@@ -132,26 +139,57 @@ function SemesterEditForm() {
     });
     setSemesters(updatedSemesters);
   };
-  
+
 
   const handleDescriptionChange = (event) => {
     setDescription(event.target.value);
   };
 
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false);
+    navigate("/Semester-control");
+  };
+
   const handleFormSubmit = async () => {
     try {
+      // Filter out empty semesters and their empty submain items
+      const filteredSemesters = semesters.map(semester => {
+        // Filter out empty submain items
+        const filteredSubmain = semester.submain.filter(item =>
+          item.inner_heading || item.inner_subheading || item.inner_url
+        );
+
+        return {
+          ...semester,
+          submain: filteredSubmain
+        };
+      }).filter(semester =>
+        // Keep semester only if it has any filled field or non-empty submain array
+        semester.heading ||
+        semester.semester ||
+        semester.subheading ||
+        semester.icon ||
+        semester.submain.length > 0
+      );
+
       const formData = {
-        description,
-        semester: semesters,
-        degree_program: selectedProgram._id,
+        description: description || undefined,
+        semester: filteredSemesters,
+        degree_program: selectedProgram?._id,
       };
 
-      await dispatch(updateSemester({ semesterId: id, formData }));
+      // Only include properties that have values
+      const cleanFormData = Object.fromEntries(
+        Object.entries(formData).filter(([_, v]) => v !== undefined && v !== null)
+      );
 
-        navigate("/Semester-control");
+      await dispatch(updateSemester({ semesterId: id, formData: cleanFormData }));
+      setSnackbarMessage("Semester updated successfully!");
+      setSnackbarOpen(true);
     } catch (error) {
       console.error("Error submitting form:", error);
-      // Handle error states or display error messages to the user
+      setSnackbarMessage("Error updating semester. Please try again.");
+      setSnackbarOpen(true);
     }
   };
 
@@ -165,11 +203,45 @@ function SemesterEditForm() {
             style={{ padding: 20, maxHeight: "80vh", overflowY: "auto" }}
           >
             <FormControl component="fieldset">
-              <Typography
-                variant="h4"
-                align="center"
-                style={{ fontFamily: "Serif" }}
-              >
+            <Typography
+              variant="h4"
+              sx={{
+                position: "relative",
+                padding: 0,
+                margin: 0,
+                fontFamily: 'Merriweather, serif',
+                fontWeight: 700, textAlign: 'center',
+                fontWeight: 300,
+                fontSize: { xs: "32px", sm: "40px" },
+                color: "#747474",
+                textAlign: "center",
+                textTransform: "uppercase",
+                paddingBottom: "5px",
+                mb: 5,
+                "&::before": {
+                  content: '""',
+                  width: "28px",
+                  height: "5px",
+                  display: "block",
+                  position: "absolute",
+                  bottom: "3px",
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  backgroundColor: "#747474",
+                },
+                "&::after": {
+                  content: '""',
+                  width: "100px",
+                  height: "1px",
+                  display: "block",
+                  position: "relative",
+                  marginTop: "5px",
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  backgroundColor: "#747474",
+                },
+              }}
+            >
                 Semester Edit Form
               </Typography>{" "}
               <TextField
@@ -188,6 +260,15 @@ function SemesterEditForm() {
                       fullWidth
                       name="heading"
                       value={semester.heading}
+                      onChange={(event) =>
+                        handleSemesterChange(semesterIndex, event)
+                      }
+                    />
+                    <TextField
+                      label="Semester"
+                      fullWidth
+                      name="semester"
+                      value={semester.semester}
                       onChange={(event) =>
                         handleSemesterChange(semesterIndex, event)
                       }
@@ -239,14 +320,28 @@ function SemesterEditForm() {
                           )
                         }
                       />
-                      <IconButton
-                        aria-label="remove inner schema"
+                      <TextField
+                        label="Inner URL"
+                        fullWidth
+                        name="inner_url"
+                        value={inner.inner_url || ""}
+                        onChange={(event) =>
+                          handleInnerSchemaChange(
+                            semesterIndex,
+                            innerIndex,
+                            event
+                          )
+                        }
+                      />
+                      <Button
+                        variant="outlined"
+                        startIcon={<RemoveIcon />}
                         onClick={() =>
                           handleRemoveInnerSchema(semesterIndex, innerIndex)
                         }
                       >
-                        <RemoveIcon /> Remove Inner Schema
-                      </IconButton>
+                        Remove Inner Schema
+                      </Button>
                     </Grid>
                   ))}
                   <Grid item xs={12}>
@@ -259,12 +354,13 @@ function SemesterEditForm() {
                     </Button>
                   </Grid>
                   <Grid item xs={12}>
-                    <IconButton
-                      aria-label="remove semester"
+                    <Button
+                      variant="outlined"
+                      startIcon={<RemoveIcon />}
                       onClick={() => handleRemoveSemester(semesterIndex)}
                     >
-                      <RemoveIcon /> Remove Semester
-                    </IconButton>
+                      Remove Semester
+                    </Button>
                   </Grid>
                 </Grid>
               ))}
@@ -273,7 +369,7 @@ function SemesterEditForm() {
                 startIcon={<AddIcon />}
                 onClick={handleEditSemester}
               >
-                Update Semester
+                Add Semester
               </Button>
               <FormControl fullWidth>
                 <Autocomplete
@@ -308,6 +404,16 @@ function SemesterEditForm() {
               </Typography>
             )}
           </Paper>
+          <Snackbar
+            open={snackbarOpen}
+            autoHideDuration={6000}
+            onClose={handleSnackbarClose}
+            anchorOrigin={{ vertical: "top", horizontal: "right" }}
+          >
+            <Alert onClose={handleSnackbarClose} severity="success">
+              {snackbarMessage}
+            </Alert>
+          </Snackbar>
         </Container>
       }
     />

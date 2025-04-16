@@ -5,9 +5,9 @@ import { getAPIURL } from '../../../../utils/utils';
 
 export const createCourse = createAsyncThunk(
   'courses/createCourse',
-  async (formData, { rejectWithValue }) => {
+  async (formDataToSend, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${getAPIURL()}/create/course`, formData,
+      const response = await axios.post(`${getAPIURL()}/create/course`, formDataToSend,
       // {
       //   withCredentials: true,
       //   headers: {
@@ -51,23 +51,20 @@ export const fetchCourseById = createAsyncThunk(
 );
 
 export const updateCourse = createAsyncThunk(
-  "course/updateCourse",
-  async ({ courseId, updatedCourseData,token }, { rejectWithValue }) => {
-    try {
-      const response = await axios.put(`${getAPIURL()}/update/course/${courseId}`,
-        updatedCourseData,
-        {
-          withCredentials: true,
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      return response.data.updatedCourse;
-    } catch (error) {
-      return rejectWithValue(error.response.data);
-    }
+  'course/updateCourse',
+  async ({ courseId, courseFormData,token }) => {
+    const response = await axios.put(
+      `${getAPIURL()}/update/course/${courseId}`,
+      courseFormData,
+      {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
   }
 );
 export const deleteCourse = createAsyncThunk(
@@ -118,9 +115,9 @@ const courseReducer = createSlice({
     })
     .addCase(createCourse.rejected, (state, action) => {
       state.loading = false;
-      state.error = action.payload.message;
+      state.error = action.payload?.message || "Failed to create course!";
     })
-      .addCase(fetchCourse.pending, (state) => {
+     .addCase(fetchCourse.pending, (state) => {
         state.status = "loading";
       })
       .addCase(fetchCourse.fulfilled, (state, action) => {

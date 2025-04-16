@@ -32,7 +32,6 @@ const EngagedGovernanceControl = () => {
   const engagedGovernance = useSelector(
     (state) => state.engagedGovernance.engagedGovernance
   );
-  console.log("engagedGovernance", engagedGovernance);
   const [openDialog, setOpenDialog] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
 

@@ -15,13 +15,18 @@ import {
   DialogContent,
   DialogActions,
   Button,
+  Switch,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import LeftNavigationBar from "../../navbars/LeftNavigationBar";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { fetchCourse, deleteCourse, selectCourses } from "../../redux/slices/course/course";
+import {
+  fetchCourse,
+  deleteCourse,
+  selectCourses,
+} from "../../redux/slices/course/course";
 import { useDispatch, useSelector } from "react-redux";
 import { useCookies } from "react-cookie";
 import { resetSignIn, userVerify } from "../../redux/slices/user/Signin";
@@ -32,10 +37,9 @@ const CourseControl = () => {
 
   const [deleteId, setDeleteId] = useState(null);
   const courses = useSelector(selectCourses);
-  const [status, setStatus] = useState("idle");
-  const [error, setError] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
   const navigate = useNavigate();
+
   useEffect(() => {
     if (!cookies.token || cookies.token === undefined) {
       dispatch(resetSignIn());
@@ -60,13 +64,31 @@ const CourseControl = () => {
   };
 
   const confirmDelete = () => {
-    dispatch(deleteCourse({ courseId: deleteId, token: cookies.token }))
-      .then(() => {
+    dispatch(deleteCourse({ courseId: deleteId, token: cookies.token })).then(
+      () => {
         setOpenDialog(false);
         dispatch(fetchCourse()); // Refresh data after successful deletion
-      });
+      }
+    );
   };
-  
+
+  const toggleCourseStatus = async (courseId, currentStatus) => {
+    try {
+      const response = await axios.put(
+        `http://localhost:5353/update/course/isopen/${courseId}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${cookies.token}`,
+          },
+        }
+      );
+      console.log(response.data);
+      dispatch(fetchCourse()); // Refresh the course list after toggling
+    } catch (error) {
+      console.error("Error toggling course status:", error);
+    }
+  };
 
   return (
     <LeftNavigationBar
@@ -78,16 +100,49 @@ const CourseControl = () => {
           justifyContent="center"
           minHeight="100vh"
         >
-          <Typography
-            gutterBottom
-            variant="h4"
-            textAlign={"center"}
-            component="div"
-            fontFamily={"Serif"}
-          >
+            <Typography
+              variant="h4"
+              sx={{
+                position: "relative",
+                padding: 0,
+                margin: 0,
+                fontFamily: 'Merriweather, serif',
+                fontWeight: 700, textAlign: 'center',
+                fontWeight: 300,
+                fontSize: { xs: "32px", sm: "40px" },
+                color: "#747474",
+                textAlign: "center",
+                textTransform: "uppercase",
+                paddingBottom: "5px",
+                mb: 3,
+                mt: -4,
+                "&::before": {
+                  content: '""',
+                  width: "28px",
+                  height: "5px",
+                  display: "block",
+                  position: "absolute",
+                  bottom: "3px",
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  backgroundColor: "#747474",
+                },
+                "&::after": {
+                  content: '""',
+                  width: "100px",
+                  height: "1px",
+                  display: "block",
+                  position: "relative",
+                  marginTop: "5px",
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  backgroundColor: "#747474",
+                },
+              }}
+            >
             Course Control
           </Typography>
-          <br></br>
+          <br />
           <TableContainer component={Paper} elevation={3}>
             <Table>
               <TableHead>
@@ -110,6 +165,11 @@ const CourseControl = () => {
                   <TableCell
                     style={{ backgroundColor: "#0C2233", color: "white" }}
                   >
+                    Status
+                  </TableCell>
+                  <TableCell
+                    style={{ backgroundColor: "#0C2233", color: "white" }}
+                  >
                     Actions
                   </TableCell>
                 </TableRow>
@@ -121,12 +181,19 @@ const CourseControl = () => {
                       <TableCell>{course.course_name}</TableCell>
                       <TableCell>
                         <img
-                          src={course.images[0]}
+                          src={course.image}
                           alt={course.course_name}
                           style={{ maxWidth: "100px", maxHeight: "100px" }}
                         />
                       </TableCell>
                       <TableCell>{course.short_description}</TableCell>
+                      <TableCell>
+                        <Switch
+                          checked={course.isOpen} // Use isOpen from your data
+                          onChange={() => toggleCourseStatus(course._id, course.isOpen)}
+                          color="primary"
+                        />
+                      </TableCell>
                       <TableCell>
                         <IconButton
                           onClick={() => handleEdit(course._id)}
@@ -152,7 +219,9 @@ const CourseControl = () => {
           <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
             <DialogTitle>Delete Course</DialogTitle>
             <DialogContent>
-              <Typography>Are you sure you want to delete this course?</Typography>
+              <Typography>
+                Are you sure you want to delete this course?
+              </Typography>
             </DialogContent>
             <DialogActions>
               <Button onClick={() => setOpenDialog(false)}>Cancel</Button>

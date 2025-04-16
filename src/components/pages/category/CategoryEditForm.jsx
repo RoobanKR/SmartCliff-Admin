@@ -13,7 +13,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { Formik, Field } from "formik";
 import * as Yup from "yup";
 import { useNavigate, useParams } from "react-router-dom";
-import { fetchCategoryById, updateCategory } from "../../redux/slices/category/category";
+import {
+  fetchCategoryById,
+  updateCategory,
+} from "../../redux/slices/category/category";
 import { useCookies } from "react-cookie";
 import { resetSignIn, userVerify } from "../../redux/slices/user/Signin";
 
@@ -98,11 +101,43 @@ const CategoryEditForm = () => {
             }}
           >
             <Typography
-              gutterBottom
               variant="h4"
-              textAlign={"center"}
-              component="div"
-              fontFamily={"Serif"}
+              sx={{
+                position: "relative",
+                padding: 0,
+                margin: 0,
+                fontFamily: 'Merriweather, serif',
+                fontWeight: 700, textAlign: 'center',
+                fontWeight: 300,
+                fontSize: { xs: "32px", sm: "40px" },
+                color: "#747474",
+                textAlign: "center",
+                textTransform: "uppercase",
+                paddingBottom: "5px",
+                mb: 5,
+                "&::before": {
+                  content: '""',
+                  width: "28px",
+                  height: "5px",
+                  display: "block",
+                  position: "absolute",
+                  bottom: "3px",
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  backgroundColor: "#747474",
+                },
+                "&::after": {
+                  content: '""',
+                  width: "100px",
+                  height: "1px",
+                  display: "block",
+                  position: "relative",
+                  marginTop: "5px",
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  backgroundColor: "#747474",
+                },
+              }}
             >
               Category Edit Form
             </Typography>
@@ -177,7 +212,11 @@ const CategoryEditForm = () => {
                         >
                           Existing Image:
                         </Typography>
-                        <img src={category.image} alt="Existing category image" style={{ width: '100%' }} />
+                        <img
+                          src={category.image}
+                          alt="Existing category image"
+                          style={{ width: "100%" }}
+                        />
                       </Grid>
                     )}
                   </Grid>

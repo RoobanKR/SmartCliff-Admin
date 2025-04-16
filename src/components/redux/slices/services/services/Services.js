@@ -39,6 +39,7 @@ export const addService = createAsyncThunk(
 export const fetchServiceById = createAsyncThunk(
   "service/fetchById",
   async (serviceId) => {
+    console.log("Fetching service with ID:", serviceId); // Debugging
     try {
       const response = await Axios.get(
         `${getAPIURL()}/getById/service/${serviceId}`

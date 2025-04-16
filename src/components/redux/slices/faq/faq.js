@@ -17,16 +17,19 @@ export const fetchCategories = createAsyncThunk(
 export const createFAQ = createAsyncThunk(
   "faq/createFAQ",
   async (
-    { faqItems, selectedCourse, selectedDegreeProgram,selectedService },
+    {  faqItems,type, selectedCourse, selectedProgram,selectedService,selectedBusinessService,selectedCollege },
     { rejectWithValue }
   ) => {
     try {
       const response = await axios.post(`${getAPIURL()}/create/faq`, {
         faqItems,
+        type,
         course: selectedCourse !== null ? selectedCourse._id : null,
-        degree_program:
-          selectedDegreeProgram !== null ? selectedDegreeProgram._id : null,
+        degree_program:selectedProgram !== null ? selectedProgram._id:null,
+
           service:selectedService !== null ? selectedService._id:null,
+          business_service:selectedBusinessService !== null ? selectedBusinessService._id:null,
+          college:selectedCollege !== null ? selectedCollege._id:null,
       });
       return response.data;
     } catch (error) {
@@ -52,9 +55,9 @@ export const fetchFAQById = createAsyncThunk(
   async (faqId, { rejectWithValue }) => {
     try {
       const response = await axios.get(
-        `${getAPIURL()}/get/faq/${faqId}`
+        `${getAPIURL()}/faq/getById/${faqId}`
       );
-      return response.data;
+      return response.data.FaqById;
     } catch (error) {
       return rejectWithValue(error.response.data);
     }
@@ -80,7 +83,7 @@ export const updateFAQ = createAsyncThunk(
   async ({ faqId, formData }, { rejectWithValue }) => {
     try {
       const response = await axios.put(
-        `${getAPIURL()}/faq/update/${faqId}`,
+        `${getAPIURL()}/faq/edit/${faqId}`,
         formData
       );
       return response.data;

@@ -83,7 +83,6 @@ const SuperAdminRegister = () => {
             navigate("/signin");
         } else {
             dispatch(userVerify({ token: cookies.token }));
-            console.log("user verify called");
         }
     }, [cookies]);
 

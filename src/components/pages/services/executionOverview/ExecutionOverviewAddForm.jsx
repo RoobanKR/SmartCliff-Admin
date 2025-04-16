@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   TextField,
   Button,
@@ -6,166 +6,162 @@ import {
   Grid,
   Typography,
   Paper,
-  Select,
-  MenuItem,
   FormControl,
-  InputLabel,
   Autocomplete,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import LeftNavigationBar from "../../../navbars/LeftNavigationBar";
 import { fetchServices } from "../../../redux/slices/services/services/Services";
 import { useDispatch, useSelector } from "react-redux";
-import "react-datepicker/dist/react-datepicker.css";
 import { fetchExecutionHighlights } from "../../../redux/slices/services/executionHighlights/Execution_Highlights";
-import { RemoveCircleOutline } from "@mui/icons-material";
+import { CloudUpload, DeleteOutline, RemoveCircleOutline } from "@mui/icons-material";
 import { createExecutionOverview } from "../../../redux/slices/services/executionOverview/ExecutionOverview";
+import { getAllBussinessServices } from "../../../redux/slices/services/bussinessServices/BussinessSerives";
+import { useDropzone } from "react-dropzone";
+import { useNavigate } from "react-router-dom";
 
 const ExecutionOverviewAddForm = () => {
   const dispatch = useDispatch();
-  const [name, setName] = useState("");
-  const [fields, setFields] = useState([{ type: "", typeName: "" }]);
+    const navigate = useNavigate();
+  
   const [selectedService, setSelectedService] = useState(null);
-  const [status, setStatus] = useState("");
   const serviceData = useSelector((state) => state.service.serviceData);
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const [duration, setDuration] = useState("");
   const executionHighlights = useSelector(
     (state) => state.executionHighlights.executionHighlights
   );
-  const [selectedStack, setselectedStack] = useState(null);
-  const [year, setYear] = useState("");
+  const [selectedBusinessService, setSelectedBusinessService] = useState(null);
+  const businessServiceData = useSelector(
+    (state) => state.businessService.businessServiceData
+  );
+  const [filteredServices, setFilteredServices] = useState([]);
+  const [name, setName] = useState("");
   const [errors, setErrors] = useState({
     name: "",
-    duration: "",
-    year: "",
+    image: "",
   });
-  const [stack, setStack] = useState("");
-  const [count, setCount] = useState("");
-  const [touchedFields, setTouchedFields] = useState({
-    stack: false,
-    count: false,
-    image: false,
-    service: false,
+  const [uploadedImage, setUploadedImage] = useState(null);
+  const [sections, setSections] = useState([{ title: "", count: "" }]);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+
+  const onDrop = useCallback((acceptedFiles) => {
+    const file = acceptedFiles[0];
+    if (!file) {
+      setErrors((prev) => ({ ...prev, image: "Invalid file" }));
+      return;
+    }
+
+    const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
+    if (!validTypes.includes(file.type)) {
+      setErrors((prev) => ({ ...prev, image: "Only image files are allowed" }));
+      return;
+    }
+
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
+      setErrors((prev) => ({ ...prev, image: "File size should be less than 5MB" }));
+      return;
+    }
+
+    setErrors((prev) => ({ ...prev, image: "" }));
+    setUploadedImage(Object.assign(file, {
+      preview: URL.createObjectURL(file)
+    }));
+  }, []);
+
+  const removeImage = () => {
+    setUploadedImage(null);
+  };
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: {
+      'image/jpeg': ['.jpeg', '.jpg'],
+      'image/png': ['.png'],
+      'image/gif': ['.gif']
+    },
+    multiple: false
   });
 
   useEffect(() => {
+    return () => {
+      if (uploadedImage) {
+        URL.revokeObjectURL(uploadedImage.preview);
+      }
+    };
+  }, [uploadedImage]);
+
+  useEffect(() => {
     dispatch(fetchServices());
-    dispatch(fetchExecutionHighlights());
+    dispatch(getAllBussinessServices());
   }, [dispatch]);
-
-  const handleAddField = () => {
-    setFields([...fields, { type: "", typeName: "" }]);
-  };
-
-  const handleFieldChange = (index, field, value) => {
-    const updatedFields = [...fields];
-    updatedFields[index][field] = value;
-    setFields(updatedFields);
-    setErrors({
-      ...errors,
-      [field]: value.trim() ? "" : `${field} is required`,
-    });
-  };
-
-  const handleChange = (event) => {
-    const { name, value } = event.target;
-
-    // Update state for the respective field
-    switch (name) {
-      case "stack":
-        // Validation for stack (only alphabets)
-        if (!/^[a-zA-Z\s]*$/.test(value)) {
-          setErrors((prev) => ({
-            ...prev,
-            stack: "Stack must contain only letters",
-          }));
-        } else {
-          setErrors((prev) => ({ ...prev, stack: "" }));
-        }
-        setStack(value);
-        break;
-      case "count":
-        // Validation for count (only digits)
-        if (!/^\d+$/.test(value)) {
-          setErrors((prev) => ({ ...prev, count: "Count must be a number" }));
-        } else {
-          setErrors((prev) => ({ ...prev, count: "" }));
-        }
-        setCount(value);
-        break;
-      case "year":
-        // Validation for year (only digits from 1947 to 2050)
-        if (!/^(19[4-9]\d|20[0-4]\d|2050)$/.test(value)) {
-          setErrors((prev) => ({
-            ...prev,
-            year: "Year must be between 1947 and 2050",
-          }));
-        } else {
-          setErrors((prev) => ({ ...prev, year: "" }));
-        }
-
-        setYear(value);
-        break;
-      default:
-        break;
-    }
-
-    setTouchedFields((prev) => ({ ...prev, [name]: true }));
-  };
-
-  const handleRemoveField = (index) => {
-    // Define handleRemoveField function
-    const updatedFields = [...fields];
-    updatedFields.splice(index, 1);
-    setFields(updatedFields);
-  };
 
   const handleServiceChange = (_, newValue) => {
     setSelectedService(newValue);
   };
 
-  const handleStackChange = (_, newValue) => {
-    setselectedStack(newValue);
+  const handleBussinessServiceChange = (_, newValue) => {
+    setSelectedBusinessService(newValue);
+    if (newValue) {
+      const filtered = serviceData.filter(
+        (service) => service.business_services?._id === newValue._id
+      );
+      setFilteredServices(filtered);
+    } else {
+      setFilteredServices([]);
+    }
+  };
+
+ const handleSectionChange = (index, field, value) => {
+    const updatedSections = [...sections];
+    updatedSections[index][field] = value;
+    setSections(updatedSections);
+  };
+
+  const handleAddSection = () => {
+    setSections([...sections, { title: "", count: "" }]);
+  };
+
+  const handleRemoveSection = (index) => {
+    const updatedSections = [...sections];
+    updatedSections.splice(index, 1);
+    setSections(updatedSections);
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
-      // Validate form fields before submission
-      if (!name.trim() || !duration.trim() || !year.trim()) {
-        setErrors({
-          name: !name.trim() ? "Name is required" : "",
-          duration: !duration.trim() ? "Duration is required" : "",
-          year: !year.trim() ? "Year is required" : "",
-        });
-        return;
+      const formData = new FormData();
+      formData.append('name', name);
+      formData.append('service', selectedService._id);
+      formData.append('business_service', selectedBusinessService._id);
+      formData.append('sections', JSON.stringify(sections));
+
+      if (uploadedImage) {
+        formData.append('image', uploadedImage);
       }
 
-      // Dispatch the createExecutionOverview action with the form data
-      await dispatch(
-        createExecutionOverview({
-          type: fields.map((field) => field.type),
-          typeName: fields.map((field) => field.typeName),
-          batchName: name,
-          stack: selectedStack,
-          duration: duration,
-          status: status,
-          year: year,
-          service: selectedService,
-        })
-      );
+      await dispatch(createExecutionOverview(formData));
 
-      // Reset form fields after successful submission
+      // Show success message and open Snackbar
+      setSuccessMessage("Execution Overview created successfully!");
+      setOpenSnackbar(true);
+
+      // Reset form
       setName("");
-      setFields([{ type: "", typeName: "" }]);
       setSelectedService(null);
-      setStatus("");
-      setSelectedDate(new Date());
-      setDuration("");
-      setselectedStack(null);
-      setYear("");
-      setErrors({ name: "", duration: "", year: "" });
+      setSelectedBusinessService(null);
+      setUploadedImage(null);
+      setSections([{ title: "", count: "" }]);
+      setErrors({ name: "", image: "" });
+
+      // Redirect after a short delay
+      setTimeout(() => {
+        // Replace with your redirect logic, e.g., navigate to another page
+        navigate("/Execution_Overview-control ");
+      }, 2000);
     } catch (error) {
       console.error("Error:", error);
     }
@@ -178,139 +174,75 @@ const ExecutionOverviewAddForm = () => {
           elevation={3}
           style={{ padding: 20, margin: "auto", maxWidth: 600 }}
         >
-          <Typography
-            gutterBottom
-            variant="h4"
-            align="center"
-            component="div"
-            style={{ fontFamily: "Serif" }}
-          >
+            <Typography
+              variant="h4"
+              sx={{
+                position: "relative",
+                padding: 0,
+                margin: 0,
+                fontFamily: 'Merriweather, serif',
+                fontWeight: 700, textAlign: 'center',
+                fontWeight: 300,
+                fontSize: { xs: "32px", sm: "40px" },
+                color: "#747474",
+                textAlign: "center",
+                textTransform: "uppercase",
+                paddingBottom: "5px",
+                mb: 5,
+                "&::before": {
+                  content: '""',
+                  width: "28px",
+                  height: "5px",
+                  display: "block",
+                  position: "absolute",
+                  bottom: "3px",
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  backgroundColor: "#747474",
+                },
+                "&::after": {
+                  content: '""',
+                  width: "100px",
+                  height: "1px",
+                  display: "block",
+                  position: "relative",
+                  marginTop: "5px",
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  backgroundColor: "#747474",
+                },
+              }}
+            >
             Add Execution Overview
           </Typography>
           <br />
 
           <form onSubmit={handleSubmit}>
             <Grid container direction="column" spacing={2}>
-              {fields.map((field, index) => (
-                <Grid item key={index}>
-                  <Grid container spacing={2} alignItems="center">
-                    <Grid item xs={12}>
-                      <FormControl variant="outlined" fullWidth>
-                        <InputLabel>Type</InputLabel>
-                        <Select
-                          value={field.type}
-                          onChange={(e) =>
-                            handleFieldChange(index, "type", e.target.value)
-                          }
-                          label="Type"
-                          fullWidth
-                          required
-                        >
-                          <MenuItem value="Clientname">Client Name</MenuItem>
-                          <MenuItem value="Institution Name">
-                            Institution Name
-                          </MenuItem>
-                          <MenuItem value="Industry Partner">
-                            Industry Partner
-                          </MenuItem>
-                          <MenuItem value="College Name">College Name</MenuItem>
-                        </Select>
-                      </FormControl>
-                    </Grid>
-                  </Grid>
-                  <br />
-                  <Grid container spacing={2} alignItems="center">
-                    <Grid item xs={12}>
-                      <TextField
-                        label="Type Name"
-                        variant="outlined"
-                        value={field.typeName}
-                        onChange={(e) =>
-                          handleFieldChange(index, "typeName", e.target.value)
-                        }
-                        fullWidth
-                        required
-                      />
-                    </Grid>
-                    {index === fields.length - 1 && (
-                      <Grid item>
-                        <IconButton onClick={handleAddField}>
-                          <AddIcon />
-                        </IconButton>
-                      </Grid>
-                    )}
-                    {index !== 0 && (
-                      <Grid item>
-                        <IconButton onClick={() => handleRemoveField(index)}>
-                          <RemoveCircleOutline />
-                          hai
-                        </IconButton>
-                      </Grid>
-                    )}
-                  </Grid>
-                </Grid>
-              ))}
-              <Grid item xs={12}>
-                <TextField
-                  margin="normal"
-                  required
-                  fullWidth
-                  id="name"
-                  label="BatchName"
-                  name="name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  error={Boolean(errors.name)}
-                  helperText={errors.name}
-                  InputProps={{
-                    inputProps: {
-                      pattern: /^[a-zA-Z0-9\s/]*$/,
-                    },
-                  }}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  margin="normal"
-                  required
-                  fullWidth
-                  id="duration"
-                  label="duration"
-                  name="duration"
-                  value={duration}
-                  onChange={(e) => setDuration(e.target.value)}
-                  error={Boolean(errors.duration)}
-                  helperText={errors.duration}
-                  inputProps={{
-                    pattern: /^[0-9a-zA-Z\s/]*$/,
-                  }}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  margin="normal"
-                  required
-                  fullWidth
-                  id="year"
-                  label="year"
-                  name="year"
-                  value={year}
-                  onChange={(e) => setYear(e.target.value)}
-                  error={Boolean(errors.year)}
-                  helperText={errors.year}
-                  InputProps={{
-                    inputProps: {
-                      pattern: "^(19[4-9]\\d|20[0-4]\\d|2050)$",
-                    },
-                  }}
-                />
-              </Grid>
               <Grid item xs={12}>
                 <FormControl fullWidth>
                   <Autocomplete
+                    id="Business Services"
+                    options={businessServiceData || []}
+                    getOptionLabel={(option) => option?.name || ""}
+                    value={selectedBusinessService}
+                    onChange={handleBussinessServiceChange}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        variant="outlined"
+                        label="Business Services"
+                        fullWidth
+                      />
+                    )}
+                  />
+                </FormControl>
+                <br /><br />
+                <FormControl fullWidth>
+                  <Autocomplete
                     id="service"
-                    options={serviceData || []}
-                    getOptionLabel={(option) => (option ? option.title : "")}
+                    options={filteredServices || []}
+                    getOptionLabel={(option) => option?.title || ""}
                     value={selectedService}
                     onChange={handleServiceChange}
                     renderInput={(params) => (
@@ -326,40 +258,118 @@ const ExecutionOverviewAddForm = () => {
                 </FormControl>
               </Grid>
               <Grid item xs={12}>
-                <FormControl fullWidth>
-                  <Autocomplete
-                    id="stack"
-                    options={executionHighlights || []}
-                    getOptionLabel={(option) => (option ? option.stack : "")}
-                    value={selectedStack}
-                    onChange={handleStackChange}
-                    renderInput={(params) => (
+                <TextField
+                  margin="normal"
+                  required
+                  fullWidth
+                  id="name"
+                  label="Name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  error={Boolean(errors.name)}
+                  helperText={errors.name}
+                />
+              </Grid>
+
+              {/* Sections Input */}
+              {sections.map((section, index) => (
+                <Grid item key={index}>
+                  <Grid container spacing={2} alignItems="center">
+                    <Grid item xs={5}>
                       <TextField
-                        {...params}
+                        label="Section Title"
                         variant="outlined"
-                        label="stack"
+                        value={section.title}
+                        onChange={(e) =>
+                          handleSectionChange(index, "title", e.target.value)
+                        }
                         fullWidth
                         required
                       />
+                    </Grid>
+                    <Grid item xs={5}>
+                      <TextField
+                        label="Count"
+                        variant="outlined"
+                        type="number"
+                        value={section.count}
+                        onChange={(e) =>
+                          handleSectionChange(index, "count", e.target.value)
+                        }
+                        fullWidth
+                        required
+                      />
+                    </Grid>
+                    {index === sections.length - 1 && (
+                      <Grid item>
+                        <IconButton onClick={handleAddSection}>
+                          <AddIcon color="secondary" />
+                        </IconButton>
+                      </Grid>
                     )}
-                  />
-                </FormControl>
-              </Grid>
+                    {index !== 0 && (
+                      <Grid item>
+                        <IconButton onClick={() => handleRemoveSection(index)}>
+                          <RemoveCircleOutline color="secondary" />
+                        </IconButton>
+                      </Grid>
+                    )}
+                  </Grid>
+                </Grid>
+              ))}
+
               <Grid item xs={12}>
-                <FormControl variant="outlined" fullWidth>
-                  <InputLabel>Status</InputLabel>
-                  <Select
-                    value={status}
-                    onChange={(e) => setStatus(e.target.value)}
-                    label="Status"
-                    fullWidth
-                    required
+                <div 
+                  {...getRootProps()} 
+                  style={{
+                    border: '2px dashed #cccccc',
+                    borderRadius: '4px',
+                    padding: '20px',
+                    textAlign: 'center',
+                    cursor: 'pointer',
+                    backgroundColor: isDragActive ? '#f0f0f0' : 'white'
+                  }}
+                >
+                  <input {...getInputProps()} />
+                  <CloudUpload style={{ fontSize: 50, color: '#a0a0a0' }} />
+                  {uploadedImage ? (
+                    <div>
+                      <img 
+                        src={uploadedImage.preview} 
+                        alt="Preview" 
+                        style={{ 
+                          maxWidth: '100%', 
+                          maxHeight: '200px', 
+                          marginTop: '10px' 
+                        }} 
+                      />
+                      <Button 
+                        startIcon={<DeleteOutline />} 
+                        onClick={removeImage} 
+                        color="secondary"
+                      >
+                        Remove Image
+                      </Button>
+                    </div>
+                  ) : (
+                    <Typography variant="body2" color="textSecondary">
+                      {isDragActive 
+                        ? "Drop the file here ..." 
+                        : "Drag 'n' drop an image here, or click to select a file"}
+                    </Typography>
+                  )}
+                </div>
+                {errors.image && (
+                  <Typography 
+                    color="error" 
+                    variant="body2" 
+                    style={{ marginTop: '10px' }}
                   >
-                    <MenuItem value="in-progress">In-progress</MenuItem>
-                    <MenuItem value="completed">Completed</MenuItem>
-                  </Select>
-                </FormControl>
+                    {errors.image}
+                  </Typography>
+                )}
               </Grid>
+
               <Grid item>
                 <Button type="submit" variant="contained" color="primary">
                   Submit
@@ -367,6 +377,14 @@ const ExecutionOverviewAddForm = () => {
               </Grid>
             </Grid>
           </form>
+
+          <Snackbar
+            open={openSnackbar}
+            autoHideDuration={2000}
+            onClose={() => setOpenSnackbar(false)}
+          >
+            <Alert severity="success">{successMessage}</Alert>
+          </Snackbar>
         </Paper>
       }
     />

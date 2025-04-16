@@ -7,7 +7,7 @@ export const createClient = createAsyncThunk(
   async (formData) => {
     try {
       const response = await axios.post(
-        `${getAPIURL()}/create/client`,
+        `${getAPIURL()}/create/business/client`,
         formData
       );
       return response.data;
@@ -19,8 +19,8 @@ export const createClient = createAsyncThunk(
 
 export const getAllClient = createAsyncThunk("client/getAll", async () => {
   try {
-    const response = await axios.get(`${getAPIURL()}/getAll/client`);
-    return response.data.AllCompanyLogos;
+    const response = await axios.get(`${getAPIURL()}/getAll/business/client`);
+    return response.data.get_all_services_Client;
   } catch (error) {
     throw error;
   }
@@ -28,7 +28,7 @@ export const getAllClient = createAsyncThunk("client/getAll", async () => {
 export const getClientById = createAsyncThunk("client/getById", async (id) => {
   try {
     const response = await axios.get(
-      `${getAPIURL()}/getById/client/${id}`
+      `${getAPIURL()}/getById/business/client/${id}`
     );
     return response.data;
   } catch (error) {
@@ -40,7 +40,7 @@ export const updateClient = createAsyncThunk(
   async ({ clientId, formData }) => {
     try {
       const response = await axios.put(
-        `${getAPIURL()}/update/client/${clientId}`,
+        `${getAPIURL()}/update/business/client/${clientId}`,
         formData
       );
       return response.data.client;
@@ -54,7 +54,7 @@ export const deleteClient = createAsyncThunk(
   "client/deleteClient",
   async (clientId) => {
     try {
-      await axios.delete(`${getAPIURL()}/delete/client/${clientId}`);
+      await axios.delete(`${getAPIURL()}/delete/business/client/${clientId}`);
       return clientId;
     } catch (error) {
       throw error;
@@ -109,7 +109,7 @@ const clientSlice = createSlice({
       .addCase(getClientById.fulfilled, (state, action) => {
         state.loading = false;
         state.error = null;
-        state.selectedClientById = action.payload.companyLogoById;
+        state.selectedClientById = action.payload.service_client;
       })
       .addCase(getClientById.rejected, (state, action) => {
         state.loading = false;

@@ -1,458 +1,450 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from 'react';
 import {
-  makeStyles,
-  Box,
-  Typography,
   TextField,
+  Button,
+  Grid,
+  Typography,
+  Paper,
+  Box,
+  IconButton,
+  Tabs,
+  Tab,
   FormControl,
   InputLabel,
   Select,
   MenuItem,
-  Button,
-  RadioGroup,
-  Radio,
-  FormControlLabel,
-  FormLabel,
-  Checkbox,
-} from "@material-ui/core";
-import { DropzoneArea } from "material-ui-dropzone";
-import { Autocomplete } from "@mui/material";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  fetchCategories,
-  selectCategories,
-} from "../../redux/slices/category/category";
-import {
-  fetchInstructors,
-  selectInstructorState,
-} from "../../redux/slices/instructor/instructor";
-import {
-  fetchSoftwareTools,
-  selectSoftwareTools,
-} from "../../redux/slices/softwareTools/softwareTools";
-import { Formik, Field, ErrorMessage } from "formik";
-import * as Yup from "yup";
-import axios from "axios";
-import LeftNavigationBar from "../../navbars/LeftNavigationBar";
-import { createCourse } from "../../redux/slices/course/course";
-
-const useStyles = makeStyles((theme) => ({
-  formContainer: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    minHeight: "100vh",
-  },
-  form: {
-    width: "100%",
-    maxWidth: 600,
-    padding: theme.spacing(2),
-    border: `1px solid ${theme.palette.divider}`,
-    borderRadius: theme.shape.borderRadius,
-    backgroundColor: theme.palette.background.paper,
-  },
-  formControl: {
-    width: "100%",
-    marginBottom: theme.spacing(2),
-  },
-}));
-
-const validationSchema = Yup.object({
-  course_id: Yup.string().required("Course ID is required"),
-  course_name: Yup.string().required("Course Name is required"),
-  slug: Yup.string().required("Slug is required"),
-  short_description: Yup.string().required("Short Description is required"),
-  objective: Yup.string().required("Objective is required"),
-  cost: Yup.number().min(0).required("Cost is required"),
-  duration: Yup.number().min(0).required("Duration is required"),
-  course_level: Yup.string().required("Course Level is required"),
-  mode_of_trainee: Yup.string().required("Mode of Training is required"),
-  certificate: Yup.boolean(),
-  number_of_assesment: Yup.number().min(0).required("Number of Assessments is required"),
-  projects: Yup.number().min(0).required("Number of Projects is required"),
-  category: Yup.object().required("Category is required"),
-  instructor: Yup.object().required("Instructor is required"),
-  tool_software: Yup.object().required("Software Tool is required"),
-  images: Yup.mixed().required("At least one image is required"),
-});
+  Autocomplete,
+  Chip,
+} from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
+import RemoveIcon from '@mui/icons-material/Remove';
+import { DropzoneArea } from 'material-ui-dropzone';
+import { fetchSoftwareTools, selectSoftwareTools } from '../../redux/slices/softwareTools/softwareTools';
+import { fetchCategories, selectCategories } from '../../redux/slices/category/category';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { createCourse } from '../../redux/slices/course/course';
+import LeftNavigationBar from '../../navbars/LeftNavigationBar';
 
 const CourseAddForm = () => {
-  const classes = useStyles();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const categories = useSelector(selectCategories);
-  const softwareTools = useSelector(selectSoftwareTools);
-  const instructors = useSelector((state) => state.instructors.instructors);
+  const allSoftwareTools = useSelector(selectSoftwareTools);
+  
+  const [filteredSoftwareTools, setFilteredSoftwareTools] = useState([]);
+  const [formData, setFormData] = useState({
+    slug: '',
+    course_name: '',
+    short_description: '',
+    category: '',
+    objective: '',
+    duration: '',
+    mode_of_training: 'online', // Default to 'online'
+    number_of_assessments: '',
+    projects: '',
+    courseOutline: [{ module: '' }],
+    courseSummary: [{ elements: '', hours: '' }],
+    image: null,
+  });
+
+  const [activeTab, setActiveTab] = useState(0);
 
   useEffect(() => {
     dispatch(fetchSoftwareTools());
     dispatch(fetchCategories());
-    dispatch(fetchInstructors());
   }, [dispatch]);
 
-  const handleSubmit = async (values, { setSubmitting, resetForm }) => {
-    const formData = new FormData();
-    // Add form fields to formData
-    formData.append("course_id", values.course_id);
-    formData.append("slug", values.slug);
+  useEffect(() => {
+    if (formData.category) {
+      // Filter software tools based on category
+      const toolsForCategory = allSoftwareTools.filter(tool => 
+        tool.category && tool.category.some(cat => cat._id === formData.category)
+      );
+      setFilteredSoftwareTools(toolsForCategory);
+    } else {
+      // If no category selected, show all options
+      setFilteredSoftwareTools(allSoftwareTools);
+    }
+  }, [formData.category, allSoftwareTools]);
 
-    formData.append("course_name", values.course_name);
-    formData.append("short_description", values.short_description);
-    formData.append("objective", values.objective);
-    formData.append("cost", values.cost);
-    formData.append("duration", values.duration);
-    formData.append("course_level", values.course_level);
-    formData.append("mode_of_trainee", values.mode_of_trainee);
-    formData.append("certificate", values.certificate ? "Yes" : "No");
-    formData.append("number_of_assesment", values.number_of_assesment);
-    formData.append("projects", values.projects);
-    
-    // Append related objects
-    formData.append("category", values.category._id);
-    formData.append("instructor", values.instructor._id);
-    formData.append("tool_software", values.tool_software._id);
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
 
-    // Add image files
-    values.images.forEach((image) => {
-      formData.append("images", image);
+  const handleFileChange = (files) => {
+    setFormData({ ...formData, image: files[0] });
+  };
+
+  const handleOutlineChange = (index, value) => {
+    const newOutline = [...formData.courseOutline];
+    newOutline[index].module = value;
+    setFormData({ ...formData, courseOutline: newOutline });
+  };
+
+  const handleSummaryChange = (index, field, value) => {
+    const newSummary = [...formData.courseSummary];
+    newSummary[index][field] = value;
+    setFormData({ ...formData, courseSummary: newSummary });
+  };
+
+  const addOutline = () => {
+    setFormData({
+      ...formData,
+      courseOutline: [...formData.courseOutline, { module: '' }],
     });
+  };
 
-    dispatch(createCourse( formData ));
+  const removeOutline = (index) => {
+    const newOutline = formData.courseOutline.filter((_, i) => i !== index);
+    setFormData({ ...formData, courseOutline: newOutline });
+  };
 
-      setSubmitting(false); // Allow subsequent submissions
+  const addSummary = () => {
+    setFormData({
+      ...formData,
+      courseSummary: [...formData.courseSummary, { elements: '', hours: '' }],
+    });
+  };
+
+  const removeSummary = (index) => {
+    const newSummary = formData.courseSummary.filter((_, i) => i !== index);
+    setFormData({ ...formData, courseSummary: newSummary });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const formDataToSend = new FormData();
+    
+    // Handle all fields except objects and arrays
+    Object.keys(formData).forEach(key => {
+      if (!['courseOutline', 'courseSummary', 'tool_software', 'image'].includes(key)) {
+        formDataToSend.append(key, formData[key]);
+      }
+    });
   
+    // Handle image separately
+    if (formData.image) {
+      formDataToSend.append('image', formData.image);
+    }
+  
+    // Handle tool_software as an array of IDs
+    if (formData.tool_software && Array.isArray(formData.tool_software)) {
+      const toolIds = formData.tool_software.map(tool => tool._id);
+      formDataToSend.append('tool_software', JSON.stringify(toolIds));
+    }
+    
+    // Handle courseOutline properly
+    if (formData.courseOutline && Array.isArray(formData.courseOutline)) {
+      const modules = formData.courseOutline.map(item => item.module);
+      formDataToSend.append('courseOutline', JSON.stringify({ modules }));
+    }
+    
+    // Handle courseSummary properly
+    if (formData.courseSummary && Array.isArray(formData.courseSummary)) {
+      formDataToSend.append('courseSummary', JSON.stringify(formData.courseSummary));
+    }
+  
+    try {
+      const response = await dispatch(createCourse(formDataToSend));
+      if (response.status === 201) {
+        alert('Course added successfully!');
+        navigate('/Course-control');
+      }
+    } catch (error) {
+      console.error('Error submitting form:', error);
+  
+      if (error.response && error.response.data && error.response.data.message) {
+        const errorMessages = error.response.data.message;
+        if (Array.isArray(errorMessages)) {
+          const errorMsg = errorMessages.find(msg => msg.key === 'error');
+          setError(errorMsg ? errorMsg.value : 'An error occurred while adding the course');
+        } else {
+          setError('An error occurred while adding the course');
+        }
+      } else {
+        setError('Network error. Please try again.');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };  
+
+  const handleTabChange = (event, newValue) => {
+    setActiveTab(newValue);
   };
 
   return (
     <LeftNavigationBar
     Content={
 
-    <Box className={classes.formContainer}>
-      <Formik
-        initialValues={{
-          course_id: "",
-          course_name: "",
-          slug: "",
-          short_description: "",
-          objective: "",
-          cost: "",
-          duration: "",
-          course_level: "",
-          mode_of_trainee: "",
-          certificate: false,
-          number_of_assesment: 0,
-          projects: 0,
-          category: null,
-          instructor: null,
-          tool_software: null,
-          images: [],
-        }}
-        validationSchema={validationSchema}
-        onSubmit={handleSubmit}
-      >
-        {({ handleSubmit, setFieldValue, isSubmitting, values }) => (
-          <form onSubmit={handleSubmit} style={{ width: "100%" }}>
-            <Typography variant="h4" align="center">Course Information</Typography>
-            <br />
-            <Field
-              as={TextField}
-              className={classes.formControl}
-              label="Course ID"
-              name="course_id"
-              variant="outlined"
-              fullWidth
-              required
-            />
-            <ErrorMessage
-              name="course_id"
-              component="div"
-              style={{ color: "red" }}
-            />
-            <Field
-              as={TextField}
-              className={classes.formControl}
-              label="Course Name"
-              name="course_name"
-              variant="outlined"
-              fullWidth
-              required
-            />
-            <ErrorMessage
-              name="course_name"
-              component="div"
-              style={{ color: "red" }}
-            />
-            <Field
-              as={TextField}
-              className={classes.formControl}
-              label="Slug"
-              name="slug"
-              variant="outlined"
-              fullWidth
-              required
-            />
-            <ErrorMessage
-              name="slug"
-              component="div"
-              style={{ color: "red" }}
-            />
-            <Field
-              as={TextField}
-              className={classes.formControl}
-              label="Short Description"
-              variant="outlined"
-              fullWidth
-              multiline
-              rows={3}
-              name="short_description"
-              required
-            />
-            <ErrorMessage
-              name="short_description"
-              component="div"
-              style={{ color: "red" }}
-            />
-
-            <Field
-              as={TextField}
-              className={classes.formControl}
-              label="Objective"
-              variant="outlined"
-              fullWidth
-              multiline
-              rows={3}
-              name="objective"
-              required
-            />
-            <ErrorMessage
-              name="objective"
-              component="div"
-              style={{ color: "red" }}
-            />
-
-            <Field
-              as={TextField}
-              className={classes.formControl}
-              label="Cost"
-              name="cost"
-              variant="outlined"
-              fullWidth
-              type="number"
-              required
-            />
-            <ErrorMessage
-              name="cost"
-              component="div"
-              style={{ color: "red" }}
-            />
-
-            <Field
-              as={TextField}
-              className={classes.formControl}
-              label="Duration"
-              variant="outlined"
-              name="duration"
-              fullWidth
-              type="number"
-              required
-            />
-            <ErrorMessage
-              name="duration"
-              component="div"
-              style={{ color: "red" }}
-            />
-
-            <DropzoneArea
-              onDrop={(files) => setFieldValue("images", files)}
-              className={classes.formControl}
-              acceptedFiles={["image/*"]}
-              filesLimit={3}
-              dropzoneText="Drag and drop an image here or click"
-            />
-            <br />
-            
-            <FormControl className={classes.formControl} fullWidth>
-              <InputLabel id="course-level-label">Course Level</InputLabel>
-              <Select
-                labelId="course-level-label"
-                variant="outlined"
-                name="course_level"
-                required
-                value={values.course_level}
-                onChange={(e) => setFieldValue("course_level", e.target.value)}
-              >
-                <MenuItem value="Beginner">Beginner</MenuItem>
-                <MenuItem value="Intermediate">Intermediate</MenuItem>
-                <MenuItem value="Expert">Expert</MenuItem>
-              </Select>
-            </FormControl>
-            <ErrorMessage
-              name="course_level"
-              component="div"
-              style={{ color: "red" }}
-            />
-
-            <FormControl component="fieldset" className={classes.formControl}>
-              <FormLabel component="legend">Mode of Training</FormLabel>
-              <RadioGroup
-                row
-                name="mode_of_trainee"
-                value={values.mode_of_trainee}
-                onChange={(e) => setFieldValue("mode_of_trainee", e.target.value)}
-              >
-                <FormControlLabel
-                  value="online"
-                  control={<Radio color="primary" />}
-                  label="Online"
-                />
-                <FormControlLabel
-                  value="offline"
-                  control={<Radio color="primary" />}
-                  label="Offline"
-                />
-              </RadioGroup>
-            </FormControl>
-
-            <FormControl component="fieldset" className={classes.formControl}>
-                  <FormLabel component="legend">Certificate</FormLabel>
-                  <RadioGroup
-                    row
-                    name="certificate"
-                    value={values.certificate ? "Yes" : "No"}
-                    onChange={(e) => setFieldValue("certificate", e.target.value === "Yes")}
-                  >
-                    <FormControlLabel
-                      value="Yes"
-                      control={<Radio />}
-                      label="Yes"
-                    />
-                    <FormControlLabel
-                      value="No"
-                      control={<Radio />}
-                      label="No"
-                    />
-                  </RadioGroup>
-                </FormControl>
-                <ErrorMessage
-                  name="certificate"
-                  component="div"
-                  style={{ color: "red" }}
-                />
-
-            <Field
-              as={TextField}
-              className={classes.formControl}
-              label="Number of Assessments"
-              variant="outlined"
-              name="number_of_assesment"
-              fullWidth
-              type="number"
-              required
-            />
-            <ErrorMessage
-              name="number_of_assesment"
-              component="div"
-              style={{ color: "red" }}
-            />
-
-            <Field
-              as={TextField}
-              className={classes.formControl}
-              label="Number of Projects"
-              variant="outlined"
-              fullWidth
-              type="number"
-              name="projects"
-              required
-            />
-            <ErrorMessage
-              name="projects"
-              component="div"
-              style={{ color: "red" }}
-            />
-
-            <FormControl className={classes.formControl} fullWidth>
-              <Autocomplete
-              required
-                id="category"
-                options={categories || []}
-                getOptionLabel={(option) => option.category_name}
-                isOptionEqualToValue={(option, value) => option._id === value._id}
-                value={values.category}
-                onChange={(event, newValue) => setFieldValue("category", newValue)}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    variant="outlined"
-                    label="Category"
-                    fullWidth
-                  />
-                )}
-              />
-            </FormControl>
-            <ErrorMessage name="category" component="div" style={{ color: "red" }} />
-
-            <FormControl className={classes.formControl} fullWidth>
-              <Autocomplete
-              required
-                id="instructor"
-                options={instructors || []}
-                getOptionLabel={(option) => option.name}
-                isOptionEqualToValue={(option, value) => option._id === value._id}
-                value={values.instructor}
-                onChange={(event, newValue) => setFieldValue("instructor", newValue)}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    variant="outlined"
-                    label="Instructor"
-                    fullWidth
-                    required
-                  />
-                )}
-              />
-            </FormControl>
-            <ErrorMessage name="instructor" component="div" style={{ color: "red" }} />
-
-            <FormControl className={classes.formControl} fullWidth>
-              <Autocomplete
-              
-                id="tool_software"
-                options={softwareTools || []}
-                getOptionLabel={(option) => option.software_name}
-                isOptionEqualToValue={(option, value) => option._id === value._id}
-                value={values.tool_software}
-                onChange={(event, newValue) => setFieldValue("tool_software", newValue)}
-                required
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    variant="outlined"
-                    label="Software Tools"
-                    fullWidth
-                    required
-                  />
-                )}
-              />
-            </FormControl>
-            <ErrorMessage name="tool_software" component="div" style={{ color: "red" }} />
-
-            <Button
-              type="submit"
-              variant="contained"
-              style={{ backgroundColor: "#4CAF50", color: "white" }}
-              fullWidth
-              disabled={isSubmitting}
+    <Paper elevation={3} style={{ padding: '20px' }}>
+            <Typography
+              variant="h4"
+              sx={{
+                position: "relative",
+                padding: 0,
+                margin: 0,
+                fontFamily: 'Merriweather, serif',
+                fontWeight: 700, textAlign: 'center',
+                fontWeight: 300,
+                fontSize: { xs: "32px", sm: "40px" },
+                color: "#747474",
+                textAlign: "center",
+                textTransform: "uppercase",
+                paddingBottom: "5px",
+                mb: 5,
+                "&::before": {
+                  content: '""',
+                  width: "28px",
+                  height: "5px",
+                  display: "block",
+                  position: "absolute",
+                  bottom: "3px",
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  backgroundColor: "#747474",
+                },
+                "&::after": {
+                  content: '""',
+                  width: "100px",
+                  height: "1px",
+                  display: "block",
+                  position: "relative",
+                  marginTop: "5px",
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  backgroundColor: "#747474",
+                },
+              }}
             >
-              Submit
-            </Button>
-          </form>
+        Create Course
+      </Typography>
+      <Tabs value={activeTab} onChange={handleTabChange}>
+        <Tab label="Basic Details" />
+        <Tab label="Course Outline & Summary" />
+      </Tabs>
+      <form onSubmit={handleSubmit}>
+        {activeTab === 0 && (
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Slug"
+                name="slug"
+                value={formData.slug}
+                onChange={handleChange}
+                required
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Course Name"
+                name="course_name"
+                value={formData.course_name}
+                onChange={handleChange}
+                required
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Short Description"
+                name="short_description"
+                value={formData.short_description}
+                onChange={handleChange}
+                required
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <FormControl fullWidth margin="normal">
+                <InputLabel id="category-label">Category</InputLabel>
+                <Select
+                  labelId="category-label"
+                  name="category"
+                  value={formData.category}
+                  onChange={handleChange}
+                  required
+                >
+                  {categories.map((category) => (
+                    <MenuItem key={category._id} value={category._id}>
+                      {category.category_name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={4}>
+                                          <Autocomplete
+                                            multiple
+                                            options={filteredSoftwareTools}
+                                            getOptionLabel={(option) => option.software_name || ''}
+                                            value={formData.tool_software}
+                                            onChange={(e, newValue) => {
+                                              setFormData({ ...formData, tool_software: newValue });
+                                            }}
+                                            renderInput={(params) => (
+                                              <TextField
+                                                {...params}
+                                                label="Tools & Software"
+                                                margin="normal"
+                                              />
+                                            )}
+                                            renderTags={(value, getTagProps) =>
+                                              value.map((option, index) => (
+                                                <Chip
+                                                  label={option.software_name}
+                                                  {...getTagProps({ index })}
+                                                  key={index}
+                                                />
+                                              ))
+                                            }
+                                            disabled={!formData.category}
+                                          />
+                                          {!formData.category && (
+                                            <Typography variant="caption" color="error">
+                                              Please select a category first
+                                            </Typography>
+                                          )}
+                                        </Grid>
+                    
+
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Objective"
+                name="objective"
+                value={formData.objective}
+                onChange={handleChange}
+                required
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Duration (in hours)"
+                name="duration"
+                type="number"
+                value={formData.duration}
+                onChange={handleChange}
+                required
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <FormControl fullWidth required>
+                <InputLabel id="mode-of-training-label">Mode of Training</InputLabel>
+                <Select
+                  labelId="mode-of-training-label"
+                  name="mode_of_training"
+                  value={formData.mode_of_training}
+                  onChange={handleChange}
+                >
+                  <MenuItem value="online">Online</MenuItem>
+                  <MenuItem value="offline">Offline</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Number of Assessments"
+                name="number_of_assessments"
+                type="number"
+                value={formData.number_of_assessments}
+                onChange={handleChange}
+                required
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Projects"
+                name="projects"
+                type="number"
+                value={formData.projects}
+                onChange={handleChange}
+                required
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <DropzoneArea
+                acceptedFiles={["image/*"]}
+                filesLimit={1}
+                dropzoneText="Drag and drop an image here or click"
+                onChange={handleFileChange}
+                name="image"
+                required
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <Button variant="contained" color="primary" onClick={() => setActiveTab(1)}>
+                Next
+              </Button>
+            </Grid>
+          </Grid>
         )}
-      </Formik>
-    </Box>
-      }
-      />
-    );
-  };
-  
+        {activeTab === 1 && (
+          <Grid container spacing={2}>
+            <Grid item xs={12}>
+              <Typography variant="h6">Course Outline</Typography>
+              {formData.courseOutline.map((outline, index) => (
+                <Box key={index} display="flex" alignItems="center">
+                  <TextField
+                    label={`Module ${index + 1}`}
+                    value={outline.module}
+                    onChange={(e) => handleOutlineChange(index, e.target.value)}
+                    required
+                  />
+                  <IconButton onClick={() => removeOutline(index)}>
+                    <RemoveIcon />
+                  </IconButton>
+                </Box>
+              ))}
+              <Button onClick={addOutline} startIcon={<AddIcon />} variant="outlined">
+                Add Module
+              </Button>
+            </Grid>
+            <Grid item xs={12}>
+              <Typography variant="h6">Course Summary</Typography>
+              {formData.courseSummary.map((summary, index) => (
+                <Box key={index} display="flex" alignItems="center">
+                  <TextField
+                    label={`Elements ${index + 1}`}
+                    value={summary.elements}
+                    onChange={(e) => handleSummaryChange(index, 'elements', e.target.value)}
+                    required
+                  />
+                  <TextField
+                    label={`Hours ${index + 1}`}
+                    value={summary.hours}
+                    onChange={(e) => handleSummaryChange(index, 'hours', e.target.value)}
+                    required
+                  />
+                  <IconButton onClick={() => removeSummary(index)}>
+                    <RemoveIcon />
+                  </IconButton>
+                </Box>
+              ))}
+              <Button onClick={addSummary} startIcon={<AddIcon />} variant="outlined">
+                Add Summary
+              </Button>
+            </Grid>
+          </Grid>
+        )}
+        <Grid item xs={12}>
+          <Button type="submit" variant="contained" color="primary">
+            Create Course
+          </Button>
+        </Grid>
+      </form>
+    </Paper>
+    }/>
+  );
+};
+
 export default CourseAddForm;

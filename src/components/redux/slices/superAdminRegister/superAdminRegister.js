@@ -1,25 +1,16 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import Axios from "axios";
+import { successToast, errorToast } from "../../../toaster"; // Adjust path as needed
+import { getAPIURL } from "../../../../utils/utils"; // Adjust path as needed
 
-export const superAdminPostSignUp = createAsyncThunk(
-  "supersuperAdminPostSignUp",
-  async ({ values, token }, { rejectWithValue }) => {
-    let data = {
-      firstName: values.firstName,
-      lastName: values.lastName,
-      email: values.email,
-      phone: values.phone,
-      address: {
-        city: values.city,
-        state: values.state,
-        country: values.country,
-      },
-      password: values.password,
-    };
+// Register admin action
+export const registerAdmin = createAsyncThunk(
+  "admin/registerAdmin",
+  async ({ formData, token }, { rejectWithValue }) => {
     try {
-      const res = await axios.post(
-        import.meta.env.VITE_BACKEND_API + "/create/superAdmin",
-        data,
+      const response = await Axios.post(
+        `${getAPIURL()}/admin/register`,
+        formData,
         {
           withCredentials: true,
           headers: {
@@ -28,54 +19,73 @@ export const superAdminPostSignUp = createAsyncThunk(
           },
         }
       );
-      return res.data;
-    } catch (err) {
-      if (!err.response) {
-        throw err;
+      return response.data;
+    } catch (error) {
+      if (error.response && error.response.data) {
+        return rejectWithValue(error.response.data);
       }
-      return rejectWithValue(err.response.data);
+      return rejectWithValue({ message: [{ key: "error", value: error.message }] });
     }
   }
 );
 
-export const superAdminSignUpSlice = createSlice({
+// Admin slice
+const adminSlice = createSlice({
+  name: "admin",
   initialState: {
+    adminData: [],
+    status: "idle",
+    error: null,
+    selectedAdmin: null,
     isLoading: false,
     isSuccess: false,
     isError: false,
-    error: "",
   },
-  name: "superAdminSignup",
   reducers: {
-    resetSignUp: (state) => {
+    resetAdminState: (state) => {
       state.isSuccess = false;
       state.isError = false;
+      state.error = null;
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(superAdminPostSignUp.pending, (state, action) => {
-      state.isLoading = true;
-    });
-
-    builder.addCase(superAdminPostSignUp.fulfilled, (state, action) => {
-      state.isLoading = false;
-      state.isSuccess = true;
-    });
-
-    builder.addCase(superAdminPostSignUp.rejected, (state, action) => {
-      state.isLoading = false;
-      state.isError = true;
-      if (action.payload) {
-        state.error = action.payload.errorMessage;
-        console.log("error", action.payload.message[0].value);
-      } else {
-        state.error = action.error.message;
-        console.log("error", action);
-      }
-    });
+    builder
+      // Register admin cases
+      .addCase(registerAdmin.pending, (state) => {
+        state.isLoading = true;
+        state.isSuccess = false;
+        state.isError = false;
+        state.error = null;
+      })
+      .addCase(registerAdmin.fulfilled, (state) => {
+        state.isLoading = false;
+        state.isError = false;
+        state.error = null;
+        state.isSuccess = true;
+        successToast("Admin registered successfully");
+      })
+      .addCase(registerAdmin.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = false;
+        state.isError = true;
+        
+        if (action.payload && action.payload.message) {
+          const errorMessage = action.payload.message.find(msg => msg.key === "error");
+          if (errorMessage) {
+            state.error = errorMessage.value;
+            errorToast(errorMessage.value, "bottom_right");
+          } else {
+            state.error = "Registration failed";
+            errorToast("Registration failed", "bottom_right");
+          }
+        } else {
+          state.error = action.error.message;
+          errorToast(action.error.message, "bottom_right");
+        }
+      });
+    // You can add more admin-related actions here (get all admins, update admin, delete admin, etc.)
   },
 });
 
-export const { resetSignUp } = superAdminSignUpSlice.actions;
-
-export default superAdminSignUpSlice.reducer;
+export const { resetAdminState } = adminSlice.actions;
+export default adminSlice.reducer;

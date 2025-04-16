@@ -30,7 +30,6 @@ import FAQEditForm from "./components/pages/faq/FaqEditForm";
 import CourseModulesEditForm from "./components/pages/courseModules/CourseModulesEditForm";
 import CourseEditForm from "./components/pages/course/CourseEditForm";
 import AssessmentAddForm from "./components/pages/mca/assesment/AssesmentAddForm";
-import ProgramMentorAddForm from "./components/pages/mca/programMentor/ProgramMentorAddForm";
 import ProgramFeesAddForm from "./components/pages/mca/programFees/ProgramFeesAddForm";
 import OurProgramControl from "./components/pages/mca/our_Program/Our_ProgramControl";
 import AssessmentControl from "./components/pages/mca/assesment/AssesmentControl";
@@ -40,7 +39,6 @@ import AddSemesterForm from "./components/pages/mca/semester/SemesterAddForm";
 import DegreeProgramControl from "./components/pages/mca/degree_Program/DegreeProgramControl";
 import DegreeProgramEditForm from "./components/pages/mca/degree_Program/DegreeProgramEditForm";
 import DegreeProgramAddForm from "./components/pages/mca/degree_Program/DegreeProgramAddForm";
-import ProgramMentorControl from "./components/pages/mca/programMentor/ProgramMentorControl";
 import ProgramFeesControl from "./components/pages/mca/programFees/ProgramFeesControl";
 import ProgramfeesEditForm from "./components/pages/mca/programFees/ProgramfeesEditForm";
 import EligibilityCriteriaAddForm from "./components/pages/mca/eligibilityCriteria/EligibilityCriteriaAddForm";
@@ -49,7 +47,6 @@ import SemesterControl from "./components/pages/mca/semester/SemesterControl";
 import AdmissionProcessAddForm from "./components/pages/mca/admissionProcess/AdmissionProcessAddForm";
 import AdmissionProcessControl from "./components/pages/mca/admissionProcess/AdmissionProcessControl";
 import AdmissionProcessEditForm from "./components/pages/mca/admissionProcess/AdmissionProcessEditForm";
-import ProgramMentorEditForm from "./components/pages/mca/programMentor/ProgramMentorEditForm";
 import { ToastContainer } from "react-toastify";
 import OutcomesAddForm from "./components/pages/mca/outcome/OutcomesAddForm";
 import OutcomeControl from "./components/pages/mca/outcome/OutcomeControl";
@@ -63,9 +60,9 @@ import SemesterEditForm from "./components/pages/mca/semester/SemesterEditForm";
 import ServicesAddForm from "./components/pages/services/services/ServicesAddForm";
 import ServicesControl from "./components/pages/services/services/ServicesControl";
 import ServiceEditForm from "./components/pages/services/services/ServicesEditForm";
-import ClientAddForm from "./components/pages/services/clients/ClientAddForm";
-import ClientControl from "./components/pages/services/clients/ClientControl";
-import ClientEditForm from "./components/pages/services/clients/ClientEditForm";
+import ClientAddForm from "./components/pages/business/clients/ClientAddForm";
+import ClientControl from "./components/pages/business/clients/ClientControl";
+import ClientEditForm from "./components/pages/business/clients/ClientEditForm";
 import ExecutionHighlightsAddForm from "./components/pages/services/executionHighlights/ExecutionHighlightsAddForm";
 import ExecutionHighlightsControl from "./components/pages/services/executionHighlights/ExecutionHighlightsControlForm";
 import ExecutionHighlightsEditForm from "./components/pages/services/executionHighlights/ExecutionHighlightsEditForm";
@@ -75,9 +72,6 @@ import ExecutionOverviewEditForm from "./components/pages/services/executionOver
 import TestimonialAddForm from "./components/pages/services/testimonial/TestimonialAddForm";
 import TestimonialControl from "./components/pages/services/testimonial/TestimonialControl";
 import TestimonialEditForm from "./components/pages/services/testimonial/TestimonialEditForm";
-import GalleryAddForm from "./components/pages/services/gallery/GalleryAddForm";
-import GalleryControl from "./components/pages/services/gallery/GalleryControl";
-import GalleryEditForm from "./components/pages/services/gallery/GalleryEditForm";
 import BatchAddForm from "./components/pages/batches/BatchAddForm";
 import BatchControl from "./components/pages/batches/BatchControl";
 import BatchEditForm from "./components/pages/batches/BatchEditForm";
@@ -96,13 +90,104 @@ import PlacementTestimonialEditForm from "./components/pages/business/placementT
 import EngagedGovernanceAddForm from "./components/pages/business/engagedGovernance/EngagedGovernanceAddForm";
 import EngagedGovernanceControl from "./components/pages/business/engagedGovernance/EngagedGovernanceControl";
 import EngagedGovernanceEditForm from "./components/pages/business/engagedGovernance/EngagedGovernanceEditForm";
+import BussinessServicesAddForm from "./components/pages/services/bussinessServices/bussinessServicesAddForm";
+import BussinessServicesControl from "./components/pages/services/bussinessServices/bussinessServicesControl";
+import BussinessServiceEditForm from "./components/pages/services/bussinessServices/bussinessSerivesEditForm";
+import ServiceAboutAddForm from "./components/pages/services/serviceAbout/ServiceAboutAddForm";
+import ServiceAboutControl from "./components/pages/services/serviceAbout/ServiceAboutControl";
+import ServiceAboutEditForm from "./components/pages/services/serviceAbout/ServiceAboutEditForm";
+import ServicProcessAddForm from "./components/pages/services/serviceProcess/ServiceProcessAddForm";
+import ServiceProcessControl from "./components/pages/services/serviceProcess/ServicesProcessControl";
+import ServiceProcessEditForm from "./components/pages/services/serviceProcess/ServiceProcessEditForm";
+import ServiceOpportunityAddForm from "./components/pages/services/serviceOpportunity/ServiceOpportunityAddForm";
+import ServiceOpportunitiesControl from "./components/pages/services/serviceOpportunity/ServiceOpportunityControl";
+import ServiceOpportunitiesEditForm from "./components/pages/services/serviceOpportunity/ServiceOpportunityEditForm";
+import EnquiryControl from "./components/pages/common/enquiryControl";
+import ContactControl from "./components/pages/common/contactControl";
+import CareerControl from "./components/pages/common/careerControl";
+import ReviewAddForm from "./components/pages/review/ReviewAddForm";
+import ReviewControl from "./components/pages/review/ReviewControl";
+import ReviewsEditForm from "./components/pages/review/ReviewEditForm";
+import CourseAddedForm from "./components/pages/course/CourseDetails";
+import JobPositionForm from "./components/pages/joinUs/joinUsAddForm";
+import JobPositionControl from "./components/pages/joinUs/joinUsControl";
+import EditJobPage from "./components/pages/joinUs/joinUsEditForm";
+import PlacementTrainingTrackAddForm from "./components/pages/services/placementTrainingTrack/PlacementTrainingTrackAddForm";
+import PlacementTrainingTrackControl from "./components/pages/services/placementTrainingTrack/PlacementTrainingTrackControl";
+import PlacementTrainingTrackEditForm from "./components/pages/services/placementTrainingTrack/PlacementTraningTrackEditForm";
+import VisionMissionAddForm from "./components/pages/aboutPage/visionMission/visionMissionAddForm";
+import VisionMissionControl from "./components/pages/aboutPage/visionMission/VisionMissionControl";
+import VisionMissionEditForm from "./components/pages/aboutPage/visionMission/VisionMissionEditForm";
+import GalleryAddForm from "./components/pages/gallery/GalleryAddForm";
+import GalleryControl from "./components/pages/gallery/GalleryControl";
+import GalleryEditForm from "./components/pages/gallery/GalleryEditForm";
+import AboutUsAddForm from "./components/pages/aboutPage/aboutUs/ABoutUsAddForm";
+import AboutUsControl from "./components/pages/aboutPage/aboutUs/AboutUsControl";
+import AboutUsEditForm from "./components/pages/aboutPage/aboutUs/AboutUsEditForm";
+import ShineAddForm from "./components/pages/aboutPage/shine/shineAddForm";
+import ShineEditForm from "./components/pages/aboutPage/shine/ShineEditForm";
+import ShineControlPage from "./components/pages/aboutPage/shine/ShineControl";
+import OurPartnersAddForm from "./components/pages/services/ourPartners/OurPartnersAddForm";
+import OurPartnersControlPage from "./components/pages/services/ourPartners/OurPartnersControl";
+import OurPartnersEditForm from "./components/pages/services/ourPartners/OurPartnersEditForm";
+import OurSponsorsAddForm from "./components/pages/services/ourSponsors/OurSponsorsAddForm";
+import OurSponsorsControlPage from "./components/pages/services/ourSponsors/OurSponsorsControl";
+import OurSponsorsEditForm from "./components/pages/services/ourSponsors/OurSponosrsEditForm";
+import WCYHireAddForm from "./components/pages/business/WCYHire/WCYHireAddFrom";
+import WCYHireControlPage from "./components/pages/business/WCYHire/WCYHireControlPage";
+import WCYHireUpdateForm from "./components/pages/business/WCYHire/WCYHireUpdateForm";
+import CareerAddForm from "./components/pages/career/CareerAddForm";
+import CareerControlPage from "./components/pages/career/CareerControlPage";
+import CareerUpdateForm from "./components/pages/career/CarrerUpdateForm";
+import YearlyServiceAddForm from "./components/pages/aboutPage/YearlyServices/YearlyServicesAddFrom";
+import YearlyServiceControlPage from "./components/pages/aboutPage/YearlyServices/YearlyServiceControlPage";
+import YearlyServiceEditForm from "./components/pages/aboutPage/YearlyServices/YearlyServiceEditForm";
+import SkillVerticalAddForm from "./components/pages/mca/skillVerical/SkillVericalAddForm";
+import TargetStudentAddFrom from "./components/pages/mca/targetStudent/TargetStudentAddFrom";
+import TargetStudentControlPage from "./components/pages/mca/targetStudent/TargetStudentControlPage";
+
+import TargetStudentEditForm from "./components/pages/mca/targetStudent/TargetStudentEditForm";
+import SkillVerticalControlPage from "./components/pages/mca/skillVerical/SkillVerticalControlPage";
+import SkillVerticalEditForm from "./components/pages/mca/skillVerical/SkillVerticalEditForm";
+import AddCollegeForm from "./components/pages/mca/college/collegeAddForm";
+import CollegeAddForm from "./components/pages/mca/college/collegeAddForm";
+import CollegeControl from "./components/pages/mca/college/collegeControl";
+import CollegeEditForm from "./components/pages/mca/college/collegeEditForm";
+import LearningJourneyAddForm from "./components/pages/business/learningJourney/learningJourney-add";
+import LearningJourneyControlPage from "./components/pages/business/learningJourney/learningJourney-control";
+import CurrentAvailabilityAddForm from "./components/pages/business/currentAvailability/CurrentAvailabilityAddForm";
+import CurrentAvailabilityControlPage from "./components/pages/business/currentAvailability/CurrentAvailabilityControlPage";
+import CurrentAvailabilityEditForm from "./components/pages/business/currentAvailability/CurrentAvailabilityEditForm";
+import HomeServiceCountAddForm from "./components/pages/home/homeServiceCount/HomeSeriveCountAddForm";
+import HomeServiceCountControlPage from "./components/pages/home/homeServiceCount/HomeServiceCountControlPage";
+import HomeServiceCountEditForm from "./components/pages/home/homeServiceCount/HomeServiceEditForm";
+import HomeExecutionHighlightsAddForm from "./components/pages/home/homeExecutionHighlights/homeExecutionHighlightsAddForm";
+import HomeExecutionHighlightsControl from "./components/pages/home/homeExecutionHighlights/HomeExecutionHighlightsControlpage";
+import HomeExecutionHighlightsEditForm from "./components/pages/home/homeExecutionHighlights/HomeExecutionHighlightsEditForm";
+import LearningJourneyEditForm from "./components/pages/business/learningJourney/learningJourney-edit";
+import CourseForm from "./components/pages/course/CourseDetails";
+import CompanyAddForm from "./components/pages/mca/company/companyAddForm";
+import CompanyControl from "./components/pages/mca/company/CompanyControlPage";
+import CompanyEditForm from "./components/pages/mca/company/CompanyEditForm";
+import AdminRegistrationForm from "./components/admin/AdminRegister";
+import AdminControl from "./components/admin/AdminControl";
+import AdminEditForm from "./components/admin/AdminEdit";
 
 function App() {
+
   const router = createBrowserRouter(
     createRoutesFromElements(
       <Route path="/">
         <Route index element={<LoginForm />} />
         <Route path="adminhome" element={<AdminHome />} />
+        <Route path="enquiry-details" element={<EnquiryControl />} />
+        <Route path="contact-details" element={<ContactControl />} />
+        <Route path="career-details" element={<CareerControl />} />
+
+        <Route path="Review-add" element={<ReviewAddForm />} />
+        <Route path="Review-control" element={<ReviewControl />} />
+        <Route path="Review-edit/:reviewId" element={<ReviewsEditForm />} />
+
 
         <Route path="Category-add" element={<CategoryAddForm />} />
         <Route path="Category-control" element={<CategoryControl />} />
@@ -110,6 +195,9 @@ function App() {
           path="category-edit/:categoryId"
           element={<CategoryEditForm />}
         />
+        <Route path="Joinus-add" element={<JobPositionForm />} />
+        <Route path="Joinus-control" element={<JobPositionControl />} />
+        <Route path="joinus-edit/:id" element={<EditJobPage />} />
 
         <Route
           path="Career_Opportunities-add"
@@ -157,6 +245,7 @@ function App() {
         <Route path="Course-add" element={<CourseAddForm />} />
         <Route path="Course-control" element={<CourseControl />} />
         <Route path="Course-edit/:courseId" element={<CourseEditForm />} />
+        {/* <Route path="Course-added" element={<CourseForm />} /> */}
 
         <Route path="Batch-add" element={<BatchAddForm />} />
         <Route path="Batch-control" element={<BatchControl />} />
@@ -202,14 +291,14 @@ function App() {
           path="EligibilityCriteria-edit/:id"
           element={<EligibilityCriteriaEditForm />}
         />
-        <Route path="ProgramMentor-add" element={<ProgramMentorAddForm />} />
+        <Route path="degreeprogram/target-student-add" element={< TargetStudentAddFrom />} />
         <Route
-          path="ProgramMentor-control"
-          element={<ProgramMentorControl />}
+          path="degreeprogram/target-student-control"
+          element={< TargetStudentControlPage />}
         />
         <Route
-          path="Program_Mentor-edit/:mentorId"
-          element={<ProgramMentorEditForm />}
+          path="degreeprogram/target-student-edit/:id"
+          element={<TargetStudentEditForm />}
         />
 
         <Route path="ProgramFees-add" element={<ProgramFeesAddForm />} />
@@ -244,14 +333,30 @@ function App() {
         />
 
         {/* service */}
+        <Route path="Business-Services-add" element={<BussinessServicesAddForm />} />
+        <Route path="Business-Services-control" element={<BussinessServicesControl />} />
+        <Route path="Business-Services-edit/:businessServiceId" element={<BussinessServiceEditForm />} />
 
         <Route path="Services-add" element={<ServicesAddForm />} />
         <Route path="Services-control" element={<ServicesControl />} />
         <Route path="Services-edit/:serviceId" element={<ServiceEditForm />} />
 
-        <Route path="Client-add" element={<ClientAddForm />} />
-        <Route path="Client-control" element={<ClientControl />} />
-        <Route path="Client-edit/:clientId" element={<ClientEditForm />} />
+        <Route path="Services-About-control" element={<ServiceAboutControl />} />
+        <Route path="Services-About-add" element={<ServiceAboutAddForm />} />
+        <Route path="Services-About-edit/:id" element={<ServiceAboutEditForm />} />
+
+        <Route path="Services-Process-add" element={<ServicProcessAddForm />} />
+        <Route path="Services-Process-control" element={<ServiceProcessControl />} />
+        <Route path="Services-Process-edit/:id" element={<ServiceProcessEditForm />} />
+
+        <Route path="Services-Opportunity-add" element={<ServiceOpportunityAddForm />} />
+        <Route path="Services-Opportunity-control" element={<ServiceOpportunitiesControl />} />
+        <Route path="Services-Opportunity-edit/:id" element={<ServiceOpportunitiesEditForm />} />
+
+
+        <Route path="business/Client-add" element={<ClientAddForm />} />
+        <Route path="business/Client-control" element={<ClientControl />} />
+        <Route path="business/Client-edit/:clientId" element={<ClientEditForm />} />
 
         <Route
           path="Execution_Highlights-add"
@@ -292,10 +397,10 @@ function App() {
           element={<TestimonialEditForm />}
         />
 
-        <Route path="Gallery-add" element={<GalleryAddForm />} />
+        {/* <Route path="Gallery-add" element={<GalleryAddForm />} />
         <Route path="Gallery-control" element={<GalleryControl />} />
         <Route path="Gallery-edit/:id" element={<GalleryEditForm />} />
-
+ */}
         <Route path="managed_Campus-add" element={<ManagedCampusAddForm />} />
         <Route
           path="managed_Campus-control"
@@ -344,7 +449,97 @@ function App() {
           path="engaged_Governance-edit/:id"
           element={<EngagedGovernanceEditForm />}
         />
+
+
+        <Route path="about/vision-mission-add" element={<VisionMissionAddForm />} />
+        <Route path="about/vision-mission-control" element={<VisionMissionControl />} />
+        <Route path="about/vision-mission-edit/:id" element={<VisionMissionEditForm />} />
+
+        <Route path="about/aboutus-add" element={<AboutUsAddForm />} />
+        <Route path="about/aboutus-control" element={<AboutUsControl />} />
+        <Route path="about/aboutus-edit/:id" element={<AboutUsEditForm />} />
+
+
+        <Route path="gallery-add" element={<GalleryAddForm />} />
+        <Route path="gallery-control" element={<GalleryControl />} />
+        <Route path="gallery-edit/:id" element={<GalleryEditForm />} />
+
+
+        <Route path="about/shine-add" element={<ShineAddForm />} />
+        <Route path="about/shine-edit/:id" element={<ShineEditForm />} />
+        <Route path="about/shine-control" element={<ShineControlPage />} />
+
+
+        <Route path="degreeprogram/our-partners-add" element={<OurPartnersAddForm />} />
+        <Route path="degreeprogram/our-partners-control" element={<OurPartnersControlPage />} />
+        <Route path="degreeprogram/our-partners-edit/:id" element={<OurPartnersEditForm />} />
+
+
+        <Route path="Placement-Training-Track-add" element={<PlacementTrainingTrackAddForm />} />
+        <Route path="Placement-Training-Track-control" element={<PlacementTrainingTrackControl />} />
+        <Route path="Placement-Training-Track-edit/:id" element={<PlacementTrainingTrackEditForm />} />
+
+
+        <Route path="degreeprogram/our-sponsors-add" element={<OurSponsorsAddForm />} />
+        <Route path="degreeprogram/our-sponsors-control" element={<OurSponsorsControlPage />} />
+        <Route path="degreeprogram/our-sponsors-edit/:id" element={<OurSponsorsEditForm />} />
+
+        <Route path="business/wcy-hire-add" element={<WCYHireAddForm />} />
+        <Route path="business/wcy-hire-control" element={<WCYHireControlPage />} />
+        <Route path="business/wcy-hire-edit/:id" element={<WCYHireUpdateForm />} />
+
+        <Route path="career-add" element={<CareerAddForm />} />
+        <Route path="career-control" element={<CareerControlPage />} />
+        <Route path="career-edit/:id" element={<CareerUpdateForm />} />
+
+        <Route path="about/yearly-service-add" element={<YearlyServiceAddForm />} />
+        <Route path="about/yearly-service-control" element={<YearlyServiceControlPage />} />
+        <Route path="about/yearly-service-edit/:id" element={<YearlyServiceEditForm />} />
+
+        <Route path="degreeprogram/skill-vertical-add" element={<SkillVerticalAddForm />} />
+        <Route path="degreeprogram/skill-vertical-control" element={<SkillVerticalControlPage />} />
+        <Route path="degreeprogram/skill-vertical-edit/:id" element={<SkillVerticalEditForm />} />
+        <Route path="college-add" element={<CollegeAddForm />} />
+        <Route path="college-control" element={<CollegeControl />} />
+        <Route path="college-edit/:id" element={<CollegeEditForm />} />
+
+        <Route path="business/learningjourney-add" element={<LearningJourneyAddForm />} />
+        <Route path="business/learningjourney-control" element={<LearningJourneyControlPage />} />
+        <Route path="/business/learningjourney-edit/:id" element={<LearningJourneyEditForm />} />
+
+        <Route path="business/current-availability-add" element={<CurrentAvailabilityAddForm />} />
+        <Route path="business/current-availability-control" element={<CurrentAvailabilityControlPage />} />
+        <Route path="business/current-availability-edit/:id" element={<CurrentAvailabilityEditForm />} />
+
+        {/* leftNavigation not include */}
+
+        <Route path="home/service-count-add" element={<HomeServiceCountAddForm />} />
+        <Route path="home/service-count-control" element={<HomeServiceCountControlPage />} />
+        {/* form is submit but error message show */}
+        <Route path="home/service-count-edit/:id" element={<HomeServiceCountEditForm />} />
+
+
+        <Route path="home/execution-highlights-add" element={<HomeExecutionHighlightsAddForm />} />
+        <Route path="home/execution-highlights-control" element={<HomeExecutionHighlightsControl />} />
+        <Route path="home/execution-highlights-edit/:id" element={<HomeExecutionHighlightsEditForm />} />
+
+        <Route path="degreeprogram/company-add" element={<CompanyAddForm />} />
+        <Route path="degreeprogram/company-control" element={<CompanyControl />} />
+        <Route path="degreeprogram/company-edit/:companyId" element={<CompanyEditForm />} />
+
+
+        <Route path="admin-add" element={<AdminRegistrationForm />} />
+        <Route path="admin/control" element={<AdminControl />} />
+        <Route path="admin-edit/:id" element={<AdminEditForm />} />
+          
       </Route>
+
+
+      // not include in ad min panal
+
+      //  2.. How It work
+
+      // 4 .wcu
     )
   );
 

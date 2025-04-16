@@ -20,15 +20,34 @@ export const fetchOurProgramById = createAsyncThunk(
 
 export const addOurProgram = createAsyncThunk(
   'ourProgram/addOurProgram',
-  async ({ title, description, icon,selectedProgram }) => {
+  async ({ title, description, icon, selectedProgram, selectedService, selectedBusinessService, selectedCompany, selectedCollege, token }) => {
     const formData = new FormData();
     formData.append('title', title);
     formData.append('description', description);
     formData.append('icon', icon);
-    formData.append("degree_program", selectedProgram._id);
+    
+    // Only append IDs if they exist
+    if (selectedProgram && selectedProgram._id) {
+      formData.append("degree_program", selectedProgram._id);
+    }
+    
+    if (selectedService && selectedService._id) {
+      formData.append("service", selectedService._id);
+    }
+    
+    if (selectedBusinessService && selectedBusinessService._id) {
+      formData.append("business_service", selectedBusinessService._id);
+    }
+    
+    if (selectedCompany && selectedCompany._id) {
+      formData.append("company", selectedCompany._id);
+    }
+    
+    if (selectedCollege && selectedCollege._id) {
+      formData.append("college", selectedCollege._id);
+    }
 
     const response = await axios.post(`${getAPIURL()}/create/our_program`, formData);
-
     return response.data;
   }
 );

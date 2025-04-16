@@ -46,7 +46,6 @@ const ManagedCampusEditForm = () => {
   const managedCampusById = useSelector(
     (state) => state.managedCampus.managedCampusById
   );
-  console.log("managedCampusByid",managedCampusById);
   useEffect(() => {
     dispatch(getManagedCampusById(id));
 

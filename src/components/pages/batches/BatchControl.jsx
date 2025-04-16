@@ -47,7 +47,6 @@ const BatchControl = () => {
       navigate("/");
     } else {
       dispatch(userVerify({ token: cookies.token }));
-      console.log("user verify called");
     }
   }, [cookies]);
  

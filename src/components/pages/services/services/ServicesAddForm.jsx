@@ -6,6 +6,8 @@ import {
   Container,
   Paper,
   Grid,
+  Autocomplete,
+  FormControl,
 } from "@mui/material";
 import { DropzoneArea } from "material-ui-dropzone";
 import { useDispatch, useSelector } from "react-redux";
@@ -20,6 +22,7 @@ import {
 } from "../../../redux/slices/services/services/Services";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
+import { getAllBussinessServices } from "../../../redux/slices/services/bussinessServices/BussinessSerives";
 
 const ServicesAddForm = () => {
   const dispatch = useDispatch();
@@ -27,42 +30,69 @@ const ServicesAddForm = () => {
   const error = useSelector(selectAddServiceError);
   const navigate = useNavigate();
   const [cookies, removeCookie] = useCookies(["token"]);
+  const [selectedBusinessService, setSelectedBusinessService] = useState(null);
+  const businessServiceData = useSelector(
+    (state) => state.businessService.businessServiceData
+  );
 
   const initialValues = {
     title: "",
     slug: "",
+    business_services: "",
     description: "",
-    images: [],
-    videos: [],
+    icons: [],
+  };
+  const [touchedFields, setTouchedFields] = useState({
+    bussiness_service: false,
+  });
+  const [errors, setErrors] = useState({
+    bussiness_service: "",
+  });
+
+  useEffect(() => {
+    dispatch(getAllBussinessServices());
+  }, [dispatch]);
+  useEffect(() => {
+    if (businessServiceData.length > 0 && selectedBusinessService) {
+      const matchedService = businessServiceData.find(
+        (service) => service._id === selectedBusinessService._id
+      );
+      setSelectedBusinessService(matchedService || null);
+    }
+  }, [businessServiceData]);
+
+  const handleServiceChange = (_, newValue) => {
+    setSelectedBusinessService(newValue);
+    setTouchedFields((prev) => ({ ...prev, service: true }));
+    setErrors((prev) => ({ ...prev, service: "" }));
   };
 
   const validationSchema = Yup.object({
     title: Yup.string()
-      .matches(/^[a-zA-Z\s]+$/, "Title must contain only alphabets")
+      .matches(/^[a-zA-Z0-9\s]+$/, "Title can only contain letters and numbers")
       .required("Title is required"),
     slug: Yup.string()
-      .matches(/^[a-z]+$/, "Slug must contain only lowercase letters")
-      .matches(/^\S*$/, "No whitespace allowed")
+      .matches(
+        /^[a-zA-Z0-9-/]+$/,
+        "Slug can only contain letters, numbers, hyphens, and slashes"
+      )
       .required("Slug is required"),
     description: Yup.string().required("Description is required"),
-    images: Yup.array()
-      .min(1, "At least one image is required")
+    icons: Yup.array()
+      .min(1, "At least one icon is required")
       .required("Image is required"),
-    videos: Yup.array()
-      .min(1, "At least one video is required")
-      .required("Video is required"),
   });
 
   const handleSubmit = async (values, { setSubmitting }) => {
     const formData = new FormData();
+    formData.append("business_services", values.business_services);
     formData.append("title", values.title);
     formData.append("slug", values.slug);
     formData.append("description", values.description);
-    values.images.forEach((image) => {
-      formData.append("image", image);
-    });
-    values.videos.forEach((video) => {
-      formData.append("videos", video);
+    formData.append("business_services", selectedBusinessService._id);
+
+    values.icons.forEach((icon) => {
+      formData.append("icon", icon);
     });
     dispatch(addService({ formData, token: cookies.token }));
     setSubmitting(false);
@@ -74,7 +104,6 @@ const ServicesAddForm = () => {
       navigate("/");
     } else {
       dispatch(userVerify({ token: cookies.token }));
-      console.log("user verify called");
     }
   }, [cookies]);
 
@@ -83,7 +112,6 @@ const ServicesAddForm = () => {
       navigate("/Services-control");
       dispatch(resetService());
     }
-    console.log("isSuccess", isSuccess);
   }, [isSuccess]);
 
   return (
@@ -100,11 +128,43 @@ const ServicesAddForm = () => {
             }}
           >
             <Typography
-              gutterBottom
               variant="h4"
-              textAlign={"center"}
-              component="div"
-              fontFamily={"Serif"}
+              sx={{
+                position: "relative",
+                padding: 0,
+                margin: 0,
+                fontFamily: 'Merriweather, serif',
+                fontWeight: 700, textAlign: 'center',
+                fontWeight: 300,
+                fontSize: { xs: "32px", sm: "40px" },
+                color: "#747474",
+                textAlign: "center",
+                textTransform: "uppercase",
+                paddingBottom: "5px",
+                mb: 5,
+                "&::before": {
+                  content: '""',
+                  width: "28px",
+                  height: "5px",
+                  display: "block",
+                  position: "absolute",
+                  bottom: "3px",
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  backgroundColor: "#747474",
+                },
+                "&::after": {
+                  content: '""',
+                  width: "100px",
+                  height: "1px",
+                  display: "block",
+                  position: "relative",
+                  marginTop: "5px",
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  backgroundColor: "#747474",
+                },
+              }}
             >
               Services Add Form
             </Typography>
@@ -141,11 +201,14 @@ const ServicesAddForm = () => {
                     <Grid item xs={12}>
                       <TextField
                         fullWidth
+                        type="text"
                         label="Slug"
                         variant="outlined"
                         name="slug"
                         value={values.slug}
-                        onChange={handleChange}
+                        onChange={(e) => {
+                          handleChange(e);
+                        }}
                         onBlur={handleBlur}
                         error={Boolean(touched.slug && errors.slug)}
                         helperText={touched.slug && errors.slug}
@@ -170,44 +233,54 @@ const ServicesAddForm = () => {
                     </Grid>
                     <Grid item xs={12}>
                       <DropzoneArea
-                        acceptedFiles={["image/*"]}
+                        acceptedFiles={[
+                          "image/*", // This will accept all image types
+                          ".jpg",
+                          ".jpeg",
+                          ".png",
+                          ".gif",
+                          ".bmp",
+                          ".webp",
+                          ".svg",
+                        ]}
                         filesLimit={5}
-                        dropzoneText="Drag and drop image here or click"
+                        dropzoneText="Drag and drop images here or click"
                         onChange={(fileArray) =>
                           handleChange({
-                            target: { name: "images", value: fileArray },
+                            target: { name: "icons", value: fileArray },
                           })
                         }
                         onBlur={handleBlur}
                       />
                       <ErrorMessage
-                        name="images"
+                        name="icons"
                         component="div"
                         style={{ color: "red" }}
                       />
                     </Grid>
-                    <Grid item xs={12}>
-                      <h5>Video uploads</h5>
-                      <input
-                        multiple
-                        type="file"
-                        accept="video/*"
-                        onChange={(e) =>
-                          handleChange({
-                            target: {
-                              name: "videos",
-                              value: Array.from(e.target.files),
-                            }, // Convert FileList to array
-                          })
-                        }
-                        onBlur={handleBlur}
+
+                    <FormControl fullWidth>
+                      <Autocomplete
+                        id="Business Services"
+                        options={businessServiceData || []}
+                        getOptionLabel={(option) => option?.name || ""}
+                        value={selectedBusinessService}
+                        onChange={handleServiceChange}
+                        isOptionEqualToValue={(option, value) =>
+                          option._id === value._id
+                        } // ✅ Fix: Proper comparison
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            variant="outlined"
+                            label="Business Services"
+                            fullWidth
+                            error={Boolean(errors.service)}
+                            helperText={touchedFields.service && errors.service}
+                          />
+                        )}
                       />
-                      <ErrorMessage
-                        name="videos"
-                        component="div"
-                        style={{ color: "red" }}
-                      />
-                    </Grid>
+                    </FormControl>
                   </Grid>
                   <Button
                     type="submit"

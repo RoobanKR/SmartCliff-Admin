@@ -7,12 +7,14 @@ import {
   Button,
   IconButton,
   Divider,
+  InputLabel,
+  Select,
 } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
 import RemoveIcon from "@material-ui/icons/Remove";
 import { makeStyles } from "@material-ui/core/styles";
 import LeftNavigationBar from "../../navbars/LeftNavigationBar";
-import { Autocomplete, Tooltip } from "@mui/material";
+import { Autocomplete, Grid, MenuItem, Tooltip } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { createFAQ } from "../../redux/slices/faq/faq";
 import {
@@ -27,6 +29,8 @@ import {
   setSelectedDegreeProgram,
 } from "../../redux/slices/mca/degreeProgram/degreeProgram";
 import { fetchServices } from "../../redux/slices/services/services/Services";
+import { getAllBussinessServices } from "../../redux/slices/services/bussinessServices/BussinessSerives";
+import { getAllColleges } from "../../redux/slices/mca/college/college";
  
 const useStyles = makeStyles((theme) => ({
   formContainer: {
@@ -62,28 +66,42 @@ const useStyles = makeStyles((theme) => ({
 }));
  
 const FAQAddForm = () => {
+  const dispatch = useDispatch();
+
   const classes = useStyles();
   const courses = useSelector(selectCourses);
   const selectedCourse = useSelector(selectSelectedCourse);
-  const degreeProgramData = useSelector(
-    (state) => state.degreeProgram.degreeProgramData
-  );
-  const selectedDegreeProgram = useSelector(
-    (state) => state.degreeProgram.selectedDegreeProgram
-  );
   const [selectedService, setSelectedService] = useState(null);
+  const [selectedBusinessService, setSelectedBusinessService] = useState(null);
+  const [selectedProgram, setSelectedProgram] = useState(null);
+  const [selectedCollege, setSelectedCollege] = useState(null);
   const serviceData = useSelector((state) => state.service.serviceData);
-  const dispatch = useDispatch();
+  const businessServiceData = useSelector((state) => state.businessService.businessServiceData);
+  const degreeProgramData = useSelector((state) => state.degreeProgram.degreeProgramData);
+  const collegeData = useSelector((state) => state.college.colleges);
+  const [filteredServices, setFilteredServices] = useState([]);
+  const [type, setType] = useState(null);
+  useEffect(() => {
+    dispatch(fetchCourse());
+    dispatch(fetchServices());
+    dispatch(getAllBussinessServices());
+    dispatch(fetchDegreeProgramData());
+    dispatch(getAllColleges());
+  }, [dispatch]);
+
+  const handleBussinessServiceChange = (_, newValue) => {
+    setSelectedBusinessService(newValue);
+    if (newValue) {
+      const filtered = serviceData.filter((service) => service.business_services?._id === newValue._id);
+      setFilteredServices(filtered);
+    } else {
+      setFilteredServices([]);
+    }
+  };
   const [faqItems, setFaqItems] = useState([{ question: "", answer: "" }]);
  
   const handleAddItem = () => {
     setFaqItems([...faqItems, { question: "", answer: "" }]);
-  };
-  useEffect(() => {
-    dispatch(fetchServices());
-  }, [dispatch]);
-  const handleServiceChange = (_, newValue) => {
-    setSelectedService(newValue);
   };
   const handleRemoveItem = (index) => {
     const newFaqItems = [...faqItems];
@@ -98,26 +116,22 @@ const FAQAddForm = () => {
   const handleProgramChange = (event, newValue) => {
     dispatch(setSelectedDegreeProgram(newValue));
   };
- 
-  useEffect(() => {
-    dispatch(fetchCourse());
-    dispatch(fetchDegreeProgramData());
-  }, [dispatch]);
- 
+  const handleTypeChange = (event) => {
+    setType(event.target.value);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
  
     try {
       await dispatch(
-        createFAQ({ faqItems, selectedCourse, selectedDegreeProgram,selectedService })
+        createFAQ({ faqItems,type, selectedCourse, selectedProgram,selectedService,selectedBusinessService,selectedCollege })
       );
-      console.log("FAQ data sent successfully");
     } catch (error) {
       console.error("Error sending FAQ data:", error);
     }
   };
  
-  console.log("degreeProgramData", degreeProgramData);
  
   return (
     <LeftNavigationBar
@@ -125,11 +139,43 @@ const FAQAddForm = () => {
         <Box className={classes.formContainer}>
           <form className={classes.form} onSubmit={handleSubmit}>
             <Typography
-              gutterBottom
               variant="h4"
-              align="center"
-              component="div"
-              style={{ fontFamily: "Serif" }}
+              sx={{
+                position: "relative",
+                padding: 0,
+                margin: 0,
+                fontFamily: 'Merriweather, serif',
+                fontWeight: 700, textAlign: 'center',
+                fontWeight: 300,
+                fontSize: { xs: "32px", sm: "40px" },
+                color: "#747474",
+                textAlign: "center",
+                textTransform: "uppercase",
+                paddingBottom: "5px",
+                mb: 5,
+                "&::before": {
+                  content: '""',
+                  width: "28px",
+                  height: "5px",
+                  display: "block",
+                  position: "absolute",
+                  bottom: "3px",
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  backgroundColor: "#747474",
+                },
+                "&::after": {
+                  content: '""',
+                  width: "100px",
+                  height: "1px",
+                  display: "block",
+                  position: "relative",
+                  marginTop: "5px",
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  backgroundColor: "#747474",
+                },
+              }}
             >
               FAQ Add Form
             </Typography>
@@ -184,6 +230,22 @@ const FAQAddForm = () => {
               </IconButton>
             </Tooltip>
             <Divider style={{ margin: "16px 0" }} />
+
+            <FormControl fullWidth margin="normal">
+  <InputLabel id="type-label">Business Type</InputLabel>
+  <Select
+    labelId="type-label"
+    name="type"
+    value={type}
+    onChange={handleTypeChange}
+    
+  >
+    <MenuItem value="hirefromus">Hire From Us</MenuItem>
+    <MenuItem value="trainfromus">Train From Us</MenuItem>
+    <MenuItem value="institute">Institute</MenuItem>
+  </Select>
+</FormControl>
+            <Divider style={{ margin: "16px 0" }} />
             <FormControl className={classes.formControl} fullWidth>
               <Autocomplete
                 id="course"
@@ -203,40 +265,75 @@ const FAQAddForm = () => {
             </FormControl>
  
             <Divider style={{ margin: "16px 0" }} />
-            <FormControl className={classes.formControl} fullWidth>
+            <Grid item xs={12}>
               <Autocomplete
-                id="degreeProgram"
-                options={degreeProgramData}
-                getOptionLabel={(option) => option.program_name || ""}
-                value={selectedDegreeProgram || null}
-                onChange={handleProgramChange}
+                id="Business Services"
+                options={businessServiceData || []}
+                getOptionLabel={(option) => option?.name || ""}
+                value={selectedBusinessService}
+                onChange={handleBussinessServiceChange}
+                isOptionEqualToValue={(option, value) => option._id === value._id}
                 renderInput={(params) => (
                   <TextField
                     {...params}
                     variant="outlined"
-                    label="Degree Program"
+                    label="Business Services"
                     fullWidth
                   />
                 )}
               />
-            </FormControl>
-            <FormControl fullWidth>
-                <Autocomplete
-                  id="service"
-                  options={serviceData || []}
-                  getOptionLabel={(option) => (option ? option.title : "")}
-                  value={selectedService}
-                  onChange={handleServiceChange}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      variant="outlined"
-                      label="service"
-                      fullWidth
-                    />
-                  )}
-                />
-              </FormControl>
+            </Grid><br />
+            <Grid item xs={12}>
+              <Autocomplete
+                id="service"
+                options={filteredServices || []}
+                getOptionLabel={(option) => option?.title || ""}
+                value={selectedService}
+                onChange={(_, newValue) => setSelectedService(newValue)}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    variant="outlined"
+                    label="Service"
+                    fullWidth
+                  />
+                )}
+              />
+            </Grid><br />
+            <Grid item xs={12}>
+              <Autocomplete
+                id="degree_program"
+                options={degreeProgramData || []}
+                getOptionLabel={(option) => (option ? option.program_name : "")}
+                value={selectedProgram}
+                onChange={(_, newValue) => setSelectedProgram(newValue)}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    variant="outlined"
+                    label="Program"
+                    fullWidth
+                  />
+                )}
+              />
+            </Grid><br />
+            <Grid item xs={12}>
+              <Autocomplete
+                id="college"
+                options={collegeData || []}
+                getOptionLabel={(option) => (option ? option.collegeName : "")}
+                value={selectedCollege}
+                onChange={(_, newValue) => setSelectedCollege(newValue)}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    variant="outlined"
+                    label="College"
+                    fullWidth
+                  />
+                )}
+              />
+            </Grid><br />
             <Button
               type="submit"
               variant="contained"

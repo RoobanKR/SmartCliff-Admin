@@ -1,236 +1,338 @@
-import {useEffect } from 'react';
-import {  TextField, Button, Paper, Grid } from '@mui/material';
-import { useAppDispatch, useAppSelector } from '../../redux/hooks'
-import {  resetSignUp } from '../../redux/slices/user/signup'
-import { useFormik } from 'formik';
-import * as yup from 'yup';
-import { useNavigate } from "react-router-dom";
-import { adminPostSignUp } from '../../redux/slices/adminRegister/adminRegister';
-import { resetSignIn, userVerify } from '../../redux/slices/user/signin';
-import { useCookies } from 'react-cookie';
-import LeftNavigationBar from './LeftNavigationBar';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import {
+  Box,
+  Button,
+  TextField,
+  Typography,
+  Paper,
+  CircularProgress,
+  Snackbar,
+  Alert,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Grid
+} from '@mui/material';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { registerAdmin } from '../redux/slices/user/admin';
+import LeftNavigationBar from '../navbars/LeftNavigationBar';
+import { Cookies, useCookies } from 'react-cookie';
 
+const AdminRegistrationForm = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const [cookies] = useCookies(["token"]);
 
-const AdminRegisterForm = () => {
-    const navigate = useNavigate();
-    const isSuccess = useAppSelector((state) => state.userSignUp.isSuccess)
-    const dispatch = useAppDispatch()
-    const [cookies, removeCookie] = useCookies(["token"]);
+  const [loading, setLoading] = useState(false);
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+  const [formData, setFormData] = useState({
+    email: '',
+    firstName: '',
+    lastName: '',
+    phone: '',
+    password: '',
+    gender: '',
+    dob: null,
+    role: 'admin',
+    profile_pic: null
+  });
+  const [preview, setPreview] = useState('');
 
-    useEffect(() => {
-        if (isSuccess) navigate('/signin')
-        dispatch(resetSignUp())
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
 
-    }, [navigate, isSuccess])
+  const handleDateChange = (date) => {
+    setFormData(prev => ({ ...prev, dob: date }));
+  };
 
-    const validationSchema = yup.object({
-        email: yup
-            .string('Enter your email*')
-            .email('Enter a valid email*')
-            .required('Email is required*'),
-        firstName: yup
-            .string('Enter your first name*')
-            .required('First Name is required*'),
-        lastName: yup
-            .string('Enter your last name*')
-            .required('Last Name is required*'),
-        phone: yup
-            .string()
-            .required('Phone Number is required*'),
-        city: yup
-            .string('Enter your city name*')
-            .required('City is required*'),
-        state: yup
-            .string('Enter your state name*')
-            .required('State is required*'),
-        country: yup
-            .string('Enter your country name')
-            .required('Country is required'),
-        password: yup
-            .string('Enter your password')
-            .min(8, 'Password should be of minimum 8 characters length')
-            .required('Password is required'),
-        confirmPassword: yup.string()
-            .oneOf([yup.ref('password'), null], 'Passwords must match')
-            .required('State is required'),
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Check file size
+      if (file.size > 3 * 1024 * 1024) {
+        setSnackbar({
+          open: true,
+          message: 'Image size exceeds the 3MB limit',
+          severity: 'error'
+        });
+        return;
+      }
+      
+      setFormData(prev => ({ ...prev, profile_pic: file }));
+      
+      // Create preview URL
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    // Validation
+    if (!formData.email || !formData.firstName || !formData.lastName || 
+        !formData.phone || !formData.password || !formData.gender || 
+        !formData.dob || !formData.profile_pic) {
+      setSnackbar({
+        open: true,
+        message: 'All fields are required',
+        severity: 'error'
+      });
+      return;
+    }
+
+    // Create FormData object to handle file upload
+    const formDataToSend = new FormData();
+    Object.keys(formData).forEach(key => {
+      if (key === 'profile_pic') {
+        formDataToSend.append('profile_pic', formData.profile_pic);
+      } else if (key === 'dob') {
+        formDataToSend.append('dob', formData.dob.toISOString().split('T')[0]);
+      } else {
+        formDataToSend.append(key, formData[key]);
+      }
     });
 
-    const formik = useFormik({
-        initialValues: {
-            firstName: "",
-            lastName: "",
-            email: "",
-            phone: "",
-            city: "",
-            state: "",
-            country: "",
-            password: "",
-            confirmPassword: ""
-        },
-        validationSchema: validationSchema,
-        onSubmit: async (values, { resetForm }) => {
-            try {
-                await dispatch(adminPostSignUp({ values, token: cookies.token }));
-                resetForm();
-            } catch (error) {
-                console.error('Error submitting form:', error);
-            }
-        },
-    });
-    useEffect(() => {
-        if (!cookies.token || cookies.token === undefined) {
-            dispatch(resetSignIn());
-            navigate("/signin");
-        } else {
-            dispatch(userVerify({ token: cookies.token }));
-            console.log("user verify called");
+    setLoading(true);
+    
+    try {
+        const result = await dispatch(registerAdmin({
+            formData: formDataToSend, 
+            token: cookies.token
+          })).unwrap();      
+      // Extract success message from the array format
+      let successMessage = 'Admin registered successfully';
+      if (result.message && Array.isArray(result.message)) {
+        const successMsg = result.message.find(msg => msg.key === "success");
+        if (successMsg && successMsg.value) {
+          successMessage = successMsg.value;
         }
-    }, [cookies]);
+      }
+      
+      setSnackbar({
+        open: true,
+        message: successMessage,
+        severity: 'success'
+      });
 
-    return (
-        <LeftNavigationBar
-            Content={
-                <Paper style={{ maxWidth: 700, margin: "0 auto" }}>
-                    <h2> Admin Register </h2>
+      // Redirect after successful registration
+      setTimeout(() => {
+        navigate('/admin/control'); // Adjust the navigation path as necessary
+      }, 1500);
 
-                    <form onSubmit={formik.handleSubmit}>
-                        <Grid container spacing={2} p={2}>
+    } catch (error) {
+      console.error('Error registering admin:', error);
+      
+      // Extract error message from the array format if possible
+      let errorMessage = 'An error occurred during registration';
+      
+      if (error && error.message && Array.isArray(error.message)) {
+        const errorMsg = error.message.find(msg => msg.key === "error");
+        if (errorMsg && errorMsg.value) {
+          errorMessage = errorMsg.value;
+        }
+      } else if (error && typeof error.message === 'string') {
+        errorMessage = error.message;
+      }
+      
+      setSnackbar({
+        open: true,
+        message: errorMessage,
+        severity: 'error'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
-                            <Grid item xs={12}>
+  const handleCloseSnackbar = () => {
+    setSnackbar(prev => ({ ...prev, open: false }));
+  };
 
-                                <TextField
-                                    fullWidth
-                                    id="signup-firstName"
-                                    name="firstName"
-                                    label="FIrst Name"
-                                    value={formik.values.firstName}
-                                    onChange={formik.handleChange}
-                                    onBlur={formik.handleBlur}
-                                    error={formik.touched.firstName && Boolean(formik.errors.firstName)}
-                                    helperText={formik.touched.firstName && formik.errors.firstName}
-                                />
-                            </Grid>
-                            <Grid item xs={12}>
+  return (
+    <LeftNavigationBar
+      Content={
+        <Box sx={{ maxWidth: 800, mx: 'auto', p: 2 }}>
+          <Paper elevation={3} sx={{ p: 3 }}>
+            <Typography variant="h4" gutterBottom>
+              Register New Admin
+            </Typography>
 
-                                <TextField
-                                    fullWidth
-                                    id="signup-lastName"
-                                    name="lastName"
-                                    label="Last Name"
-                                    value={formik.values.lastName}
-                                    onChange={formik.handleChange}
-                                    onBlur={formik.handleBlur}
-                                    error={formik.touched.lastName && Boolean(formik.errors.lastName)}
-                                    helperText={formik.touched.lastName && formik.errors.lastName}
-                                />
-                            </Grid>
-                            <Grid item xs={12}>
-                                <TextField
-                                    fullWidth
-                                    id="email"
-                                    name="email"
-                                    label="Email"
-                                    value={formik.values.email}
-                                    onChange={formik.handleChange}
-                                    onBlur={formik.handleBlur}
-                                    error={formik.touched.email && Boolean(formik.errors.email)}
-                                    helperText={formik.touched.email && formik.errors.email}
-                                />
-                            </Grid>
-                            <Grid item xs={12}>
+            <form onSubmit={handleSubmit}>
+              <Grid container spacing={2}>
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    fullWidth
+                    label="First Name"
+                    name="firstName"
+                    value={formData.firstName}
+                    onChange={handleChange}
+                    required
+                    margin="normal"
+                  />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    fullWidth
+                    label="Last Name"
+                    name="lastName"
+                    value={formData.lastName}
+                    onChange={handleChange}
+                    required
+                    margin="normal"
+                  />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    fullWidth
+                    label="Email"
+                    name="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                    margin="normal"
+                  />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    fullWidth
+                    label="Phone"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    required
+                    margin="normal"
+                  />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    fullWidth
+                    label="Password"
+                    name="password"
+                    type="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    required
+                    margin="normal"
+                  />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <FormControl fullWidth margin="normal" required>
+                    <InputLabel id="gender-label">Gender</InputLabel>
+                    <Select
+                      labelId="gender-label"
+                      name="gender"
+                      value={formData.gender}
+                      label="Gender"
+                      onChange={handleChange}
+                    >
+                      <MenuItem value="male">Male</MenuItem>
+                      <MenuItem value="female">Female</MenuItem>
+                      <MenuItem value="other">Other</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <LocalizationProvider dateAdapter={AdapterDateFns}>
+                    <DatePicker
+                      label="Date of Birth"
+                      value={formData.dob}
+                      onChange={handleDateChange}
+                      renderInput={(params) => 
+                        <TextField {...params} fullWidth margin="normal" required />
+                      }
+                    />
+                  </LocalizationProvider>
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <FormControl fullWidth margin="normal" required>
+                    <InputLabel id="role-label">Role</InputLabel>
+                    <Select
+                      labelId="role-label"
+                      name="role"
+                      value={formData.role}
+                      label="Role"
+                      onChange={handleChange}
+                    >
+                      <MenuItem value="admin">Admin</MenuItem>
+                      <MenuItem value="superadmin">Super Admin</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid item xs={12}>
+                  <Box sx={{ mt: 2 }}>
+                    <Typography variant="subtitle1" gutterBottom>
+                      Profile Picture
+                    </Typography>
+                    <input
+                      accept="image/*"
+                      style={{ display: 'none' }}
+                      id="profile-pic-upload"
+                      type="file"
+                      onChange={handleFileChange}
+                    />
+                    <label htmlFor="profile-pic-upload">
+                      <Button variant="contained" component="span" color="primary">
+                        Upload Photo
+                      </Button>
+                    </label>
+                    {preview && (
+                      <Box mt={2} display="flex" justifyContent="center">
+                        <img 
+                          src={preview} 
+                          alt="Profile preview" 
+                          style={{ maxWidth: '200px', maxHeight: '200px', objectFit: 'cover' }} 
+                        />
+                      </Box>
+                    )}
+                  </Box>
+                </Grid>
+              </Grid>
 
-                                <TextField
-                                    fullWidth
-                                    id="signup-phone"
-                                    type='number'
-                                    name="phone"
-                                    label="phone"
-                                    value={formik.values.phone}
-                                    onChange={formik.handleChange}
-                                    onBlur={formik.handleBlur}
-                                    error={formik.touched.phone && Boolean(formik.errors.phone)}
-                                    helperText={formik.touched.phone && formik.errors.phone}
-                                />
-                            </Grid>
-                            <Grid item xs={12}>
+              <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  type="submit"
+                  disabled={loading}
+                  sx={{ minWidth: 150 }}
+                >
+                  {loading ? <CircularProgress size={24} /> : 'Register Admin'}
+                </Button>
+              </Box>
+            </form>
+          </Paper>
 
-                                <TextField
-                                    fullWidth
-                                    id="signup-city"
-                                    name="city"
-                                    label="City"
-                                    value={formik.values.city}
-                                    onChange={formik.handleChange}
-                                    onBlur={formik.handleBlur}
-                                    error={formik.touched.city && Boolean(formik.errors.city)}
-                                    helperText={formik.touched.city && formik.errors.city}
-                                />
-                            </Grid>
-                            <Grid item xs={12}>
-
-                                <TextField
-                                    fullWidth
-                                    id="signup-state"
-                                    name="state"
-                                    label="State"
-                                    value={formik.values.state}
-                                    onChange={formik.handleChange}
-                                    onBlur={formik.handleBlur}
-                                    error={formik.touched.state && Boolean(formik.errors.state)}
-                                    helperText={formik.touched.state && formik.errors.state}
-                                />
-                            </Grid>
-                            <Grid item xs={12}>
-
-                                <TextField
-                                    fullWidth
-                                    id="signup-country"
-                                    name="country"
-                                    label="Country"
-                                    value={formik.values.country}
-                                    onChange={formik.handleChange}
-                                    onBlur={formik.handleBlur}
-                                    error={formik.touched.country && Boolean(formik.errors.country)}
-                                    helperText={formik.touched.country && formik.errors.country}
-                                />
-                            </Grid>
-                            <Grid item xs={12}>
-
-                                <TextField
-                                    fullWidth
-                                    id="signup-password"
-                                    name="password"
-                                    label="Password"
-                                    value={formik.values.password}
-                                    onChange={formik.handleChange}
-                                    onBlur={formik.handleBlur}
-                                    error={formik.touched.password && Boolean(formik.errors.password)}
-                                    helperText={formik.touched.password && formik.errors.password}
-                                />
-                            </Grid>
-                            <Grid item xs={12}>
-
-                                <TextField
-                                    fullWidth
-                                    id="signup-confirmPassword"
-                                    name="confirmPassword"
-                                    label="Confirm Password"
-                                    value={formik.values.confirmPassword}
-                                    onChange={formik.handleChange}
-                                    onBlur={formik.handleBlur}
-                                    error={formik.touched.confirmPassword && Boolean(formik.errors.confirmPassword)}
-                                    helperText={formik.touched.confirmPassword && formik.errors.confirmPassword}
-                                />
-                            </Grid>
-                            <Grid item xs={12}>
-
-                                <Button id="signup-submit" variant="contained" type='Submit'>Register</Button>
-                            </Grid>
-                        </Grid>
-                    </form>
-                </Paper>
-            }
-        />);
+          <Snackbar
+            open={snackbar.open}
+            autoHideDuration={6000}
+            onClose={handleCloseSnackbar}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+          >
+            <Alert
+              onClose={handleCloseSnackbar}
+              severity={snackbar.severity}
+              variant="filled"
+              sx={{ width: '100%' }}
+            >
+              {snackbar.message}
+            </Alert>
+          </Snackbar>
+        </Box>
+      }
+    />
+  );
 };
 
-export default AdminRegisterForm
+export default AdminRegistrationForm;

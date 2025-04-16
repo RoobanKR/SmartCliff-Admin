@@ -1,3 +1,6 @@
+
+
+
 import * as React from "react";
 import { styled, useTheme } from "@mui/material/styles";
 import Box from "@mui/material/Box";
@@ -17,16 +20,42 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import {
   Logout,
-  AddBusiness,
-  ViewModule,
-  Webhook,
-  ContactEmergency,
-  PersonAddAlt,
-  MenuBook,
-  HowToReg,
   DesignServices,
-  RememberMe,
-  StarBorderPurple500,
+  Business,
+  AbcOutlined,
+  WifiProtectedSetupSharp,
+  Man3Outlined,
+  FormatOverline,
+  SupervisedUserCircle,
+  DesignServicesRounded,
+  HighlightAlt,
+  HighQualityOutlined,
+  WorkOff,
+  School,
+  Terminal,
+  Highlight,
+  SystemSecurityUpdateRounded,
+  VerticalAlignBottom,
+  VerticalAlignCenter,
+  Person3TwoTone,
+  SportsOutlined,
+  VerifiedUserOutlined,
+  GolfCourse,
+  PanToolSharp,
+  Category,
+  GolfCourseTwoTone,
+  StayCurrentPortrait,
+  BusinessCenter,
+  AddBusinessTwoTone,
+  BusinessRounded,
+  LeakRemoveTwoTone,
+  AdbOutlined,
+  VisibilityOutlined,
+  ShieldMoon,
+  CommentOutlined,
+  Reviews,
+  Numbers,
+  HighQualityRounded,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import Avatar from "@mui/material/Avatar";
@@ -44,12 +73,17 @@ import EventIcon from "@mui/icons-material/Event";
 import BookIcon from "@mui/icons-material/Book";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import CodeIcon from "@mui/icons-material/Code";
-import { CheckCircle } from "@material-ui/icons";
+import { BusinessCenterSharp, CheckCircle, LocalPostOfficeOutlined, PriorityHighTwoTone } from "@material-ui/icons";
 import StepsIcon from "@material-ui/icons/ViewList";
-import { resetSignIn } from "../redux/slices/user/Signin";
+import { resetSignIn, userVerify } from "../redux/slices/user/Signin";
 import { useDispatch } from "react-redux";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-const drawerWidth = 240;
+import { faBusinessTime, faGraduationCap,  faMessage, faComment, faQuestion, faAddressCard, faHome, faHistory } from '@fortawesome/free-solid-svg-icons'; // Import your desired icons
+import { useAppSelector } from "../redux/hooks";
+import { getAllUsers } from "../redux/slices/user/admin";
+
+const drawerWidth = 300;
 
 const openedMixin = (theme) => ({
   width: drawerWidth,
@@ -121,70 +155,21 @@ const Drawer = styled(MuiDrawer, {
 
 export default function LeftNavigationBar({ Content }) {
   const dispatch = useDispatch();
-
   const navigate = useNavigate();
   const [cookies, removeCookie] = useCookies(["token"]);
+  const [anchorEl, setAnchorEl] = React.useState(false);
 
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
-  const [carrieroppDropdownOpen, setCarrieroppDropdownOpen] =
-    React.useState(false);
-  const [courseModDropdownOpen, setCourseModDropdownOpen] =
-    React.useState(false);
-  const [softwareToolsDropdownOpen, setSoftwareToolsDropdownOpen] =
-    React.useState(false);
-  const [instructorDropdownOpen, setInstructorDropdownOpen] =
-    React.useState(false);
-  const [categoryDropdownOpen, setCategoryDropdownOpen] = React.useState(false);
-  const [faqDropdownOpen, setFaqDropdownOpen] = React.useState(false);
-  const [courseDropdownOpen, setCourseDropdownOpen] = React.useState(false);
-
-  const [batchesDropdownOpen, setBatchesDropdownOpen] = React.useState(false);
-
-  const [adduserDropdownOpen, setAdduserDropdownOpen] = React.useState(false);
-  const [degreeprogramDropdownOpen, setdegreeprogramDropdownOpen] =
-    React.useState(false);
-  const [ourProgramDropdownOpen, setOurProgramDropdownOpen] =
-    React.useState(false);
-  const [highlightDropdownOpen, setHighlightDropdownOpen] =
-    React.useState(false);
-  const [semesterDropdownOpen, setSemesterDropdownOpen] = React.useState(false);
-  const [eligibilityCriteriaDropdownOpen, setEligibilityCriteriaDropdownOpen] =
-    React.useState(false);
-  const [programMentorDropdownOpen, setProgramMentorDropdownOpen] =
-    React.useState(false);
-  const [programFeesDropdownOpen, setProgramFeesDropdownOpen] =
-    React.useState(false);
-
-  const [anchorEl, setAnchorEl] = React.useState(false);
-  const [admissionDropdownOpen, setAdmissionDropdownOpen] =
-    React.useState(false);
-  const [outcomesDropdownOpen, setOutcomesDropdownOpen] = React.useState(false);
-  const [servicesDropdownOpen, setServicesDropdownOpen] = React.useState(false);
-  const [clientDropdownOpen, setClientDropdownOpen] = React.useState(false);
-  const [executionHighligtsDropdownOpen, setExecutionHighlightsDropdownOpen] =
-    React.useState(false);
-  const [executionOverviewDropdownOpen, setExecutionOverviewDropdownOpen] =
-    React.useState(false);
-  const [servicesTestimonialDropdownOpen, setServicesTestimonialDropdownOpen] =
-    React.useState(false);
-  const [galleryDropdownOpen, setGalleryDropdownOpen] = React.useState(false);
-  const [managedCampusDropdownOpen, setManagedCampusDropdownOpen] =
-    React.useState(false);
-  const [hiringDropdownOpen, setHiringDropdownOpen] = React.useState(false);
-  const [keyelementsDropdownOpen, setKeyelementsDropdownOpen] =
-    React.useState(false);
-  const [
-    placementTestimonialDropdownOpen,
-    setPlacementTestimonialDropdownOpen,
-  ] = React.useState(false);
-  const [engagedGovernanceDropdownOpen, setEngagedGovernanceDropdownOpen] =
-    React.useState(false);
+  const [dropdownStates, setDropdownStates] = React.useState({});
 
   const opens = Boolean(anchorEl);
 
   const handleClose = () => {
     setAnchorEl(null);
+  };
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
   };
 
   const handleDrawerOpen = () => {
@@ -194,102 +179,30 @@ export default function LeftNavigationBar({ Content }) {
   const handleDrawerClose = () => {
     setOpen(false);
   };
+  const user = useAppSelector((state) => state.userSignIn.user);
+  React.useEffect(() => {
+    const fetchUsers = async () => {
+      await dispatch(getAllUsers({ token: cookies.token }));
+    };
+    fetchUsers();
+  }, [dispatch, cookies.token]);
+
+
+  React.useEffect(() => {
+    if (!cookies.token || cookies.token === undefined) {
+      dispatch(resetSignIn());
+      navigate("/");
+    } else {
+      dispatch(userVerify({ token: cookies.token }));
+      console.log("user verify called");
+    }
+  }, [cookies]);
 
   const handleDropdownToggle = (dropdown) => {
-    switch (dropdown) {
-      case "Career_Opportunities":
-        setCarrieroppDropdownOpen(!carrieroppDropdownOpen);
-        break;
-      case "Course_Modules":
-        setCourseModDropdownOpen(!courseModDropdownOpen);
-        break;
-      case "Software_Tools":
-        setSoftwareToolsDropdownOpen(!softwareToolsDropdownOpen);
-        break;
-      case "Instructor":
-        setInstructorDropdownOpen(!instructorDropdownOpen);
-        break;
-      case "Category":
-        setCategoryDropdownOpen(!categoryDropdownOpen);
-        break;
-      case "FAQ":
-        setFaqDropdownOpen(!faqDropdownOpen);
-        break;
-      case "Course":
-        setCourseDropdownOpen(!courseDropdownOpen);
-        break;
-      case "Batch":
-        setBatchesDropdownOpen(!batchesDropdownOpen);
-        break;
-      case "Add_User":
-        setAdduserDropdownOpen(!adduserDropdownOpen);
-        break;
-      case "Degree_Program":
-        setdegreeprogramDropdownOpen(!degreeprogramDropdownOpen);
-        break;
-      case "Our_Program":
-        setOurProgramDropdownOpen(!ourProgramDropdownOpen);
-        break;
-      case "Semester":
-        setSemesterDropdownOpen(!semesterDropdownOpen);
-        break;
-      case "EligibilityCriteria":
-        setEligibilityCriteriaDropdownOpen(!eligibilityCriteriaDropdownOpen);
-        break;
-      case "ProgramMentor":
-        setProgramMentorDropdownOpen(!programMentorDropdownOpen);
-        break;
-      case "ProgramFees":
-        setProgramFeesDropdownOpen(!programFeesDropdownOpen);
-        break;
-      case "AdmissionProcess":
-        setAdmissionDropdownOpen(!admissionDropdownOpen);
-        break;
-      case "Highlight":
-        setHighlightDropdownOpen(!highlightDropdownOpen);
-        break;
-      case "Services":
-        setServicesDropdownOpen(!servicesDropdownOpen);
-        break;
-      case "Client":
-        setClientDropdownOpen(!clientDropdownOpen);
-        break;
-      case "Execution_Highlights":
-        setExecutionHighlightsDropdownOpen(!executionHighligtsDropdownOpen);
-        break;
-      case "Execution_Overview":
-        setExecutionOverviewDropdownOpen(!executionOverviewDropdownOpen);
-        break;
-      case "Service_Testimonial":
-        setServicesTestimonialDropdownOpen(!servicesTestimonialDropdownOpen);
-        break;
-      case "Gallery":
-        setGalleryDropdownOpen(!galleryDropdownOpen);
-        break;
-      case "managed_Campus":
-        setManagedCampusDropdownOpen(!managedCampusDropdownOpen);
-        break;
-      case "hiring":
-        setHiringDropdownOpen(!hiringDropdownOpen);
-        break;
-      case "key_elements":
-        setKeyelementsDropdownOpen(!keyelementsDropdownOpen);
-        break;
-      case "placement_testimonial":
-        setPlacementTestimonialDropdownOpen(!placementTestimonialDropdownOpen);
-        break;
-      case "engaged_Governance":
-        setEngagedGovernanceDropdownOpen(!engagedGovernanceDropdownOpen);
-        break;
-      case "Outcomes":
-        setOutcomesDropdownOpen(!outcomesDropdownOpen);
-      default:
-        break;
-    }
-  };
-
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
+    setDropdownStates((prev) => ({
+      ...prev,
+      [dropdown]: !prev[dropdown],
+    }));
   };
 
   const handleLogout = () => {
@@ -304,15 +217,243 @@ export default function LeftNavigationBar({ Content }) {
   };
 
   const handleNavigation = (dropdown, action) => {
-    // Define routes based on dropdown and action
     const routes = {
-      add: `/${dropdown}-add`,
+      control: `/${dropdown}-control`,
       control: `/${dropdown}-control`,
     };
 
-    // Navigate to the specified route
     navigate(routes[action]);
   };
+
+  const modules = [
+    {
+      text: "Services",
+      icon: <FontAwesomeIcon icon={faBusinessTime} style={{ color: "orange" }} />,
+      dropdown: "Services",
+      submodules: [
+        {
+          text: "Business Services",
+          link:"Business-Services",
+          icon: <Business style={orangeIconStyle} />,
+        },
+        {
+          text: "Services",
+          link:"Services",
+          icon: <DesignServicesRounded style={orangeIconStyle} />,
+        },
+        {
+          text: "Services About",
+          link:"Services-About",
+          icon: <AbcOutlined style={orangeIconStyle} />,
+        },
+        {
+          text: "Services Process",
+          link:"Services-Process",
+
+          icon: <WifiProtectedSetupSharp style={orangeIconStyle} />,
+        },
+        {
+          text: "Execution Highlights",
+          link:"Execution_Highlights",
+          icon: <HighlightAlt style={orangeIconStyle} />,
+        },
+        {
+          text: "Execution Overview",
+          link:"Execution_Overview",
+          icon: <HighQualityOutlined style={orangeIconStyle} />,
+        },
+        {
+          text: "Placement Training Track",
+          link:"Placement-Training-Track",
+          icon: <WorkOff style={orangeIconStyle} />,
+        },
+        {
+          text: "Services Opportunity",
+          link:"Services-Opportunity",
+          icon: <SupervisedUserCircle CircleOutlined style={orangeIconStyle} />,
+        },
+      ],
+    },
+    {
+      text: "Degree Program", 
+      icon: <AccountBalanceIcon style={orangeIconStyle} />,
+      dropdown: "Degree Program",
+      submodules: [
+        {
+          text: "College",
+          link: "College",
+          icon: <FontAwesomeIcon icon={faGraduationCap} style={{ color: "orange" }} />,
+        },
+        {
+          text: "Company",
+          link: "degreeprogram/company",
+          icon: <LocalPostOfficeOutlined style={orangeIconStyle} />,
+        },
+        {
+          text: "Degree Program",
+          link: "Degree_Program",
+          icon: <Terminal style={orangeIconStyle} />,
+        },
+       
+        {
+          text: "Our Program",
+          link:"Our_Program",
+          icon: <Highlight style={orangeIconStyle} />,
+        },
+        {
+          text: "Semester(Learning Path)",
+          link:"Semester",
+          icon: <SystemSecurityUpdateRounded style={orangeIconStyle} />,
+        },
+        {
+          text: "Skill Vertical",
+          link:"degreeprogram/skill-vertical",
+          icon: <VerticalAlignCenter style={orangeIconStyle} />,
+        },
+        {
+          text: "Outcomes",
+          link:"Outcomes",
+          icon: <CheckCircle style={orangeIconStyle} />,
+        },
+        {
+          text: "Our Partners",
+          link:"degreeprogram/our-partners",
+          icon: <Person3TwoTone style={orangeIconStyle} />,
+        },
+        {
+          text: "Our Sponosrs",
+          link:"degreeprogram/our-sponsors",
+          icon: <SportsOutlined style={orangeIconStyle} />,
+        },
+        {
+          text: "Target Student",
+          link:"degreeprogram/target-student",
+          icon: <VerifiedUserOutlined style={orangeIconStyle} />,
+        },
+      ],
+    },
+    {
+      text: "Program", 
+      icon: <GolfCourse style={orangeIconStyle} />,
+      dropdown: "Program",
+      submodules: [
+        {
+          text: "Category",
+          link:"Category",
+          icon: <Category style={orangeIconStyle} />,
+        },
+        {
+          text: "Software Tools",
+          link: "Software_Tools",
+          icon: <PanToolSharp style={orangeIconStyle} />,
+        },
+        {
+          text: "Course",
+          link: "Course",
+          icon: <GolfCourseTwoTone style={orangeIconStyle} />,
+        },
+      ],
+    },
+    {
+      text: "Bussiness", 
+      icon: <BusinessCenterSharp   style={orangeIconStyle} />,
+      dropdown: "Bussiness",
+      submodules: [
+        {
+          text: "Current Availability",
+          link:"business/current-availability",
+          icon: <StayCurrentPortrait style={orangeIconStyle} />,
+        },
+        {
+          text: "Why Can you",
+          link: "business/wcy-hire",
+          icon: <BusinessCenter style={orangeIconStyle} />,
+        },
+        {
+          text: "How It Work",
+          // link: "business/wcy-hire",
+          icon: <BusinessRounded style={orangeIconStyle} />,
+        },
+        {
+          text: "Client",
+          link: "business/Client",
+          icon: <AddBusinessTwoTone style={orangeIconStyle} />,
+        },
+        {
+          text: "Learning Journey",
+          link: "business/learningjourney",
+          icon: <LeakRemoveTwoTone style={orangeIconStyle} />,
+        },
+        
+      ],
+    },
+   
+    {
+      text: "About", 
+      icon: <FontAwesomeIcon icon={faAddressCard} style={{ color: "orange" }} />,
+      dropdown: "About",
+      submodules: [
+        {
+          text: "About Us",
+          link:"about/aboutus",
+          icon: <StayCurrentPortrait style={orangeIconStyle} />,
+        },
+        {
+          text: "Vsion & Mission",
+          link: "about/vision-mission",
+          icon: <VisibilityOutlined style={orangeIconStyle} />,
+           },
+        {
+          text: "Shine",
+          link: "about/shine",
+          icon: <ShieldMoon style={orangeIconStyle} />,
+        },    
+        {
+          text: "Yaerly Service",
+          link: "about/yearly-service",
+          icon: <FontAwesomeIcon icon={faHistory} style={{ color: "orange" }} />,
+        },       
+      ],
+    },
+    {
+      text: "Home", 
+      icon: <FontAwesomeIcon icon={faHome} style={{ color: "orange" }} />,
+      dropdown: "Home",
+      submodules: [
+        {
+          text: "Service Count",
+          link:"home/service-count",
+          icon: <Numbers style={orangeIconStyle} />,
+        },
+        {
+          text: "Execution Highlights",
+          link:"home/execution-highlights",
+          icon: <HighQualityRounded style={orangeIconStyle} />,
+        },
+          
+      ],
+    },
+     {
+      text: "Common", 
+      icon: <FontAwesomeIcon icon={faComment} style={{ color: "orange" }} />,
+      dropdown: "Common",
+      submodules: [
+        {
+          text: "FAQ",
+          link:"FAQ",
+          icon: <FontAwesomeIcon icon={faQuestion} style={{ color: "orange" }} />,
+        },
+        {
+          text: "Review",
+          link:"Review",
+          icon: <Reviews style={orangeIconStyle} />,
+        },
+          
+      ],
+    },
+    // Add more modules as needed
+    
+  ];
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -342,8 +483,11 @@ export default function LeftNavigationBar({ Content }) {
               aria-haspopup="true"
               aria-expanded={opens ? "true" : undefined}
             >
-              <Avatar sx={{ width: 32, height: 32 }}></Avatar>
-            </IconButton>
+<Avatar
+  src={user ? user.profile_pic : 'default-avatar.png'} // Use a default avatar if user is null
+  sx={{ bgcolor: "#8B5CF6" }}
+/>
+         </IconButton>
           </Tooltip>
           <Menu
             anchorEl={anchorEl}
@@ -381,14 +525,12 @@ export default function LeftNavigationBar({ Content }) {
             anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
           >
             <MenuItem
-              onClick={() => {
-                /* Handle Edit Profile Click */
-              }}
+             onClick={() => navigate('/admin/control')}
             >
               <ListItemIcon>
                 <AccountCircleIcon fontSize="small" />
               </ListItemIcon>
-              Edit Profile
+               Users
             </MenuItem>
 
             <MenuItem
@@ -408,185 +550,30 @@ export default function LeftNavigationBar({ Content }) {
       </AppBar>
       <Drawer variant="permanent" open={open} id="drawer">
         <DrawerHeader>
-          <img
+          <Box
+            component="img"
             src={logo}
             alt="Logo"
-            style={{ width: "100%", height: "30px" }}
+            sx={{ width: "100%", height: "30px", cursor: "pointer" }}
+            onClick={() => navigate("/adminhome")}
           />
-
           <IconButton onClick={handleDrawerClose}>
-            {theme.direction === "rtl" ? (
-              <ChevronRightIcon />
-            ) : (
-              <ChevronLeftIcon />
-            )}
+            {theme.direction === "rtl" ? <ChevronRightIcon /> : <ChevronLeftIcon />}
           </IconButton>
         </DrawerHeader>
         <Divider />
 
         <List>
-          {[
-            {
-              text: "Category",
-              icon: <CategoryOutlinedIcon />,
-              dropdown: "Category",
-            },
-            {
-              text: "Career_Opportunities",
-              icon: <AddBusiness />,
-              dropdown: "Career_Opportunities",
-            },
-            {
-              text: "Course_Modules",
-              icon: <ViewModule />,
-              dropdown: "Course_Modules",
-            },
-            {
-              text: "Software_Tools",
-              icon: <Webhook />,
-              dropdown: "Software_Tools",
-            },
-            {
-              text: "Instructor",
-              icon: <ContactEmergency />,
-              dropdown: "Instructor",
-            },
-            {
-              text: "Course",
-              icon: <SchoolOutlinedIcon />,
-              dropdown: "Course",
-            },
-            {
-              text: "Batch",
-              icon: <SchoolOutlinedIcon />,
-              dropdown: "Batch",
-            },
-            {
-              text: "FAQ",
-              icon: <QuestionAnswerOutlinedIcon />,
-              dropdown: "FAQ",
-            },
-            {
-              text: "Add_User",
-              icon: <PersonAddAlt />,
-              dropdown: "Add_User",
-            },
-            {
-              text: "Degree_Program",
-              icon: <AccountBalanceIcon />,
-              dropdown: "Degree_Program",
-            },
-            {
-              text: "Our_Program",
-              icon: <EventIcon />,
-              dropdown: "Our_Program",
-            },
-            {
-              text: "Semester",
-              icon: <BookIcon />,
-              dropdown: "Semester",
-            },
-            {
-              text: "EligibilityCriteria",
-              icon: <MenuBook />,
-              dropdown: "EligibilityCriteria",
-            },
-            {
-              text: "ProgramMentor",
-              icon: <HowToReg />,
-              dropdown: "ProgramMentor",
-            },
-            {
-              text: "ProgramFees",
-              icon: <HowToReg />,
-              dropdown: "ProgramFees",
-            },
-            {
-              text: "AdmissionProcess",
-              icon: <StepsIcon style={orangeIconStyle} />,
-              dropdown: "AdmissionProcess",
-            },
-            {
-              text: "Highlight",
-              icon: <HowToReg style={orangeIconStyle} />,
-              dropdown: "Highlight",
-            },
-            {
-              text: "Outcomes",
-              icon: <CheckCircle style={orangeIconStyle} />,
-              dropdown: "Outcomes",
-            },
-            {
-              text: "Services",
-              icon: <DesignServices style={orangeIconStyle} />,
-              dropdown: "Services",
-            },
-            {
-              text: "Client",
-              icon: <RememberMe style={orangeIconStyle} />,
-              dropdown: "Client",
-            },
-            {
-              text: "Execution_Highlights",
-              icon: <StarBorderPurple500 style={orangeIconStyle} />,
-              dropdown: "Execution_Highlights",
-            },
-            {
-              text: "Execution_Overview",
-              icon: <StarBorderPurple500 style={orangeIconStyle} />,
-              dropdown: "Execution_Overview",
-            },
-            {
-              text: "Service_Testimonial",
-              icon: <StarBorderPurple500 style={orangeIconStyle} />,
-              dropdown: "Service_Testimonial",
-            },
-            {
-              text: "Gallery",
-              icon: <StarBorderPurple500 style={orangeIconStyle} />,
-              dropdown: "Gallery",
-            },
-            {
-              text: "managed_Campus",
-              icon: <RememberMe style={orangeIconStyle} />,
-              dropdown: "managed_Campus",
-            },
-            {
-              text: "hiring",
-              icon: <RememberMe style={orangeIconStyle} />,
-              dropdown: "hiring",
-            },
-            {
-              text: "key_elements",
-              icon: <RememberMe style={orangeIconStyle} />,
-              dropdown: "key_elements",
-            },
-            {
-              text: "placement_testimonial",
-              icon: <RememberMe style={orangeIconStyle} />,
-              dropdown: "placement_testimonial",
-            },
-            {
-              text: "engaged_Governance",
-              icon: <RememberMe style={orangeIconStyle} />,
-              dropdown: "engaged_Governance",
-            },
-          ].map(({ text, icon, dropdown }) => (
+          {modules.map(({ text, icon, dropdown, submodules }) => (
             <React.Fragment key={text}>
-              <ListItem
-                key={text}
-                disablePadding
-                sx={{ display: "block", paddingTop: 2 }}
-              >
+              <ListItem disablePadding sx={{ display: "block", paddingTop: 2 }}>
                 <ListItemButton
                   sx={{
                     minHeight: 48,
                     justifyContent: open ? "initial" : "center",
                     px: 2.5,
                   }}
-                  onClick={() => {
-                    handleDropdownToggle(dropdown);
-                  }}
+                  onClick={() => handleDropdownToggle(dropdown)}
                 >
                   <ListItemIcon
                     sx={{
@@ -599,165 +586,23 @@ export default function LeftNavigationBar({ Content }) {
                     {React.cloneElement(icon, { sx: { color: "#F28C28" } })}
                   </ListItemIcon>
                   <ListItemText primary={text} sx={{ opacity: open ? 1 : 0 }} />
-                  {dropdown === "Career_Opportunities" &&
-                  carrieroppDropdownOpen ? (
-                    <></>
-                  ) : null}
-                  {dropdown === "Course_Modules" && courseModDropdownOpen ? (
-                    <></>
-                  ) : null}
-                  {dropdown === "Software_Tools" &&
-                  softwareToolsDropdownOpen ? (
-                    <></>
-                  ) : null}
-                  {dropdown === "Instructor" && instructorDropdownOpen ? (
-                    <></>
-                  ) : null}
-                  {dropdown === "Category" && categoryDropdownOpen ? (
-                    <></>
-                  ) : null}
-                  {dropdown === "FAQ" && faqDropdownOpen ? <></> : null}
-                  {dropdown === "Course" && courseDropdownOpen ? <></> : null}
-                  {dropdown === "Batch" && batchesDropdownOpen ? <></> : null}
-
-                  {dropdown === "Add_User" && adduserDropdownOpen ? (
-                    <></>
-                  ) : null}
-                  {dropdown === "Degree_Program" &&
-                  degreeprogramDropdownOpen ? (
-                    <></>
-                  ) : null}
-                  {dropdown === "Our_Program" && ourProgramDropdownOpen ? (
-                    <></>
-                  ) : null}
-                  {dropdown === "Semester" && semesterDropdownOpen ? (
-                    <></>
-                  ) : null}
-                  {dropdown === "EligibilityCriteria" &&
-                  eligibilityCriteriaDropdownOpen ? (
-                    <></>
-                  ) : null}
-                  {dropdown === "ProgramMentor" && programMentorDropdownOpen ? (
-                    <></>
-                  ) : null}
-                  {dropdown === "ProgramFees" && programFeesDropdownOpen ? (
-                    <></>
-                  ) : null}
-                  {dropdown === "AdmissionProcess" && admissionDropdownOpen ? (
-                    <></>
-                  ) : null}
-                  {dropdown === "Highlight" && highlightDropdownOpen ? (
-                    <></>
-                  ) : null}
-                  {dropdown === "Outcomes" && outcomesDropdownOpen ? (
-                    <></>
-                  ) : null}
-                  {dropdown === "Services" && servicesDropdownOpen ? (
-                    <></>
-                  ) : null}
-                  {dropdown === "Client" && clientDropdownOpen ? <></> : null}
-                  {dropdown === "Execution_Highlights" &&
-                  executionHighligtsDropdownOpen ? (
-                    <></>
-                  ) : null}
-                  {dropdown === "Execution_Overview" &&
-                  executionOverviewDropdownOpen ? (
-                    <></>
-                  ) : null}
-                  {dropdown === "Service_Testimonial" &&
-                  servicesTestimonialDropdownOpen ? (
-                    <></>
-                  ) : null}
-                  {dropdown === "Gallery" && galleryDropdownOpen ? <></> : null}
-                  {dropdown === "managed_Campus" &&
-                  managedCampusDropdownOpen ? (
-                    <></>
-                  ) : null}
-                  {dropdown === "hiring" && hiringDropdownOpen ? <></> : null}
-                  {dropdown === "key_elements" && keyelementsDropdownOpen ? (
-                    <></>
-                  ) : null}
-                  {dropdown === "placement_testimonial" &&
-                  placementTestimonialDropdownOpen ? (
-                    <></>
-                  ) : null}
-                  {dropdown === "engaged_Governance" &&
-                  engagedGovernanceDropdownOpen ? (
-                    <></>
-                  ) : null}
                 </ListItemButton>
 
-                {/* Dropdown Menus */}
-                <Collapse
-                  in={
-                    (dropdown === "Career_Opportunities" &&
-                      carrieroppDropdownOpen) ||
-                    (dropdown === "Course_Modules" && courseModDropdownOpen) ||
-                    (dropdown === "Software_Tools" &&
-                      softwareToolsDropdownOpen) ||
-                    (dropdown === "Instructor" && instructorDropdownOpen) ||
-                    (dropdown === "Category" && categoryDropdownOpen) ||
-                    (dropdown === "FAQ" && faqDropdownOpen) ||
-                    (dropdown === "Course" && courseDropdownOpen) ||
-                    (dropdown === "Batch" && batchesDropdownOpen) ||
-                    (dropdown === "Add_User" && adduserDropdownOpen) ||
-                    (dropdown === "Degree_Program" &&
-                      degreeprogramDropdownOpen) ||
-                    (dropdown === "Our_Program" && ourProgramDropdownOpen) ||
-                    (dropdown === "Semester" && semesterDropdownOpen) ||
-                    (dropdown === "EligibilityCriteria" &&
-                      eligibilityCriteriaDropdownOpen) ||
-                    (dropdown === "ProgramMentor" &&
-                      programMentorDropdownOpen) ||
-                    (dropdown === "ProgramFees" && programFeesDropdownOpen) ||
-                    (dropdown === "AdmissionProcess" &&
-                      admissionDropdownOpen) ||
-                    (dropdown === "Highlight" && highlightDropdownOpen) ||
-                    (dropdown === "Outcomes" && outcomesDropdownOpen) ||
-                    (dropdown === "Services" && servicesDropdownOpen) ||
-                    (dropdown === "Client" && clientDropdownOpen) ||
-                    (dropdown === "Execution_Highlights" &&
-                      executionHighligtsDropdownOpen) ||
-                    (dropdown === "Execution_Overview" &&
-                      executionOverviewDropdownOpen) ||
-                    (dropdown === "Service_Testimonial" &&
-                      servicesTestimonialDropdownOpen) ||
-                    (dropdown === "Gallery" && galleryDropdownOpen) ||
-                    (dropdown === "managed_Campus" &&
-                      managedCampusDropdownOpen) ||
-                    (dropdown === "hiring" && hiringDropdownOpen) ||
-                    (dropdown === "key_elements" && keyelementsDropdownOpen) ||
-                    (dropdown === "placement_testimonial" &&
-                      placementTestimonialDropdownOpen) ||
-                    (dropdown === "engaged_Governance" &&
-                      engagedGovernanceDropdownOpen)
-                  }
-                  timeout="auto"
-                  unmountOnExit
-                >
+                {/* Submodules */}
+                <Collapse in={dropdownStates[dropdown]} timeout="auto" unmountOnExit>
                   <List component="div" disablePadding>
-                    <ListItemButton
-                      onClick={() => {
-                        handleNavigation(dropdown, "add");
-                      }}
-                      sx={{ paddingLeft: 2 }}
-                    >
-                      <ListItemIcon>
-                        <AddIcon />
-                      </ListItemIcon>
-                      <ListItemText primary="Add" />
-                    </ListItemButton>
-                    <ListItemButton
-                      onClick={() => {
-                        handleNavigation(dropdown, "control");
-                      }}
-                      sx={{ paddingLeft: 2 }}
-                    >
-                      <ListItemIcon>
-                        <ControlIcon />
-                      </ListItemIcon>
-                      <ListItemText primary="Control" />
-                    </ListItemButton>
+                    {submodules.map((submodule) => (
+                      <ListItemButton
+                        key={submodule.text}
+                        onClick={() => handleNavigation(submodule.link, "control")}
+                        sx={{ pl: 4 }}
+                      >
+                        <ListItemIcon>
+                          {React.cloneElement(submodule.icon, { sx: { color: "#F28C28" } })}
+                        </ListItemIcon>
+                        <ListItemText primary={submodule.text} />
+                      </ListItemButton>
+                    ))}
                   </List>
                 </Collapse>
               </ListItem>

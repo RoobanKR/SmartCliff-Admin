@@ -8,102 +8,123 @@ import {
   Grid,
   Autocomplete,
   FormControl,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import { DropzoneArea } from "material-ui-dropzone";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  fetchExecutionHighlights,
+  clearUpdateStatus,
   fetchExecutionHighlightsById,
   updateExecutionHighlights,
 } from "../../../redux/slices/services/executionHighlights/Execution_Highlights";
 import { fetchServices } from "../../../redux/slices/services/services/Services";
 import LeftNavigationBar from "../../../navbars/LeftNavigationBar";
+import { getAllBussinessServices } from "../../../redux/slices/services/bussinessServices/BussinessSerives";
 
 const ExecutionHighlightsEditForm = () => {
   const { executionHighlightId } = useParams();
   const dispatch = useDispatch();
-  const executionHighlights = useSelector(
-    (state) => state.executionHighlights.executionHighlights
+  const navigate = useNavigate();
+
+  const { updateSuccess, successMessage, error } = useSelector(
+    (state) => state.executionHighlights
   );
+  const serviceData = useSelector((state) => state.service.serviceData);
+  const businessServiceData = useSelector(
+    (state) => state.businessService.businessServiceData
+  );
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+
   const [stack, setStack] = useState("");
   const [image, setImage] = useState(null);
   const [count, setCount] = useState("");
   const [existingImages, setExistingImages] = useState("");
-  const [service, setService] = useState(null);
-  const serviceData = useSelector((state) => state.service.serviceData);
+  const [selectedService, setSelectedService] = useState(null);
+  const [selectedBusinessService, setSelectedBusinessService] = useState(null);
+  const [filteredServices, setFilteredServices] = useState([]);
 
   useEffect(() => {
-    const fetchExecutionHighlights = async () => {
-      try {
-        const [executionHighlightsResponse, categoriesResponse] =
-          await Promise.all([
-            dispatch(fetchExecutionHighlightsById(executionHighlightId)),
-            dispatch(fetchServices()),
-          ]);
+    dispatch(fetchServices());
+    dispatch(getAllBussinessServices());
+  }, [dispatch]);
 
-        const fetchedHighlights = executionHighlightsResponse.payload;
+  useEffect(() => {
+    if (executionHighlightId) {
+      dispatch(fetchExecutionHighlightsById(executionHighlightId)).then(
+        (response) => {
+          const data = response.payload;
+          if (data) {
+            setStack(data.stack || "");
+            setCount(data.count || "");
+            setExistingImages(data.image || "");
+            setSelectedService(data.service || null);
 
-        if (!fetchedHighlights) {
-          console.error("ExecutionHighlights data not available");
-          return;
+            if (businessServiceData.length > 0) {
+              const businessService = businessServiceData.find(
+                (bs) => bs._id === data.business_service?._id
+              );
+              setSelectedBusinessService(businessService || null);
+            }
+          }
         }
+      ).catch((error) => console.error("Error fetching execution highlights:", error)); 
+    }
+  }, [executionHighlightId, dispatch, businessServiceData, serviceData]);
 
-        const { stack, image, count, service } = fetchedHighlights;
+  useEffect(() => {
+    if (selectedBusinessService) {
+      setFilteredServices(
+        serviceData.filter(
+          (service) => service.business_services?._id === selectedBusinessService._id
+        )
+      );
+    } else {
+      setFilteredServices([]);
+    }
+  }, [selectedBusinessService, serviceData]);
 
-        setStack(stack || "");
-        setImage(image || null);
-        setCount(count || "");
-        setExistingImages(image || null);
+  const handleBusinessServiceChange = (_, newValue) => {
+    setSelectedBusinessService(newValue);
+    setSelectedService(null);
+  };
 
-        setService(service || null);
-
-        console.log("State after setting values:", {
-          stack,
-          image,
-          count,
-          service,
-        });
-      } catch (error) {
-        console.error("Error fetching executionHighlight details:", error);
-      }
-    };
-
-    fetchExecutionHighlights();
-  }, [executionHighlightId, dispatch]);
+  const handleServiceChange = (_, newValue) => {
+    setSelectedService(newValue);
+  };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-
     const formData = new FormData();
     formData.append("stack", stack);
-
-    // Check if the image state is not empty and is not a string (indicating an updated image)
-    if (image && typeof image !== "string") {
+    if (image) {
       formData.append("image", image);
-    } else {
-      // If the image state is either empty or a string (indicating an existing image), use the existing image URL
-      formData.append("image", existingImages); // Here you append the existing image URL directly
     }
-
     formData.append("count", count);
-    formData.append("service", service?._id || "");
-
+    if (selectedBusinessService) formData.append("business_service", selectedBusinessService._id);
+    if (selectedService) formData.append("service", selectedService._id);
+  
     try {
-      await dispatch(
-        updateExecutionHighlights({ executionHighlightId, formData })
-      );
+      await dispatch(updateExecutionHighlights({ executionHighlightId, formData }));
+      navigate("/Execution_Highlights-control");
 
-      const updatedexecutionHighlightsDetails = await dispatch(
-        fetchExecutionHighlightsById(executionHighlightId)
-      );
-
-      setExistingImages(updatedexecutionHighlightsDetails.image || "");
+      setOpenSnackbar(true);
     } catch (error) {
-      console.error("Error updating executionHighlights:", error);
+      console.error("Error updating execution highlights:", error);
     }
-  };
-
+  }
+  useEffect(() => {
+    if (updateSuccess) {
+      setOpenSnackbar(true);
+      const timer = setTimeout(() => {
+        dispatch(clearUpdateStatus());
+        navigate("/Execution_Highlights-control");
+      }, 2000);
+      
+      return () => clearTimeout(timer); // Cleanup the timer on unmount
+    }
+  }, [updateSuccess, navigate, dispatch]);
   return (
     <LeftNavigationBar
       Content={
@@ -117,22 +138,94 @@ const ExecutionHighlightsEditForm = () => {
               alignItems: "center",
             }}
           >
+<Snackbar
+  open={openSnackbar}
+  autoHideDuration={2000}
+  onClose={() => setOpenSnackbar(false)}
+  anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+>
+  <Alert severity="success" onClose={() => setOpenSnackbar(false)}>
+    {successMessage || "Update successful!"}
+  </Alert>
+</Snackbar>
+            {error && (
+              <Alert severity="error" sx={{ mb: 2 }}>
+                {error}
+              </Alert>
+            )}
             <Typography
-              gutterBottom
               variant="h4"
-              textAlign={"center"}
-              component="div"
-              fontFamily={"Serif"}
+              sx={{
+                position: "relative",
+                padding: 0,
+                margin: 0,
+                fontFamily: 'Merriweather, serif',
+                fontWeight: 700, textAlign: 'center',
+                fontWeight: 300,
+                fontSize: { xs: "32px", sm: "40px" },
+                color: "#747474",
+                textAlign: "center",
+                textTransform: "uppercase",
+                paddingBottom: "5px",
+                mb: 5,
+                "&::before": {
+                  content: '""',
+                  width: "28px",
+                  height: "5px",
+                  display: "block",
+                  position: "absolute",
+                  bottom: "3px",
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  backgroundColor: "#747474",
+                },
+                "&::after": {
+                  content: '""',
+                  width: "100px",
+                  height: "1px",
+                  display: "block",
+                  position: "relative",
+                  marginTop: "5px",
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  backgroundColor: "#747474",
+                },
+              }}
             >
               Execution Highlights Edit Form
             </Typography>
-            <br></br>
+            <br />
             <form onSubmit={handleSubmit} style={{ width: "100%" }}>
               <Grid container spacing={2}>
                 <Grid item xs={12}>
+                  <FormControl fullWidth>
+                    <Autocomplete
+                      id="business-services"
+                      options={businessServiceData || []}
+                      getOptionLabel={(option) => option?.name || ""}
+                      value={selectedBusinessService}
+                      onChange={handleBusinessServiceChange}
+                      isOptionEqualToValue={(option, value) => option._id === value._id}
+                      renderInput={(params) => <TextField {...params} variant="outlined" label="Business Services" fullWidth />}
+                    />
+                  </FormControl>
+                </Grid>
+                <Grid item xs={12}>
+                  <FormControl fullWidth>
+                    <Autocomplete
+                      id="service"
+                      options={filteredServices || []}
+                      getOptionLabel={(option) => option?.title || ""}
+                      value={selectedService}
+                      onChange={handleServiceChange}
+                      renderInput={(params) => <TextField {...params} variant="outlined" label="Service" fullWidth required />}
+                    />
+                  </FormControl>
+                </Grid>
+                <Grid item xs={12}>
                   <TextField
                     fullWidth
-                    label="stack"
+                    label="Stack"
                     variant="outlined"
                     required
                     value={stack}
@@ -140,14 +233,17 @@ const ExecutionHighlightsEditForm = () => {
                   />
                 </Grid>
                 <Grid item xs={12}>
-                  <DropzoneArea
-                    onChange={(fileArray) => setImage(fileArray[0])}
-                    acceptedFiles={["image/jpeg", "image/jpg"]}
-                    filesLimit={1}
-                    showPreviews={false}
-                    showPreviewsInDropzone={true}
-                    dropzoneText="Drag and drop an image here or click"
-                  />
+                  <div style={{ marginTop: '16px' }}>
+                    <DropzoneArea
+                      onChange={(fileArray) => setImage(fileArray[0])}
+                      acceptedFiles={["image/*"]}
+                      filesLimit={1}
+                      showPreviews={false}
+                      showPreviewsInDropzone={true}
+                      dropzoneText="Drag and drop an image here or click"
+                      required
+                    />
+                  </div>
                   <Typography
                     variant="subtitle1"
                     color="textSecondary"
@@ -162,29 +258,9 @@ const ExecutionHighlightsEditForm = () => {
                   )}
                 </Grid>
                 <Grid item xs={12}>
-                  <FormControl fullWidth>
-                    <Autocomplete
-                      id="service"
-                      options={serviceData}
-                      getOptionLabel={(option) => option.title || ""}
-                      value={service}
-                      onChange={(_, newValue) => setService(newValue)}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          variant="outlined"
-                          label="service"
-                          fullWidth
-                        />
-                      )}
-                    />
-                  </FormControl>{" "}
-                </Grid>
-
-                <Grid item xs={12}>
                   <TextField
                     fullWidth
-                    label="count"
+                    label="Count"
                     variant="outlined"
                     required
                     type="number"

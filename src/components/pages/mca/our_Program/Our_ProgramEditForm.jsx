@@ -7,6 +7,7 @@ import {
   Paper,
   Container,
   Autocomplete,
+  FormControl,
 } from "@mui/material";
 import { DropzoneArea } from "material-ui-dropzone";
 import { useNavigate, useParams } from "react-router-dom";
@@ -17,6 +18,10 @@ import {
 import { fetchDegreeProgramData } from "../../../redux/slices/mca/degreeProgram/degreeProgram";
 import { useCookies } from "react-cookie";
 import { resetSignIn, userVerify } from "../../../redux/slices/user/Signin";
+import { fetchServices } from "../../../redux/slices/services/services/Services";
+import { getAllBussinessServices } from "../../../redux/slices/services/bussinessServices/BussinessSerives";
+import { getAllCompanies } from "../../../redux/slices/mca/company/company";
+import { getAllColleges } from "../../../redux/slices/mca/college/college";
 
 const Our_ProgramEditForm = () => {
   const { programId } = useParams();
@@ -34,72 +39,228 @@ const Our_ProgramEditForm = () => {
     (state) => state.degreeProgram.degreeProgramData
   );
   const [cookies, removeCookie] = useCookies(["token"]);
+  const [selectedBusinessService, setSelectedBusinessService] = useState(null);
+  const [selectedService, setSelectedService] = useState(null);
+  const [selectedCompany, setSelectedCompany] = useState(null);
+  const [selectedCollege, setSelectedCollege] = useState(null);
+
+  const serviceData = useSelector((state) => state.service.serviceData);
+  const businessServiceData = useSelector(
+    (state) => state.businessService.businessServiceData
+  );
+  const companyData = useSelector((state) => state.companies.companies);
+        const collegeData = useSelector((state) => state.college.colleges) || [];
+  const [filteredServices, setFilteredServices] = useState([]);
+  const [filteredDegreePrograms, setFilteredDegreePrograms] = useState([]);
 
   useEffect(() => {
-     if (!cookies.token || cookies.token === undefined) {
-       dispatch(resetSignIn());
-       navigate("/");
-     } else {
-       dispatch(userVerify({ token: cookies.token }));
-       console.log("user verify called");
-     }
-   }, [cookies]);
- 
- 
+    if (!cookies.token || cookies.token === undefined) {
+      dispatch(resetSignIn());
+      navigate("/");
+    } else {
+      dispatch(userVerify({ token: cookies.token }));
+    }
+  }, [cookies]);
+
   useEffect(() => {
     dispatch(fetchOurProgramById(programId));
-    dispatch(fetchDegreeProgramData()); // Fetch degree program data if needed
+    dispatch(fetchDegreeProgramData());
+    dispatch(fetchServices());
+    dispatch(getAllBussinessServices());
+    dispatch(getAllCompanies());
+       dispatch(getAllColleges());
+    
   }, [dispatch, programId]);
 
   useEffect(() => {
     if (selectedProgram) {
       setTitle(selectedProgram.title || "");
       setDescription(selectedProgram.description || "");
-      setDegreeProgram(selectedProgram.degree_program || null);
       setExistingIcon(selectedProgram.icon || "");
+      
+      // For degree_program, find the matching object from degreeProgramData
+      if (selectedProgram.degree_program) {
+        const matchingDegreeProgram = degreeProgramData.find(
+          (dp) => dp._id === selectedProgram.degree_program._id
+        );
+        setDegreeProgram(matchingDegreeProgram || null);
+      }      
+      // For business_service, find the matching object from businessServiceData
+      if (selectedProgram.business_service) {
+        const matchingBS = businessServiceData.find(
+          bs => bs._id === selectedProgram.business_service._id || bs._id === selectedProgram.business_service
+        );
+        setSelectedBusinessService(matchingBS || null);
+      }
+      
+      // For service, find the matching object from serviceData
+      if (selectedProgram.service) {
+        const matchingService = serviceData.find(
+          srv => srv._id === selectedProgram.service._id || srv._id === selectedProgram.service
+        );
+        setSelectedService(matchingService || null);
+      }
+      
+      // For company, find the matching object from companyData
+      if (selectedProgram.company) {
+        const matchingCompany = companyData.find(
+          comp => comp._id === selectedProgram.company._id || comp._id === selectedProgram.company
+        );
+        setSelectedCompany(matchingCompany || null);
+      }
+      
+      // For college, find the matching object from collegeData
+      if (selectedProgram.college) {
+        const matchingCollege = collegeData.find(
+          col => col._id === selectedProgram.college._id || col._id === selectedProgram.college
+        );
+        setSelectedCollege(matchingCollege || null);
+      }
     }
-  }, [selectedProgram]);
-
+  }, [selectedProgram, degreeProgramData, businessServiceData, serviceData, companyData, collegeData]);
+ 
+   useEffect(() => {
+     if (selectedBusinessService) {
+       const filtered = serviceData.filter(
+         (service) => service.business_services?._id === selectedBusinessService._id
+       );
+       setFilteredServices(filtered);
+     } else {
+       setFilteredServices([]);
+     }
+   }, [selectedBusinessService, serviceData]);
+ 
+   useEffect(() => {
+     if (selectedService) {
+       const filteredPrograms = degreeProgramData.filter(
+         (program) => program.service?._id === selectedService._id
+       );
+       setFilteredDegreePrograms(filteredPrograms);
+     } else {
+       setFilteredDegreePrograms(degreeProgramData);
+     }
+   }, [selectedService, degreeProgramData]);
+ 
+   const handleServiceChange = (_, newValue) => {
+     setSelectedService(newValue);
+   };
+ 
+   const handleBussinessServiceChange = (_, newValue) => {
+     setSelectedBusinessService(newValue);
+   };
+ 
+   const handleProgramChange = (_, newValue) => {
+    setDegreeProgram(newValue);
+   };
+ 
+ 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    setLoading(true); // Start loading
-
+    setLoading(true);
+  
     const formData = new FormData();
     formData.append("title", title);
     formData.append("description", description);
-    formData.append("degree_program", degreeProgram?._id || "");
-    formData.append("icon", icon || existingIcon); // Use the existing icon if no new icon is selected
-
+    
+    // Only append the ID values, not the entire objects
+    if (degreeProgram && degreeProgram._id) {
+      formData.append("degree_program", degreeProgram._id);
+    }
+    
+    // Handle the icon
+    if (icon) {
+      formData.append("icon", icon);
+    }
+    
+    // Handle business service
+    if (selectedBusinessService && selectedBusinessService._id) {
+      formData.append("business_service", selectedBusinessService._id);
+    }
+    
+    // Handle service
+    if (selectedService && selectedService._id) {
+      formData.append("service", selectedService._id);
+    }
+    
+    // Handle company - only if it exists
+    if (selectedCompany && selectedCompany._id) {
+      formData.append("company", selectedCompany._id);
+    }
+    
+    // Handle college - only if it exists
+    if (selectedCollege && selectedCollege._id) {
+      formData.append("college", selectedCollege._id);
+    }
+  
     try {
-      await dispatch(updateOurProgram({ token: cookies.token,programId, formData }));
+      await dispatch(
+        updateOurProgram({ token: cookies.token, programId, formData })
+      );
       navigate(`/Our_Program-control`);
     } catch (error) {
       setError(error.message);
     } finally {
-      setLoading(false); // Stop loading
+      setLoading(false);
     }
   };
-
-  const handleIconChange = (icon) => {
-    setIcon(icon[0]); // Set the first icon in the array as the selected icon
+  const handleIconChange = (files) => {
+    setIcon(files[0]);
   };
 
   return (
     <Container component="main" maxWidth="md">
       <Paper elevation={3} sx={{ padding: 4, marginTop: 4 }}>
-        <Typography
-          gutterBottom
-          variant="h4"
-          align="center"
-          component="div"
-          style={{ fontFamily: "Serif" }}
-        >
+            <Typography
+              variant="h4"
+              sx={{
+                position: "relative",
+                padding: 0,
+                margin: 0,
+                fontFamily: 'Merriweather, serif',
+                fontWeight: 700, textAlign: 'center',
+                fontWeight: 300,
+                fontSize: { xs: "32px", sm: "40px" },
+                color: "#747474",
+                textAlign: "center",
+                textTransform: "uppercase",
+                paddingBottom: "5px",
+                mb: 5,
+                "&::before": {
+                  content: '""',
+                  width: "28px",
+                  height: "5px",
+                  display: "block",
+                  position: "absolute",
+                  bottom: "3px",
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  backgroundColor: "#747474",
+                },
+                "&::after": {
+                  content: '""',
+                  width: "100px",
+                  height: "1px",
+                  display: "block",
+                  position: "relative",
+                  marginTop: "5px",
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  backgroundColor: "#747474",
+                },
+              }}
+            >
           Edit Our Program
         </Typography>
         <form onSubmit={handleSubmit}>
           <DropzoneArea
-                    onChange={(fileArray) => setIcon(fileArray[0])}
-                    acceptedFiles={["image/jpeg", "image/jpg"]}
+            onChange={handleIconChange}
+            acceptedFiles={[
+              "image/png",
+              "image/jpeg",
+              "image/jpg",
+              "image/svg+xml",
+              "image/*",
+            ]}
             filesLimit={1}
             showPreviews={false}
             showPreviewsInDropzone={true}
@@ -130,7 +291,6 @@ const Our_ProgramEditForm = () => {
           />
           <TextField
             margin="normal"
-            required
             fullWidth
             id="description"
             label="Description"
@@ -140,21 +300,99 @@ const Our_ProgramEditForm = () => {
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
+        <FormControl fullWidth>
           <Autocomplete
-            id="degree_program"
-            options={degreeProgramData}
-            getOptionLabel={(option) => option.program_name || ""}
-            value={degreeProgram}
-            onChange={(_, newValue) => setDegreeProgram(newValue)}
+            id="Business Services"
+            options={businessServiceData || []}
+            getOptionLabel={(option) => option?.name || ""}
+            value={selectedBusinessService}
+            onChange={handleBussinessServiceChange}
+            isOptionEqualToValue={(option, value) =>
+              option._id === value._id
+            }
             renderInput={(params) => (
               <TextField
                 {...params}
                 variant="outlined"
-                label="Degree Program"
+                label="Business Services"
                 fullWidth
               />
             )}
           />
+        </FormControl>
+        <br /> <br />
+        <FormControl fullWidth>
+          <Autocomplete
+            id="service"
+            options={filteredServices || []}
+            getOptionLabel={(option) => option?.title || ""}
+            value={selectedService}
+            onChange={handleServiceChange}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                variant="outlined"
+                label="Service"
+                fullWidth
+                required
+              />
+            )}
+          />
+        </FormControl>
+        <br /><br />
+        <FormControl fullWidth>
+            <Autocomplete
+              id="degree_program"
+              options={filteredDegreePrograms || []}
+              getOptionLabel={(option) => option?.program_name || ""}
+              value={degreeProgram}
+              onChange={handleProgramChange}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  variant="outlined"
+                  label="Program"
+                  fullWidth
+                />
+              )}
+            />
+          </FormControl>
+
+          <FormControl fullWidth>
+            <Autocomplete
+              id="company"
+              options={companyData || []}
+              getOptionLabel={(option) => option?.companyName || ""}
+              value={selectedCompany}
+              onChange={(_, newValue) => setSelectedCompany(newValue)}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  variant="outlined"
+                  label="Company"
+                  fullWidth
+                />
+              )}
+            />
+          </FormControl>
+
+          <FormControl fullWidth>
+            <Autocomplete
+              id="college"
+              options={collegeData || []}
+              getOptionLabel={(option) => option?.collegeName || ""}
+              value={selectedCollege}
+              onChange={(_, newValue) => setSelectedCollege(newValue)}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  variant="outlined"
+                  label="College"
+                  fullWidth
+                />
+              )}
+            />
+          </FormControl>
 
           <Button
             type="submit"

@@ -4,7 +4,9 @@ import Paper from "@material-ui/core/Paper";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import { DropzoneArea } from "material-ui-dropzone";
-import { Typography } from "@mui/material";
+import { Autocomplete, FormControl, Grid, Typography } from "@mui/material";
+import Snackbar from "@mui/material/Snackbar";
+import Alert from "@mui/material/Alert";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import {
@@ -12,6 +14,10 @@ import {
   updateDegreeProgram,
 } from "../../../redux/slices/mca/degreeProgram/degreeProgram";
 import LeftNavigationBar from "../../../navbars/LeftNavigationBar";
+import { fetchServices } from "../../../redux/slices/services/services/Services";
+import { getAllBussinessServices } from "../../../redux/slices/services/bussinessServices/BussinessSerives";
+import { getAllCompanies } from "../../../redux/slices/mca/company/company";
+import { getAllColleges } from "../../../redux/slices/mca/college/college";
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -51,23 +57,107 @@ const DegreeProgramEditForm = () => {
   const [existingImages, setExistingImages] = useState([]);
   const [programName, setProgramName] = useState("");
   const [slogan, setSlogan] = useState("");
+  const [service, setService] = useState(null);
+  const [initialServiceId, setInitialServiceId] = useState(null);
+  const [college, setCollege] = useState(null);
+  const [company, setCompany] = useState(null);
+  const collegeData = useSelector((state) => state.college.colleges) || [];
+  const serviceData = useSelector((state) => state.service.serviceData);
+  const companyData = useSelector((state) => state.companies.companies);
+  const businessServiceData = useSelector(
+    (state) => state.businessService.businessServiceData
+  );
+  const [selectedBusinessService, setSelectedBusinessService] = useState(null);
+  const [filteredServices, setFilteredServices] = useState([]);
+
+  // Snackbar States
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+
   useEffect(() => {
     dispatch(fetchDegreeProgramById(degreeProgramId));
+    dispatch(fetchServices());
+    dispatch(getAllBussinessServices());
+    dispatch(getAllCompanies());
+    dispatch(getAllColleges());
   }, [dispatch, degreeProgramId]);
 
   useEffect(() => {
-    if (!degreeProgram) {
-      dispatch(fetchDegreeProgramById(degreeProgramId));
+    if (selectedBusinessService) {
+      setFilteredServices(
+        serviceData.filter(
+          (service) => service.business_services?._id === selectedBusinessService._id
+        )
+      );
     } else {
+      setFilteredServices([]);
+    }
+  }, [selectedBusinessService, serviceData]);
+
+  useEffect(() => {
+    if (degreeProgram) {
       setProgramName(degreeProgram.program_name || "");
       setSlogan(degreeProgram.slogan || "");
-
       setTitle(degreeProgram.title || "");
       setSlug(degreeProgram.slug || "");
       setDescription(degreeProgram.description || "");
       setExistingImages(degreeProgram.images || []);
+      setCompany(degreeProgram.company || null);
+
+      // Fix for college - check if it's an array and take the first item
+      if (degreeProgram.college && Array.isArray(degreeProgram.college) && degreeProgram.college.length > 0) {
+        setCollege(degreeProgram.college[0]); // Set the first college from the array
+      } else {
+        setCollege(null);
+      }
+
+      if (businessServiceData.length > 0 && degreeProgram.business_service) {
+        const businessService = businessServiceData.find(
+          (bs) => bs._id === degreeProgram.business_service._id
+        );
+        setSelectedBusinessService(businessService || null);
+      }
+
+      if (degreeProgram.service && degreeProgram.service._id) {
+        setInitialServiceId(degreeProgram.service._id);
+      }
     }
-  }, [dispatch, degreeProgramId, degreeProgram]);
+  }, [dispatch, degreeProgramId, degreeProgram, businessServiceData]);
+
+  useEffect(() => {
+    if (initialServiceId && filteredServices.length > 0) {
+      const serviceObj = filteredServices.find(s => s._id === initialServiceId);
+      if (serviceObj) {
+        setService(serviceObj);
+      }
+      setInitialServiceId(null);
+    }
+  }, [initialServiceId, filteredServices]);
+
+  const handleBusinessServiceChange = (_, newValue) => {
+    setSelectedBusinessService(newValue);
+    setService(null);
+  };
+
+  const handleServiceChange = (_, newValue) => {
+    setService(newValue);
+  };
+
+  const handleCompanyChange = (_, newValue) => {
+    setCompany(newValue);
+  };
+
+  const handleCollegeChange = (_, newValue) => {
+    setCollege(newValue);
+  };
+
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setSnackbarOpen(false);
+  };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -78,6 +168,12 @@ const DegreeProgramEditForm = () => {
     formData.append("description", description);
     formData.append("program_name", programName);
     formData.append("slogan", slogan);
+    if (service) formData.append("service", service._id);
+    if (company) formData.append("company", company._id);
+    if (college) formData.append("college", college._id);
+
+    if (selectedBusinessService) formData.append("business_service", selectedBusinessService._id);
+
     if (newImages.length > 0) {
       for (const image of newImages) {
         formData.append("images", image);
@@ -100,9 +196,21 @@ const DegreeProgramEditForm = () => {
     }
     try {
       await dispatch(updateDegreeProgram({ degreeProgramId, formData }));
-      navigate(`/Degree_Program-control`);
+      // Show success snackbar
+      setSnackbarMessage("Degree Program updated successfully!");
+      setSnackbarSeverity("success");
+      setSnackbarOpen(true);
+
+      // Navigate after a slight delay to allow the user to see the success message
+      setTimeout(() => {
+        navigate(`/Degree_Program-control`);
+      }, 1500);
     } catch (error) {
       setError(error.message);
+      // Show error snackbar
+      setSnackbarMessage(`Failed to update: ${error.message}`);
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
     }
   };
 
@@ -114,17 +222,103 @@ const DegreeProgramEditForm = () => {
     <LeftNavigationBar
       Content={
         <Paper className={classes.paper} elevation={3}>
-          <Typography
-            gutterBottom
-            variant="h4"
-            align="center"
-            component="div"
-            style={{ fontFamily: "Serif" }}
-          >
+            <Typography
+              variant="h4"
+              sx={{
+                position: "relative",
+                padding: 0,
+                margin: 0,
+                fontFamily: 'Merriweather, serif',
+                fontWeight: 700, textAlign: 'center',
+                fontWeight: 300,
+                fontSize: { xs: "32px", sm: "40px" },
+                color: "#747474",
+                textAlign: "center",
+                textTransform: "uppercase",
+                paddingBottom: "5px",
+                mb: 5,
+                "&::before": {
+                  content: '""',
+                  width: "28px",
+                  height: "5px",
+                  display: "block",
+                  position: "absolute",
+                  bottom: "3px",
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  backgroundColor: "#747474",
+                },
+                "&::after": {
+                  content: '""',
+                  width: "100px",
+                  height: "1px",
+                  display: "block",
+                  position: "relative",
+                  marginTop: "5px",
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  backgroundColor: "#747474",
+                },
+              }}
+            >
             Degree Program Edit Form
           </Typography>
           <br />
           <form className={classes.form} onSubmit={handleSubmit}>
+            <Grid item xs={12}>
+              <FormControl fullWidth>
+                <Autocomplete
+                  id="business-services"
+                  options={businessServiceData || []}
+                  getOptionLabel={(option) => option?.name || ""}
+                  value={selectedBusinessService}
+                  onChange={handleBusinessServiceChange}
+                  isOptionEqualToValue={(option, value) => option?._id === value?._id}
+                  renderInput={(params) => <TextField {...params} variant="outlined" label="Business Services" fullWidth />}
+                />
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} style={{ marginTop: '16px' }}>
+              <FormControl fullWidth>
+                <Autocomplete
+                  id="service"
+                  options={filteredServices || []}
+                  getOptionLabel={(option) => option?.title || ""}
+                  value={service}
+                  onChange={handleServiceChange}
+                  isOptionEqualToValue={(option, value) => option?._id === value?._id}
+                  renderInput={(params) => <TextField {...params} variant="outlined" label="Service" fullWidth required />}
+                />
+              </FormControl>
+            </Grid>
+            <Grid item xs={12}>
+              <FormControl fullWidth>
+                <Autocomplete
+                  id="company"
+                  options={companyData || []}
+                  getOptionLabel={(option) => option?.companyName || ""}
+                  value={company}
+                  onChange={handleCompanyChange}
+                  isOptionEqualToValue={(option, value) => option?._id === value?._id}
+                  renderInput={(params) => <TextField {...params} variant="outlined" label="Company" fullWidth />}
+                />
+              </FormControl>
+            </Grid>
+
+            <Grid item xs={12}>
+              <FormControl fullWidth>
+                <Autocomplete
+                  id="college"
+                  options={collegeData || []}
+                  getOptionLabel={(option) => option?.collegeName || ""}
+                  value={college}
+                  onChange={handleCollegeChange}
+                  isOptionEqualToValue={(option, value) => option?._id === value?._id}
+                  renderInput={(params) => <TextField {...params} variant="outlined" label="College" fullWidth />}
+                />
+              </FormControl>
+            </Grid>
+
             <TextField
               variant="outlined"
               margin="normal"
@@ -151,7 +345,7 @@ const DegreeProgramEditForm = () => {
               acceptedFiles={["image/*"]}
               filesLimit={5}
               dropzoneText="Drag and drop images here or click"
-              onChange={(fileArray) => setNewImages(fileArray)}
+              onChange={handleImageChange}
             />
             <Typography
               variant="subtitle1"
@@ -219,6 +413,18 @@ const DegreeProgramEditForm = () => {
               </Typography>
             )}
           </form>
+
+          {/* Snackbar for notifications */}
+          <Snackbar
+            open={snackbarOpen}
+            autoHideDuration={6000}
+            onClose={handleSnackbarClose}
+            anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+          >
+            <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
+              {snackbarMessage}
+            </Alert>
+          </Snackbar>
         </Paper>
       }
     />

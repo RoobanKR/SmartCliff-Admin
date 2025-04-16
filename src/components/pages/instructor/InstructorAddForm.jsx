@@ -46,7 +46,7 @@ const validationSchema = Yup.object({
   qualification: Yup.string().required("Qualification is required"),
   specialization: Yup.string().required("Specialization is required"),
    category: Yup.array().min(1, "At least one category is required"),
-  profile_pic: Yup.array().min(1, "At least one image is required"),
+  profile: Yup.array().min(1, "At least one image is required"),
 });
 
 const InstructorAddForm = () => {
@@ -98,7 +98,7 @@ const InstructorAddForm = () => {
     formData.append("category", categoryString);
 
     for (let i = 0; i < images.length; i++) {
-      formData.append("profile_pic", images[i]);
+      formData.append("profile", images[i]);
     }
 
     dispatch(addInstructor({ formData, token: cookies.token }));
@@ -210,7 +210,7 @@ const InstructorAddForm = () => {
                     filesLimit={5}
                     dropzoneText="Drag and drop images here or click"
                     onChange={(fileArray) => setImages(fileArray)}
-                    name="profile_pic"
+                    name="profile"
                   />
                 </Grid>
                 <br />

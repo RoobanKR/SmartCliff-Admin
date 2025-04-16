@@ -132,7 +132,7 @@ const InstructorControl = () => {
                     <TableCell>{instructor.name}</TableCell>
                     <TableCell>
                       <img
-                        src={instructor.profile_pic}
+                        src={instructor.profile}
                         alt={instructor.name}
                         style={{ maxWidth: "100px", maxHeight: "100px" }}
                       />

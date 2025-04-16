@@ -37,7 +37,7 @@ export const deleteExecutionOverview = createAsyncThunk(
   async (id) => {
     try {
       const response = await Axios.delete(
-        `${getAPIURL()}/delete/execution_highlight/${id}`
+        `${getAPIURL()}/delete/execution_overview/${id}`
       );
 
       return response.data;

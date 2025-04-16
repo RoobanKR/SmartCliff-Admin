@@ -142,11 +142,9 @@ const categoryReducer = createSlice({
           : action.error.message;
         if (action.payload) {
           state.error = action.payload.errorMessage;
-          console.log("error", action.payload.message[0].value);
           errorToast(action.payload.message[0].value, "bottom_right");
         } else {
           state.error = action.error.message;
-          console.log("error", action);
           errorToast(action.error.message, "bottom_right");
         }
       })

@@ -68,10 +68,8 @@ export const adminSignUpSlice = createSlice({
       state.isError = true;
       if (action.payload) {
         state.error = action.payload.errorMessage;
-        console.log("error", action.payload.message[0].value);
       } else {
         state.error = action.error.message;
-        console.log("error", action);
       }
     });
   },

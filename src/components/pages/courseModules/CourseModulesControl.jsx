@@ -57,7 +57,6 @@ const CourseModulesControl = () => {
       .catch((error) => console.error("Error deleting module:", error));
   };
 
-  console.log("courseModules", courseModules);
   return (
     <LeftNavigationBar
       Content={

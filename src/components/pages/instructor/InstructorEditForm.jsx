@@ -70,7 +70,7 @@ const InstructorEditForm = () => {
       const formData = new FormData();
       formData.append("name", values.name);
       if (profilePic) {
-        formData.append("profile_pic", profilePic);
+        formData.append("profile", profilePic);
       }
       formData.append("description", values.description);
       formData.append("experience", values.experience);
@@ -102,7 +102,7 @@ const InstructorEditForm = () => {
         }
 
         formik.setFieldValue("name", fetchedInstructor.name || "");
-        setProfilePic(fetchedInstructor.profile_pic || null);
+        setProfilePic(fetchedInstructor.profile || null);
         formik.setFieldValue("description", fetchedInstructor.description || "");
         formik.setFieldValue("experience", fetchedInstructor.experience || "");
         formik.setFieldValue("qualification", fetchedInstructor.qualification || "");
