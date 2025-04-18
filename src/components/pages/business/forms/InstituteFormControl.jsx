@@ -49,9 +49,12 @@ import LeftNavigationBar from '../../../navbars/LeftNavigationBar';
 import * as XLSX from 'xlsx';
 import fi from 'date-fns/locale/fi/index.js';
 import { deleteInstitute, getAllInstitute, sendResponseEmailInstituteForm } from '../../../redux/slices/business/form/instituteForm';
+import { useNavigate } from 'react-router-dom';
 
 const InstituteUsFormsControl = () => {
     const dispatch = useDispatch();
+      const navigate = useNavigate(); 
+    
     const instituteApplications = useSelector((state) => state.institute.instituteApplications) || [];
     const [loading, setLoading] = useState(true);
     const [nameSearchTerm, setNameSearchTerm] = useState('');
@@ -513,12 +516,22 @@ const [emailDateRangeTo, setEmailDateRangeTo] = useState("");
             />
         );
     }
+  const handleBack = () => {
+    navigate(-1); // Navigate to the previous page
+  };  // Extract unique job positions for dropdown filter
 
     return (
         <LeftNavigationBar
             Content={
                 <Box sx={{ p: 3 }}>
-                    {/* Header Section */}
+           <Button
+            variant="outlined"
+            color="primary"
+            onClick={handleBack}
+            sx={{ mb: 2 }} // Add some margin at the bottom
+          >
+            Back
+          </Button>
                     <Box sx={{ mb: 4 }}>
                         <Typography variant="h4"
                             sx={{

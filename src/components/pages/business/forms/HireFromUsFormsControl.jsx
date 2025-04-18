@@ -53,6 +53,7 @@ import {
   sendEmailToHireFromUsApplicants,
 } from "../../../redux/slices/business/form/hireFromUsForm";
 import fi from "date-fns/locale/fi/index.js";
+import { useNavigate } from "react-router-dom";
 
 const HireFromUsFormsControl = () => {
   const dispatch = useDispatch();
@@ -97,6 +98,11 @@ const HireFromUsFormsControl = () => {
   });
 
   const [filtersVisible, setFiltersVisible] = useState(false);
+  const navigate = useNavigate(); 
+
+  const handleBack = () => {
+    navigate(-1); 
+  }; 
 
   // Add this function to toggle filter visibility
   const toggleFilters = () => {
@@ -524,7 +530,14 @@ const HireFromUsFormsControl = () => {
     <LeftNavigationBar
       Content={
         <Box sx={{ p: 3 }}>
-          {/* Header Section */}
+           <Button
+            variant="outlined"
+            color="primary"
+            onClick={handleBack}
+            sx={{ mb: 2 }} // Add some margin at the bottom
+          >
+            Back
+          </Button>
           <Box sx={{ mb: 4 }}>
             <Typography
               variant="h4"

@@ -49,6 +49,7 @@ import LeftNavigationBar from '../../../navbars/LeftNavigationBar';
 import * as XLSX from 'xlsx';
 import fi from 'date-fns/locale/fi/index.js';
 import { deleteTrainFromUs, getAllTrainFromUs, sendEmailToTrainFromUsApplicants } from '../../../redux/slices/business/form/trainFormUsForm';
+import { useNavigate } from 'react-router-dom';
 
 const TrainFromUsFormsControl = () => {
     const dispatch = useDispatch();
@@ -97,6 +98,11 @@ const [emailDateRangeTo, setEmailDateRangeTo] = useState("");
   });
 
     const [filtersVisible, setFiltersVisible] = useState(false);
+  const navigate = useNavigate(); 
+
+  const handleBack = () => {
+    navigate(-1); 
+  }; 
 
     // Add this function to toggle filter visibility
     const toggleFilters = () => {
@@ -518,7 +524,14 @@ const [emailDateRangeTo, setEmailDateRangeTo] = useState("");
         <LeftNavigationBar
             Content={
                 <Box sx={{ p: 3 }}>
-                    {/* Header Section */}
+           <Button
+            variant="outlined"
+            color="primary"
+            onClick={handleBack}
+            sx={{ mb: 2 }} // Add some margin at the bottom
+          >
+            Back
+          </Button>
                     <Box sx={{ mb: 4 }}>
                         <Typography variant="h4"
                             sx={{

@@ -48,6 +48,7 @@ import {
 import { deleteCareerForm, getAllCareerForm, sendEmailToApplicants } from "../../redux/slices/career/careerForm";
 import LeftNavigationBar from "../../navbars/LeftNavigationBar";
 import * as XLSX from 'xlsx';
+import { useNavigate } from "react-router-dom";
 
 const CareerControl = () => {
   const dispatch = useDispatch();
@@ -98,8 +99,13 @@ const CareerControl = () => {
   const [selectAll, setSelectAll] = useState(false);
   const [selectAllEmails, setSelectAllEmails] = useState(false);
   const [selectedEmails, setSelectedEmails] = useState([]);
+  const navigate = useNavigate(); // Initialize useHistory
+  // ... other state and hooks
 
-  // Extract unique job positions for dropdown filter
+  // Function to handle back navigation
+  const handleBack = () => {
+    navigate(-1); // Navigate to the previous page
+  };  // Extract unique job positions for dropdown filter
   const uniquePositions = [...new Set(
     careeries.map(career => career.job_position).filter(Boolean)
   )];
@@ -525,6 +531,14 @@ const CareerControl = () => {
     <LeftNavigationBar
       Content={
         <Box sx={{ p: 3 }}>
+           <Button
+            variant="outlined"
+            color="primary"
+            onClick={handleBack}
+            sx={{ mb: 2 }} // Add some margin at the bottom
+          >
+            Back
+          </Button>
           {/* Header Section */}
           <Box sx={{ mb: 4 }}>
             <Typography

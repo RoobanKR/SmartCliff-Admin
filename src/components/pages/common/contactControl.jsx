@@ -47,6 +47,7 @@ import {
 import LeftNavigationBar from "../../navbars/LeftNavigationBar";
 import { format } from "date-fns";
 import * as XLSX from "xlsx";
+import { useNavigate } from "react-router-dom";
 
 const ContactControl = () => {
   const dispatch = useDispatch();
@@ -97,6 +98,11 @@ const ContactControl = () => {
   const [emailDateRangeTo, setEmailDateRangeTo] = useState(null);
   // Loading state
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate(); 
+
+  const handleBack = () => {
+    navigate(-1); 
+  };  
 
   useEffect(() => {
     const fetchData = async () => {
@@ -455,7 +461,14 @@ const ContactControl = () => {
     <LeftNavigationBar
       Content={
         <Box sx={{ p: 3 }}>
-          {/* Header Section */}
+           <Button
+            variant="outlined"
+            color="primary"
+            onClick={handleBack}
+            sx={{ mb: 2 }} // Add some margin at the bottom
+          >
+            Back
+          </Button>
           <Box sx={{ mb: 4 }}>
             <Typography
               variant="h4"
