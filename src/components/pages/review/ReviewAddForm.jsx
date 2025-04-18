@@ -11,18 +11,52 @@ import {
   Grid,
   Card,
   CardContent,
+  Tooltip,
+  useTheme,
 } from "@mui/material";
 import { DropzoneArea } from "material-ui-dropzone";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useCookies } from "react-cookie";
-import { clearUpdateStatus, createReview, resetReview } from "../../redux/slices/review/review";
+import {
+  clearUpdateStatus,
+  createReview,
+  resetReview,
+} from "../../redux/slices/review/review";
 import LeftNavigationBar from "../../navbars/LeftNavigationBar";
+import { HelpOutline } from "@mui/icons-material";
+import { makeStyles } from "@material-ui/core/styles";
+
+const useStyles = makeStyles((theme) => ({
+  paper: {
+    // maxWidth: 600,
+    // margin: "auto",
+    // padding: theme.spacing(3),
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+  },
+  form: {
+    width: "70%",
+    marginTop: theme.spacing(1),
+  },
+  submit: {
+    marginTop: theme.spacing(3),
+    backgroundColor: theme.palette.primary.main,
+    color: theme.palette.primary.contrastText,
+    width: "fit-content",
+    marginLeft: "auto",
+    marginRight: "auto",
+    display: "block",
+  },
+}));
 
 const ReviewAddForm = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [cookies] = useCookies(["token"]);
+  const classes = useStyles();
+  const theme = useTheme();
 
   const [name, setName] = useState("");
   const [review, setReview] = useState("");
@@ -33,7 +67,9 @@ const ReviewAddForm = () => {
   const [video, setVideo] = useState(null);
 
   const [submitSuccess, setSubmitSuccess] = useState(false);
-  const { loading, error, isSuccess } = useSelector((state) => state.reviews.reviews);
+  const { loading, error, isSuccess } = useSelector(
+    (state) => state.reviews.reviews
+  );
 
   const [touchedFields, setTouchedFields] = useState({
     name: false,
@@ -89,9 +125,15 @@ const ReviewAddForm = () => {
         break;
       case "ratings":
         if (!/^\d+(\.\d{1,2})?$/.test(value)) {
-          setErrors((prev) => ({ ...prev, ratings: "Rating must be a number with up to 2 decimal places" }));
+          setErrors((prev) => ({
+            ...prev,
+            ratings: "Rating must be a number with up to 2 decimal places",
+          }));
         } else if (parseFloat(value) > 5) {
-          setErrors((prev) => ({ ...prev, ratings: "Rating must be 5 or below" }));
+          setErrors((prev) => ({
+            ...prev,
+            ratings: "Rating must be 5 or below",
+          }));
         } else {
           setErrors((prev) => ({ ...prev, ratings: "" }));
         }
@@ -120,19 +162,22 @@ const ReviewAddForm = () => {
     if (files.length > 0) {
       const file = files[0];
       const maxSize = 40 * 1024 * 1024; // 10MB in bytes
-  
+
       if (file.size > maxSize) {
-        setErrors((prev) => ({ ...prev, video: "Video file size must be 10MB or less" }));
+        setErrors((prev) => ({
+          ...prev,
+          video: "Video file size must be 10MB or less",
+        }));
         setVideo(null);
         return;
       }
-  
+
       setVideo(files);
       setTouchedFields((prev) => ({ ...prev, video: true }));
       setErrors((prev) => ({ ...prev, video: "" }));
     }
   };
-  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -177,7 +222,9 @@ const ReviewAddForm = () => {
     }
 
     try {
-      const result = await dispatch(createReview({ token: cookies.token, formData })).unwrap();
+      const result = await dispatch(
+        createReview({ token: cookies.token, formData })
+      ).unwrap();
       if (result) {
         setSubmitSuccess(true);
       }
@@ -198,28 +245,35 @@ const ReviewAddForm = () => {
   return (
     <LeftNavigationBar
       Content={
-        <Container component="main" maxWidth="sm">
-          <Snackbar open={submitSuccess} autoHideDuration={2000} onClose={() => setSubmitSuccess(false)}>
+        <Container component="main" maxWidth="md">
+          <Snackbar
+            open={submitSuccess}
+            autoHideDuration={2000}
+            onClose={() => setSubmitSuccess(false)}
+          >
             <Alert severity="success">Review created successfully</Alert>
           </Snackbar>
-
-          <Card elevation={4} sx={{ borderRadius: "15px", overflow: "hidden", marginTop: 4 }}>
-            <CardContent sx={{ padding: 4 }}>
+          <Box
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            gap={1}
+            mt={2}
+            mb={1}
+          >
             <Typography
               variant="h4"
               sx={{
                 position: "relative",
                 padding: 0,
                 margin: 0,
-                fontFamily: 'Merriweather, serif',
-                fontWeight: 700, textAlign: 'center',
+                fontFamily: "Merriweather, serif",
                 fontWeight: 300,
                 fontSize: { xs: "32px", sm: "40px" },
                 color: "#747474",
                 textAlign: "center",
                 textTransform: "uppercase",
                 paddingBottom: "5px",
-                mb: 5,
                 "&::before": {
                   content: '""',
                   width: "28px",
@@ -244,76 +298,134 @@ const ReviewAddForm = () => {
                 },
               }}
             >
-                Add a Review
-              </Typography>
-              <form onSubmit={handleSubmit}>
-                <Grid container spacing={2}>
-                  <Grid item xs={12}>
-                    <DropzoneArea
-                      onChange={handleImageChange}
-                      acceptedFiles={["image/*"]}
-                      filesLimit={5}
-                      dropzoneText="Upload Profile Image"
-                      showPreviewsInDropzone
-                      showPreviews
-                      maxFileSize={5 * 1024 * 1024} // 5MB
-                    />
-                  </Grid>
+              Testimonial Add Form
+            </Typography>
 
-                  <Grid item xs={12}>
-                    <TextField fullWidth label="Name" name="name" value={name} onChange={handleChange} variant="outlined" required />
-                  </Grid>
+            <Tooltip
+              title="This is where you can add the execution count for the service."
+              arrow
+            >
+              <HelpOutline
+                sx={{ color: "#747474", fontSize: "24px", cursor: "pointer" }}
+              />
+            </Tooltip>
+          </Box>
+          <form
+            onSubmit={handleSubmit}
+            style={{
+              border: "2px dotted #D3D3D3",
+              padding: "20px",
+              marginTop: "20px",
+              borderRadius: "8px",
+            }}
+          >
+            <Grid container spacing={2}>
+              <Grid item xs={6}>
+                <TextField
+                  fullWidth
+                  label="Name"
+                  name="name"
+                  value={name}
+                  onChange={handleChange}
+                  variant="outlined"
+                  required
+                />
+              </Grid>
 
-                  <Grid item xs={12}>
-                    <TextField fullWidth label="Review" name="review" value={review} onChange={handleChange} variant="outlined" required />
-                  </Grid>
+              <Grid item xs={6}>
+                <TextField
+                  fullWidth
+                  label="Ratings"
+                  name="ratings"
+                  type="number"
+                  value={ratings}
+                  onChange={handleChange}
+                  variant="outlined"
+                  required
+                />
+              </Grid>
 
-                  <Grid item xs={12}>
-                    <TextField fullWidth label="Ratings" name="ratings" type="number" value={ratings} onChange={handleChange} variant="outlined" required />
-                  </Grid>
+              <Grid item xs={6}>
+                <TextField
+                  fullWidth
+                  label="Batch"
+                  name="batch"
+                  value={batch}
+                  onChange={handleChange}
+                  variant="outlined"
+                  required
+                />
+              </Grid>
 
-                  <Grid item xs={12}>
-                    <TextField fullWidth label="Batch" name="batch" value={batch} onChange={handleChange} variant="outlined" required />
-                  </Grid>
+              <Grid item xs={6}>
+                <TextField
+                  fullWidth
+                  label="Role"
+                  name="role"
+                  value={role}
+                  onChange={handleChange}
+                  variant="outlined"
+                  required
+                />
+              </Grid>
 
-                  <Grid item xs={12}>
-                    <TextField fullWidth label="Role" name="role" value={role} onChange={handleChange} variant="outlined" required />
-                  </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  label="Review"
+                  name="review"
+                  value={review}
+                  multiline
+                  rows={4}
+                  onChange={handleChange}
+                  variant="outlined"
+                  required
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <DropzoneArea
+                  onChange={handleImageChange}
+                  acceptedFiles={["image/*"]}
+                  filesLimit={5}
+                  dropzoneText="Upload Profile Image"
+                  showPreviewsInDropzone
+                  showPreviews
+                  maxFileSize={5 * 1024 * 1024} // 5MB
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <DropzoneArea
+                  onChange={handleVideoChange}
+                  acceptedFiles={["video/*"]}
+                  filesLimit={1}
+                  maxFileSize={40 * 1024 * 1024} // 10MB
+                  dropzoneText="Upload a Video (Max: 10MB)"
+                  showPreviewsInDropzone
+                  showPreviews
+                />
+              </Grid>
 
-                  <Grid item xs={12}>
-                    <DropzoneArea
-                      onChange={handleVideoChange}
-                      acceptedFiles={["video/*"]}
-                      filesLimit={1}
-                      maxFileSize={40 * 1024 * 1024} // 10MB
-                      dropzoneText="Upload a Video (Max: 10MB)"
-                      showPreviewsInDropzone
-                      showPreviews
-                    />
-                  </Grid>
-
-                  <Grid item xs={12}>
-                    <Button
-                      type="submit"
-                      variant="contained"
-                      fullWidth
-                      sx={{
-                        backgroundColor: "#4CAF50",
-                        color: "white",
-                        fontWeight: "bold",
-                        padding: "12px",
-                        "&:hover": {
-                          backgroundColor: "#45a049",
-                        },
-                      }}
-                    >
-                      Submit Review
-                    </Button>
-                  </Grid>
-                </Grid>
-              </form>
-            </CardContent>
-          </Card>
+              <Grid item xs={12}>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  sx={{
+                    backgroundColor: theme.palette.primary.main,
+                    color: theme.palette.primary.contrastText,
+                    display: "block",
+                    marginLeft: "auto",
+                    marginRight: "auto",
+                    mt: 3, // optional: top margin
+                    "&:hover": {
+                      backgroundColor: theme.palette.primary.dark,
+                    },
+                  }}
+                >
+                  Submit Testimonial Data
+                </Button>
+              </Grid>
+            </Grid>
+          </form>
         </Container>
       }
     />

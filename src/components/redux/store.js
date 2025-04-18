@@ -61,6 +61,10 @@ import journeyReducer from "./slices/business/learningJourney/learningJourney"
 import homeServiceReducer from "./slices/home/homeServiceCount/homeServiceCount";
 import homeExecutionHighlightsReducer from "./slices/home/homeExecutionHighlights/homeExecutionHighlights";
 import companiesReducer from "./slices/mca/company/company";
+import hireFromUsReducer from "./slices/business/form/hireFromUsForm"
+import trainFromUsReducer from "./slices/business/form/trainFormUsForm"
+import instituteReducer from "./slices/business/form/instituteForm"
+
 
 export default configureStore({
   reducer: {
@@ -129,5 +133,9 @@ export default configureStore({
     homeServices: homeServiceReducer,
     homeExecutionHighlights:homeExecutionHighlightsReducer,
     companies:companiesReducer,
+    hireFromUs: hireFromUsReducer,
+    trainFromUs: trainFromUsReducer,
+    institute: instituteReducer,
+
   },
 });

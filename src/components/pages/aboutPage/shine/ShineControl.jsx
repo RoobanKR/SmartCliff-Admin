@@ -28,6 +28,9 @@ import {
 } from "../../../redux/slices/aboutpage/shine/shine";
 import { useTheme } from "@mui/material/styles"; // Ensure correct import
 import LeftNavigationBar from "../../../navbars/LeftNavigationBar";
+import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
 
 const ShineControlPage = () => {
   const navigate = useNavigate();
@@ -98,69 +101,87 @@ const ShineControlPage = () => {
     <LeftNavigationBar
       Content={
         <Box sx={{ maxWidth: 1200, mx: "auto", p: 2 }}>
-            <Typography
-              variant="h4"
-              sx={{
+          <Typography
+            variant="h4"
+            sx={{
+              position: "relative",
+              padding: 0,
+              margin: 0,
+              fontFamily: "Merriweather, serif",
+              fontWeight: 700,
+              textAlign: "center",
+              fontWeight: 300,
+              fontSize: { xs: "32px", sm: "40px" },
+              color: "#747474",
+              textAlign: "center",
+              textTransform: "uppercase",
+              paddingBottom: "5px",
+              mb: 3,
+              mt: -2,
+              "&::before": {
+                content: '""',
+                width: "28px",
+                height: "5px",
+                display: "block",
+                position: "absolute",
+                bottom: "3px",
+                left: "50%",
+                transform: "translateX(-50%)",
+                backgroundColor: "#747474",
+              },
+              "&::after": {
+                content: '""',
+                width: "100px",
+                height: "1px",
+                display: "block",
                 position: "relative",
-                padding: 0,
-                margin: 0,
-                fontFamily: 'Merriweather, serif',
-                fontWeight: 700, textAlign: 'center',
-                fontWeight: 300,
-                fontSize: { xs: "32px", sm: "40px" },
-                color: "#747474",
-                textAlign: "center",
-                textTransform: "uppercase",
-                paddingBottom: "5px",
-                mb: 3,
-                mt: -4,
-                "&::before": {
-                  content: '""',
-                  width: "28px",
-                  height: "5px",
-                  display: "block",
-                  position: "absolute",
-                  bottom: "3px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
-                "&::after": {
-                  content: '""',
-                  width: "100px",
-                  height: "1px",
-                  display: "block",
-                  position: "relative",
-                  marginTop: "5px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
-              }}
-            >
+                marginTop: "5px",
+                left: "50%",
+                transform: "translateX(-50%)",
+                backgroundColor: "#747474",
+              },
+            }}
+          >
             Shine Control
           </Typography>
-          <Grid item xs={12} md={6} sx={{ textAlign: { xs: 'left', md: 'right' } }}>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={() => navigate("/about/shine-add")}
-              >
-                Add New Shine
-              </Button>
-            </Grid>
+          <Grid
+            item
+            xs={12}
+            md={6}
+            sx={{ textAlign: { xs: "left", md: "right" } }}
+          >
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => navigate("/about/shine-add")}
+              startIcon={<AddIcon />}
+            >
+              Add New Shine
+            </Button>
+          </Grid>
+          <br></br>
           <Paper elevation={3}>
             <TableContainer>
               <Table>
                 <TableHead>
-                  <TableRow sx={{ backgroundColor: theme.palette.primary.main }}>
-                    <TableCell>
+                  <TableRow
+                    sx={{ backgroundColor: theme.palette.primary.main }}
+                  >
+                    <TableCell style={{ color: "white", textAlign: "center" }}>
                       <TableSortLabel>Title</TableSortLabel>
                     </TableCell>
-                    <TableCell>Description</TableCell>
-                    <TableCell>Image</TableCell>
-                    <TableCell>Definitions</TableCell>
-                    <TableCell align="right">Actions</TableCell>
+                    <TableCell style={{ color: "white", textAlign: "center" }}>
+                      Description
+                    </TableCell>
+                    <TableCell style={{ color: "white", textAlign: "center" }}>
+                      Image
+                    </TableCell>
+                    <TableCell style={{ color: "white", textAlign: "center" }}>
+                      Definitions
+                    </TableCell>
+                    <TableCell style={{ color: "white", textAlign: "center" }}>
+                      Actions
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -186,7 +207,8 @@ const ShineControlPage = () => {
                         )}
                       </TableCell>
                       <TableCell>
-                        {shine.shineDefinition && shine.shineDefinition.length > 0 ? (
+                        {shine.shineDefinition &&
+                        shine.shineDefinition.length > 0 ? (
                           shine.shineDefinition.map((def, index) => (
                             <div key={index}>
                               <strong>{def.title}</strong>: {def.description}{" "}
@@ -202,15 +224,15 @@ const ShineControlPage = () => {
                           variant="outlined"
                           onClick={() => handleEdit(shine._id)}
                         >
-                          Edit
+                          <EditIcon />
                         </Button>
                         <Button
                           variant="outlined"
                           color="error"
                           onClick={() => handleDeleteClick(shine._id)}
-                          sx={{ ml: 1 }}
+                          style={{ marginTop: "5%" }}
                         >
-                          Delete
+                          <DeleteIcon />
                         </Button>
                       </TableCell>
                     </TableRow>

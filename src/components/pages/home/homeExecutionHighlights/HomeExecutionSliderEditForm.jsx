@@ -8,12 +8,19 @@ import {
   Grid,
   Snackbar,
   Alert,
+  Tooltip,
+  Box,
 } from "@mui/material";
 import { DropzoneArea } from "material-ui-dropzone";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import LeftNavigationBar from "../../../navbars/LeftNavigationBar";
-import { clearError, getHomeExecutionHighlightById, updateHomeExecutionHighlight } from "../../../redux/slices/home/homeExecutionHighlights/homeExecutionHighlights";
+import {
+  clearError,
+  getHomeExecutionHighlightById,
+  updateHomeExecutionHighlight,
+} from "../../../redux/slices/home/homeExecutionHighlights/homeExecutionHighlights";
+import { HelpOutline } from "@mui/icons-material";
 
 const HomeExecutionHighlightsEditForm = () => {
   const { id } = useParams();
@@ -33,16 +40,18 @@ const HomeExecutionHighlightsEditForm = () => {
 
   useEffect(() => {
     if (id) {
-      dispatch(getHomeExecutionHighlightById(id)).then(
-        (response) => {
+      dispatch(getHomeExecutionHighlightById(id))
+        .then((response) => {
           const data = response.payload;
           if (data) {
             setStack(data.stack || "");
             setCount(data.count || "");
             setExistingImages(data.image || "");
           }
-        }
-      ).catch((error) => console.error("Error fetching execution highlights:", error)); 
+        })
+        .catch((error) =>
+          console.error("Error fetching execution highlights:", error)
+        );
     }
   }, [id, dispatch]);
 
@@ -54,9 +63,11 @@ const HomeExecutionHighlightsEditForm = () => {
       formData.append("image", image);
     }
     formData.append("count", count);
-  
+
     try {
-      await dispatch(updateHomeExecutionHighlight({ id: id, formData })).unwrap();
+      await dispatch(
+        updateHomeExecutionHighlight({ id: id, formData })
+      ).unwrap();
       setSubmitSuccess(true); // Set success state to true
     } catch (error) {
       console.error("Error updating execution highlights:", error);
@@ -76,16 +87,8 @@ const HomeExecutionHighlightsEditForm = () => {
   return (
     <LeftNavigationBar
       Content={
-        <Container component="main" maxWidth="xs">
-          <Paper
-            elevation={3}
-            sx={{
-              padding: 3,
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-            }}
-          >
+        <Container component="main" maxWidth="md">
+          <Paper elevation={0}>
             <Snackbar
               open={openSnackbar}
               autoHideDuration={2000}
@@ -99,49 +102,71 @@ const HomeExecutionHighlightsEditForm = () => {
                 {error}
               </Alert>
             )}
-            <Typography
-              variant="h4"
-              sx={{
-                position: "relative",
-                padding: 0,
-                margin: 0,
-                fontFamily: 'Merriweather, serif',
-                fontWeight: 700, textAlign: 'center',
-                fontWeight: 300,
-                fontSize: { xs: "32px", sm: "40px" },
-                color: "#747474",
-                textAlign: "center",
-                textTransform: "uppercase",
-                paddingBottom: "5px",
-                mb: 5,
-                "&::before": {
-                  content: '""',
-                  width: "28px",
-                  height: "5px",
-                  display: "block",
-                  position: "absolute",
-                  bottom: "3px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
-                "&::after": {
-                  content: '""',
-                  width: "100px",
-                  height: "1px",
-                  display: "block",
+            <Box
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              gap={1}
+              mt={2}
+              mb={1}
+            >
+              <Typography
+                variant="h4"
+                sx={{
                   position: "relative",
-                  marginTop: "5px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
+                  padding: 0,
+                  margin: 0,
+                  fontFamily: "Merriweather, serif",
+                  fontWeight: 300,
+                  fontSize: { xs: "32px", sm: "40px" },
+                  color: "#747474",
+                  textAlign: "center",
+                  textTransform: "uppercase",
+                  paddingBottom: "5px",
+                  "&::before": {
+                    content: '""',
+                    width: "28px",
+                    height: "5px",
+                    display: "block",
+                    position: "absolute",
+                    bottom: "3px",
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    backgroundColor: "#747474",
+                  },
+                  "&::after": {
+                    content: '""',
+                    width: "100px",
+                    height: "1px",
+                    display: "block",
+                    position: "relative",
+                    marginTop: "5px",
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    backgroundColor: "#747474",
+                  },
+                }}
+              >
+                Execution Slider <br></br> Edit Form
+              </Typography>
+
+              <Tooltip
+                title="This is where you can add the execution count for the service."
+                arrow
+              >
+                <HelpOutline
+                  sx={{ color: "#747474", fontSize: "24px", cursor: "pointer" }}
+                />
+              </Tooltip>
+            </Box>
+            <form
+              onSubmit={handleSubmit}
+              style={{
+                border: "2px dotted #D3D3D3",
+                padding: "20px",
+                borderRadius: "8px",
               }}
             >
-              Execution Highlights Edit
-            </Typography>
-            <br />
-            <form onSubmit={handleSubmit} style={{ width: "100%" }}>
               <Grid container spacing={2}>
                 <Grid item xs={12}>
                   <TextField
@@ -153,8 +178,20 @@ const HomeExecutionHighlightsEditForm = () => {
                     onChange={(e) => setStack(e.target.value)}
                   />
                 </Grid>
+
                 <Grid item xs={12}>
-                  <div style={{ marginTop: '16px' }}>
+                  <TextField
+                    fullWidth
+                    label="count"
+                    variant="outlined"
+                    required
+                    type="number"
+                    value={count}
+                    onChange={(e) => setCount(e.target.value)}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <div style={{ marginTop: "16px" }}>
                     <DropzoneArea
                       onChange={(fileArray) => setImage(fileArray[0])}
                       acceptedFiles={["image/*"]}
@@ -176,30 +213,30 @@ const HomeExecutionHighlightsEditForm = () => {
                     <img
                       src={`${existingImages}`}
                       alt="Existing Highlight"
-                      style={{ width: '30%', height: 'auto', marginTop: '8px' }}
+                      style={{
+                        width: "80px",
+                        height: "80px",
+                        marginTop: "8px",
+                        padding: "20px",
+                        background:
+                          "linear-gradient(135deg, rgb(44, 46, 84) 10%, rgb(26, 28, 51) 90%)",
+                      }}
                     />
                   )}
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    label="count"
-                    variant="outlined"
-                    required
-                    type="number"
-                    value={count}
-                    onChange={(e) => setCount(e.target.value)}
-                  />
                 </Grid>
               </Grid>
               <Button
                 type="submit"
-                fullWidth
                 variant="contained"
-                color="primary"
-                sx={{ mt: 3 }}
+                color="warning"
+                sx={{
+                  mt: 3,
+                  display: "block",
+                  marginLeft: "auto",
+                  marginRight: "auto",
+                }}
               >
-                Update
+                Update Execution Slider
               </Button>
             </form>
           </Paper>

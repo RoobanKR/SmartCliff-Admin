@@ -21,8 +21,17 @@ import ContactControl from "../pages/common/contactControl";
 import { DateCalendar, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import {
+  AcUnit,
+  Bolt,
+  CastForEducation,
   CheckBoxOutlineBlank,
+  ContactMail,
+  DevicesOther,
+  Lightbulb,
+  RemoveFromQueueSharp,
   SettingsInputComponent,
+  TransferWithinAStationRounded,
+  WorkOffOutlined,
 } from "@mui/icons-material";
 import { useSelector } from "react-redux";
 import { getAllUsers } from "../redux/slices/user/admin";
@@ -30,6 +39,7 @@ import {
   fetchJobPositions,
   updateSelectedJobPosition,
 } from "../redux/slices/joinus/joinus";
+import { WorkTwoTone } from "@material-ui/icons";
 
 const label = { inputProps: { "aria-label": "Switch demo" } };
 
@@ -222,6 +232,51 @@ const AdminHome = () => {
                   ))}
                 </Box>
               </Card>
+            </Grid>
+            <Grid item xs={12} md={12}>
+            <Card>
+  <CardContent>
+    <Typography variant="h6" fontWeight={600} mb={2}>
+      Registered Users
+    </Typography>
+
+    <Grid container spacing={2}>
+      {[
+        { label: "Contact Details", icon: <ContactMail fontSize="large" />, path: "/contact-details" },
+        { label: "Hire from Us", icon: <RemoveFromQueueSharp fontSize="large" />, path: "/hiring-control" },
+        { label: "Train From us", icon: <TransferWithinAStationRounded fontSize="large" />, path: "/train-from-us-control" },
+        { label: "Institute", icon: <CastForEducation fontSize="large" />, path: "/institute-control" },
+        { label: "Carrer", icon: <WorkTwoTone fontSize="large" />, path: "/career-details" },
+
+      ].map((item, index) => (
+        <Grid item xs={6} md={3} key={item.label}>
+           <Box
+                          onClick={() => navigate(item.path)}
+                          sx={{
+                            p: 2,
+                            textAlign: "center",
+                            borderRadius: 2,
+                            boxShadow: 2,
+                            cursor: "pointer",
+                            transition: "all 0.3s",
+                            "&:hover": {
+                              backgroundColor: "#7C3AED",
+                              color: "#fff"
+                            },
+                          }}
+                        >
+ 
+            <Typography variant="body2" fontWeight={500}>
+              {item.label}
+            </Typography>
+            <Box mt={1}>{item.icon}</Box>
+          </Box>
+        </Grid>
+      ))}
+    </Grid>
+  </CardContent>
+</Card>
+
             </Grid>
           </Grid>
         </>

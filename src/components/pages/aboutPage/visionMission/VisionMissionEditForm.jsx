@@ -10,6 +10,9 @@ import {
   Alert,
   Grid,
   CircularProgress,
+  Tooltip,
+  Box,
+  useTheme,
 } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { useNavigate, useParams } from "react-router-dom";
@@ -18,13 +21,17 @@ import LeftNavigationBar from "../../../navbars/LeftNavigationBar";
 import { updateVisionMission } from "../../../redux/slices/aboutpage/visionMission/visionMission";
 import { resetSignIn, userVerify } from "../../../redux/slices/user/Signin";
 import { useCookies } from "react-cookie";
+import { HelpOutline } from "@mui/icons-material";
 
 const VisionMissionEditForm = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const theme = useTheme();
 
-  const visionMissions = useSelector((state) => state.visionMission.visionMissions);
+  const visionMissions = useSelector(
+    (state) => state.visionMission.visionMissions
+  );
   const [formData, setFormData] = useState({
     type: "vision",
     description: "",
@@ -64,7 +71,6 @@ const VisionMissionEditForm = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -73,8 +79,13 @@ const VisionMissionEditForm = () => {
     formDataToSend.append("type", formData.type);
     formDataToSend.append("description", formData.description);
 
-
-    dispatch(updateVisionMission({ id, formData: formDataToSend, token: cookies.token }))
+    dispatch(
+      updateVisionMission({
+        id,
+        formData: formDataToSend,
+        token: cookies.token,
+      })
+    )
       .unwrap()
       .then(() => {
         setMessage({ text: "Updated successfully", type: "success" });
@@ -82,7 +93,10 @@ const VisionMissionEditForm = () => {
         setTimeout(() => navigate("/about/vision-mission-control"), 2000);
       })
       .catch((error) => {
-        setMessage({ text: error?.message || "Something went wrong", type: "error" });
+        setMessage({
+          text: error?.message || "Something went wrong",
+          type: "error",
+        });
         setOpenSnackbar(true);
       })
       .finally(() => setLoading(false));
@@ -91,27 +105,28 @@ const VisionMissionEditForm = () => {
   return (
     <LeftNavigationBar
       Content={
-        <Card sx={{ maxWidth: 600, margin: "auto", mt: 4, p: 3, boxShadow: 3 }}>
-          <CardContent>
-            <Snackbar open={openSnackbar} autoHideDuration={3000} onClose={() => setOpenSnackbar(false)}>
-              <Alert severity={message.type}>{message.text}</Alert>
-            </Snackbar>
+        <>
+          <Box
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            gap={1}
+            mt={2}
+            mb={1}
+          >
             <Typography
               variant="h4"
               sx={{
                 position: "relative",
                 padding: 0,
                 margin: 0,
-                fontFamily: 'Merriweather, serif',
-                fontWeight: 700, textAlign: 'center',
+                fontFamily: "Merriweather, serif",
                 fontWeight: 300,
                 fontSize: { xs: "32px", sm: "40px" },
                 color: "#747474",
                 textAlign: "center",
                 textTransform: "uppercase",
                 paddingBottom: "5px",
-                mb: 3,
-                mt: -4,
                 "&::before": {
                   content: '""',
                   width: "28px",
@@ -136,53 +151,88 @@ const VisionMissionEditForm = () => {
                 },
               }}
             >
-              Edit Vision / Mission
+              Vision / Mission
+              <br /> Edit Form
             </Typography>
-            <form onSubmit={handleSubmit}>
-              <Grid container spacing={2}>
-                <Grid item xs={12}>
-                  <TextField
-                    select
-                    label="Type"
-                    name="type"
-                    value={formData.type}
-                    onChange={handleChange}
-                    fullWidth
-                    margin="normal"
-                  >
-                    <MenuItem value="vision">Vision</MenuItem>
-                    <MenuItem value="mission">Mission</MenuItem>
-                  </TextField>
+
+            <Tooltip
+              title="This is where you can add the execution count for the service."
+              arrow
+            >
+              <HelpOutline
+                sx={{ color: "#747474", fontSize: "24px", cursor: "pointer" }}
+              />
+            </Tooltip>
+          </Box>
+          <Card elevation={0} sx={{ maxWidth: 800, margin: "auto" }}>
+            <CardContent>
+              <Snackbar
+                open={openSnackbar}
+                autoHideDuration={3000}
+                onClose={() => setOpenSnackbar(false)}
+              >
+                <Alert severity={message.type}>{message.text}</Alert>
+              </Snackbar>
+              <form
+                onSubmit={handleSubmit}
+                style={{
+                  border: "2px dotted #D3D3D3",
+                  padding: "20px",
+                  borderRadius: "8px",
+                }}
+              >
+                <Grid container spacing={2}>
+                  <Grid item xs={12}>
+                    <TextField
+                      select
+                      label="Type"
+                      name="type"
+                      value={formData.type}
+                      onChange={handleChange}
+                      fullWidth
+                      margin="normal"
+                    >
+                      <MenuItem value="vision">Vision</MenuItem>
+                      <MenuItem value="mission">Mission</MenuItem>
+                    </TextField>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      label="Description"
+                      name="description"
+                      value={formData.description}
+                      onChange={handleChange}
+                      fullWidth
+                      multiline
+                      rows={4}
+                      margin="normal"
+                    />
+                  </Grid>
+
+                  <Grid item xs={12}>
+                    <Button
+                      type="submit"
+                      variant="contained"
+                      sx={{
+                        backgroundColor: theme.palette.warning.main,
+                        color: theme.palette.warning.contrastText,
+                        display: "block",
+                        marginLeft: "auto",
+                        marginRight: "auto",
+                        mt: 3, // optional: top margin
+                        "&:hover": {
+                          backgroundColor: theme.palette.warning.dark,
+                        },
+                      }}
+                    >
+                      Submit Content
+                    </Button>
+                  </Grid>
                 </Grid>
-                <Grid item xs={12}>
-                  <TextField
-                    label="Description"
-                    name="description"
-                    value={formData.description}
-                    onChange={handleChange}
-                    fullWidth
-                    multiline
-                    rows={4}
-                    margin="normal"
-                  />
-                </Grid>
-               
-                <Grid item xs={12}>
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    color="primary"
-                    fullWidth
-                    sx={{ mt: 2 }}
-                    disabled={loading}
-                  >
-                    {loading ? <CircularProgress size={24} color="inherit" /> : "Update"}
-                  </Button>
-                </Grid>
-              </Grid>
-            </form>
-          </CardContent>
-        </Card>
+              </form>
+            </CardContent>
+          </Card>
+        </>
       }
     />
   );

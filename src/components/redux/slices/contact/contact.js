@@ -33,6 +33,24 @@ export const deleteContact = createAsyncThunk(
     }
   }
 );
+
+
+export const sendEmailToContactApplicants = createAsyncThunk(
+  "contact/sendEmail",
+  async ({ subject, message, contactIds }) => {
+    try {
+      const response = await axios.post(`${getAPIURL()}/contact/response-mail/applicants`, {
+        subject,
+        message,
+        contactIds,
+      });
+      return response.data; // Return the response data
+    } catch (error) {
+      throw error;
+    }
+  }
+);
+
 const initialState = {
   loading: false,
   error: null,
@@ -85,8 +103,23 @@ const contactSlice = createSlice({
       .addCase(deleteContact.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
+      })
+      .addCase(sendEmailToContactApplicants.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(sendEmailToContactApplicants.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+        // You can handle any success message or state update here if needed
+      })
+      .addCase(sendEmailToContactApplicants.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
       });
+
   },
 });
 
 export default contactSlice.reducer;
+

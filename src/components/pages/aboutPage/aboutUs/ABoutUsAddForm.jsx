@@ -8,6 +8,9 @@ import {
   Typography,
   Snackbar,
   Alert,
+  Tooltip,
+  Box,
+  useTheme,
 } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { useDispatch } from "react-redux";
@@ -16,10 +19,13 @@ import LeftNavigationBar from "../../../navbars/LeftNavigationBar";
 import { resetSignIn, userVerify } from "../../../redux/slices/user/Signin";
 import { useCookies } from "react-cookie";
 import { createAboutUs } from "../../../redux/slices/aboutpage/aboutUs/aboutus";
+import { HelpOutline } from "@mui/icons-material";
+import { DropzoneArea } from "material-ui-dropzone";
 
 const AboutUsAddForm = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const theme = useTheme();
   const [formData, setFormData] = useState({
     title: "",
     image: null,
@@ -85,24 +91,28 @@ const AboutUsAddForm = () => {
   return (
     <LeftNavigationBar
       Content={
-        <Card sx={{ maxWidth: 500, margin: "auto", mt: 4, p: 2 }}>
-          <CardContent>
+        <>
+          <Box
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            gap={1}
+            mt={2}
+            mb={1}
+          >
             <Typography
               variant="h4"
               sx={{
                 position: "relative",
                 padding: 0,
                 margin: 0,
-                fontFamily: 'Merriweather, serif',
-                fontWeight: 700, textAlign: 'center',
+                fontFamily: "Merriweather, serif",
                 fontWeight: 300,
                 fontSize: { xs: "32px", sm: "40px" },
                 color: "#747474",
                 textAlign: "center",
                 textTransform: "uppercase",
                 paddingBottom: "5px",
-                mb: 3,
-                mt: -4,
                 "&::before": {
                   content: '""',
                   width: "28px",
@@ -127,73 +137,102 @@ const AboutUsAddForm = () => {
                 },
               }}
             >
-              Add About Us
+              About Us Content
+              <br /> Add Form
             </Typography>
-            <form onSubmit={handleSubmit}>
-              <TextField
-                label="Title"
-                name="title"
-                value={formData.title}
-                onChange={handleChange}
-                fullWidth
-                multiline
-                rows={3}
-                margin="normal"
-              />
-              <Button
-                variant="contained"
-                component="label"
-                fullWidth
-                startIcon={<CloudUploadIcon />}
-                sx={{ mt: 2 }}
-              >
-                Upload Image
-                <input
-                  type="file"
-                  hidden
-                  accept="image/*"
-                  onChange={handleFileChange}
-                />
-              </Button>
-              {formData.preview && (
-                <img
-                  src={formData.preview}
-                  alt="Preview"
-                  style={{
-                    width: "100%",
-                    height: "auto",
-                    marginTop: 10,
-                    borderRadius: 8,
-                  }}
-                />
-              )}
-              <Button
-                type="submit"
-                variant="contained"
-                color="primary"
-                fullWidth
-                sx={{ mt: 2 }}
-                disabled={loading}
-              >
-                {loading ? "Submitting..." : "Submit"}
-              </Button>
-            </form>
-            <Snackbar
-              open={snackbarOpen}
-              autoHideDuration={3000}
-              onClose={() => setSnackbarOpen(false)}
-              anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+
+            <Tooltip
+              title="This is where you can add the execution count for the service."
+              arrow
             >
-              <Alert
-                onClose={() => setSnackbarOpen(false)}
-                severity="success"
-                sx={{ width: "100%" }}
+              <HelpOutline
+                sx={{ color: "#747474", fontSize: "24px", cursor: "pointer" }}
+              />
+            </Tooltip>
+          </Box>
+          <Card elevation={0} sx={{ maxWidth: 700, margin: "auto" }}>
+            <CardContent>
+              <form
+                onSubmit={handleSubmit}
+                style={{
+                  border: "2px dotted #D3D3D3",
+                  padding: "20px",
+                  borderRadius: "8px",
+                }}
               >
-                Successfully added!
-              </Alert>
-            </Snackbar>
-          </CardContent>
-        </Card>
+                <TextField
+                  label="Title"
+                  name="title"
+                  value={formData.title}
+                  onChange={handleChange}
+                  fullWidth
+                  multiline
+                  rows={3}
+                  margin="normal"
+                />
+                <DropzoneArea
+                  acceptedFiles={["image/*"]}
+                  dropzoneText="Drag and drop an image here or click"
+                  onChange={(files) => {
+                    if (files.length > 0) {
+                      handleFileChange(files[0]);
+                    }
+                  }}
+                  filesLimit={1}
+                  showAlerts={["error"]}
+                  showFileNames
+                  useChipsForPreview
+                  previewText="Selected file:"
+                  maxFileSize={5 * 1024 * 1024} // 5MB
+                  sx={{ mt: 2, borderRadius: 2 }}
+                />
+                {formData.preview && (
+                  <img
+                    src={formData.preview}
+                    alt="Preview"
+                    style={{
+                      width: "100%",
+                      height: "auto",
+                      marginTop: 10,
+                      borderRadius: 8,
+                    }}
+                  />
+                )}
+                <Button
+                  type="submit"
+                  variant="contained"
+                  sx={{
+                    backgroundColor: theme.palette.primary.main,
+                    color: theme.palette.primary.contrastText,
+                    display: "block",
+                    marginLeft: "auto",
+                    marginRight: "auto",
+                    mt: 3, // optional: top margin
+                    "&:hover": {
+                      backgroundColor: theme.palette.primary.dark,
+                    },
+                  }}
+                >
+                  Submit Content
+                </Button>
+              </form>
+              <Snackbar
+                open={snackbarOpen}
+                autoHideDuration={3000}
+                onClose={() => setSnackbarOpen(false)}
+                anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+              >
+                <Alert
+                  onClose={() => setSnackbarOpen(false)}
+                  severity="success"
+                  sx={{ width: "100%" }}
+                >
+                  Successfully added!
+                </Alert>
+              </Snackbar>
+            </CardContent>
+          </Card>
+        </>
       }
     />
   );

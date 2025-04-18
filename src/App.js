@@ -158,12 +158,12 @@ import LearningJourneyControlPage from "./components/pages/business/learningJour
 import CurrentAvailabilityAddForm from "./components/pages/business/currentAvailability/CurrentAvailabilityAddForm";
 import CurrentAvailabilityControlPage from "./components/pages/business/currentAvailability/CurrentAvailabilityControlPage";
 import CurrentAvailabilityEditForm from "./components/pages/business/currentAvailability/CurrentAvailabilityEditForm";
-import HomeServiceCountAddForm from "./components/pages/home/homeServiceCount/HomeSeriveCountAddForm";
-import HomeServiceCountControlPage from "./components/pages/home/homeServiceCount/HomeServiceCountControlPage";
-import HomeServiceCountEditForm from "./components/pages/home/homeServiceCount/HomeServiceEditForm";
-import HomeExecutionHighlightsAddForm from "./components/pages/home/homeExecutionHighlights/homeExecutionHighlightsAddForm";
-import HomeExecutionHighlightsControl from "./components/pages/home/homeExecutionHighlights/HomeExecutionHighlightsControlpage";
-import HomeExecutionHighlightsEditForm from "./components/pages/home/homeExecutionHighlights/HomeExecutionHighlightsEditForm";
+import HomeServiceCountAddForm from "./components/pages/home/homeServiceCount/HomeExecutionCountAddForm";
+import HomeServiceCountControlPage from "./components/pages/home/homeServiceCount/HomeExecutionCountControlPage";
+import HomeServiceCountEditForm from "./components/pages/home/homeServiceCount/HomeExecutionEditForm";
+import HomeExecutionHighlightsAddForm from "./components/pages/home/homeExecutionHighlights/homeExecutionSliderAddForm";
+import HomeExecutionHighlightsControl from "./components/pages/home/homeExecutionHighlights/HomeExecutionSliderControlpage";
+import HomeExecutionHighlightsEditForm from "./components/pages/home/homeExecutionHighlights/HomeExecutionSliderEditForm";
 import LearningJourneyEditForm from "./components/pages/business/learningJourney/learningJourney-edit";
 import CourseForm from "./components/pages/course/CourseDetails";
 import CompanyAddForm from "./components/pages/mca/company/companyAddForm";
@@ -172,9 +172,11 @@ import CompanyEditForm from "./components/pages/mca/company/CompanyEditForm";
 import AdminRegistrationForm from "./components/admin/AdminRegister";
 import AdminControl from "./components/admin/AdminControl";
 import AdminEditForm from "./components/admin/AdminEdit";
+import HireFromUsFormsControl from "./components/pages/business/forms/HireFromUsFormsControl";
+import TrainFromUsFormsControl from "./components/pages/business/forms/TrainFromUsFormsControl";
+import InstituteUsFormsControl from "./components/pages/business/forms/InstituteFormControl";
 
 function App() {
-
   const router = createBrowserRouter(
     createRoutesFromElements(
       <Route path="/">
@@ -187,7 +189,6 @@ function App() {
         <Route path="Review-add" element={<ReviewAddForm />} />
         <Route path="Review-control" element={<ReviewControl />} />
         <Route path="Review-edit/:reviewId" element={<ReviewsEditForm />} />
-
 
         <Route path="Category-add" element={<CategoryAddForm />} />
         <Route path="Category-control" element={<CategoryControl />} />
@@ -291,10 +292,13 @@ function App() {
           path="EligibilityCriteria-edit/:id"
           element={<EligibilityCriteriaEditForm />}
         />
-        <Route path="degreeprogram/target-student-add" element={< TargetStudentAddFrom />} />
+        <Route
+          path="degreeprogram/target-student-add"
+          element={<TargetStudentAddFrom />}
+        />
         <Route
           path="degreeprogram/target-student-control"
-          element={< TargetStudentControlPage />}
+          element={<TargetStudentControlPage />}
         />
         <Route
           path="degreeprogram/target-student-edit/:id"
@@ -333,30 +337,62 @@ function App() {
         />
 
         {/* service */}
-        <Route path="Business-Services-add" element={<BussinessServicesAddForm />} />
-        <Route path="Business-Services-control" element={<BussinessServicesControl />} />
-        <Route path="Business-Services-edit/:businessServiceId" element={<BussinessServiceEditForm />} />
+        <Route
+          path="Business-Services-add"
+          element={<BussinessServicesAddForm />}
+        />
+        <Route
+          path="Business-Services-control"
+          element={<BussinessServicesControl />}
+        />
+        <Route
+          path="Business-Services-edit/:businessServiceId"
+          element={<BussinessServiceEditForm />}
+        />
 
         <Route path="Services-add" element={<ServicesAddForm />} />
         <Route path="Services-control" element={<ServicesControl />} />
         <Route path="Services-edit/:serviceId" element={<ServiceEditForm />} />
 
-        <Route path="Services-About-control" element={<ServiceAboutControl />} />
+        <Route
+          path="Services-About-control"
+          element={<ServiceAboutControl />}
+        />
         <Route path="Services-About-add" element={<ServiceAboutAddForm />} />
-        <Route path="Services-About-edit/:id" element={<ServiceAboutEditForm />} />
+        <Route
+          path="Services-About-edit/:id"
+          element={<ServiceAboutEditForm />}
+        />
 
         <Route path="Services-Process-add" element={<ServicProcessAddForm />} />
-        <Route path="Services-Process-control" element={<ServiceProcessControl />} />
-        <Route path="Services-Process-edit/:id" element={<ServiceProcessEditForm />} />
+        <Route
+          path="Services-Process-control"
+          element={<ServiceProcessControl />}
+        />
+        <Route
+          path="Services-Process-edit/:id"
+          element={<ServiceProcessEditForm />}
+        />
 
-        <Route path="Services-Opportunity-add" element={<ServiceOpportunityAddForm />} />
-        <Route path="Services-Opportunity-control" element={<ServiceOpportunitiesControl />} />
-        <Route path="Services-Opportunity-edit/:id" element={<ServiceOpportunitiesEditForm />} />
-
+        <Route
+          path="Services-Opportunity-add"
+          element={<ServiceOpportunityAddForm />}
+        />
+        <Route
+          path="Services-Opportunity-control"
+          element={<ServiceOpportunitiesControl />}
+        />
+        <Route
+          path="Services-Opportunity-edit/:id"
+          element={<ServiceOpportunitiesEditForm />}
+        />
 
         <Route path="business/Client-add" element={<ClientAddForm />} />
         <Route path="business/Client-control" element={<ClientControl />} />
-        <Route path="business/Client-edit/:clientId" element={<ClientEditForm />} />
+        <Route
+          path="business/Client-edit/:clientId"
+          element={<ClientEditForm />}
+        />
 
         <Route
           path="Execution_Highlights-add"
@@ -416,9 +452,9 @@ function App() {
           element={<ProgramRegisterControl />}
         />
 
-        <Route path="hiring-add" element={<HiringAddForm />} />
+        {/* <Route path="hiring-add" element={<HiringAddForm />} />
         <Route path="hiring-control" element={<HiringControll />} />
-        <Route path="hiring-edit/:id" element={<HiringUpdateForm />} />
+        <Route path="hiring-edit/:id" element={<HiringUpdateForm />} /> */}
 
         <Route path="key_elements-add" element={<KeyElementsAddForm />} />
         <Route path="key_elements-control" element={<KeyElementsControl />} />
@@ -450,90 +486,188 @@ function App() {
           element={<EngagedGovernanceEditForm />}
         />
 
-
-        <Route path="about/vision-mission-add" element={<VisionMissionAddForm />} />
-        <Route path="about/vision-mission-control" element={<VisionMissionControl />} />
-        <Route path="about/vision-mission-edit/:id" element={<VisionMissionEditForm />} />
+        <Route
+          path="about/vision-mission-add"
+          element={<VisionMissionAddForm />}
+        />
+        <Route
+          path="about/vision-mission-control"
+          element={<VisionMissionControl />}
+        />
+        <Route
+          path="about/vision-mission-edit/:id"
+          element={<VisionMissionEditForm />}
+        />
 
         <Route path="about/aboutus-add" element={<AboutUsAddForm />} />
         <Route path="about/aboutus-control" element={<AboutUsControl />} />
         <Route path="about/aboutus-edit/:id" element={<AboutUsEditForm />} />
 
-
         <Route path="gallery-add" element={<GalleryAddForm />} />
         <Route path="gallery-control" element={<GalleryControl />} />
         <Route path="gallery-edit/:id" element={<GalleryEditForm />} />
-
 
         <Route path="about/shine-add" element={<ShineAddForm />} />
         <Route path="about/shine-edit/:id" element={<ShineEditForm />} />
         <Route path="about/shine-control" element={<ShineControlPage />} />
 
+        <Route
+          path="degreeprogram/our-partners-add"
+          element={<OurPartnersAddForm />}
+        />
+        <Route
+          path="degreeprogram/our-partners-control"
+          element={<OurPartnersControlPage />}
+        />
+        <Route
+          path="degreeprogram/our-partners-edit/:id"
+          element={<OurPartnersEditForm />}
+        />
 
-        <Route path="degreeprogram/our-partners-add" element={<OurPartnersAddForm />} />
-        <Route path="degreeprogram/our-partners-control" element={<OurPartnersControlPage />} />
-        <Route path="degreeprogram/our-partners-edit/:id" element={<OurPartnersEditForm />} />
+        <Route
+          path="Placement-Training-Track-add"
+          element={<PlacementTrainingTrackAddForm />}
+        />
+        <Route
+          path="Placement-Training-Track-control"
+          element={<PlacementTrainingTrackControl />}
+        />
+        <Route
+          path="Placement-Training-Track-edit/:id"
+          element={<PlacementTrainingTrackEditForm />}
+        />
 
-
-        <Route path="Placement-Training-Track-add" element={<PlacementTrainingTrackAddForm />} />
-        <Route path="Placement-Training-Track-control" element={<PlacementTrainingTrackControl />} />
-        <Route path="Placement-Training-Track-edit/:id" element={<PlacementTrainingTrackEditForm />} />
-
-
-        <Route path="degreeprogram/our-sponsors-add" element={<OurSponsorsAddForm />} />
-        <Route path="degreeprogram/our-sponsors-control" element={<OurSponsorsControlPage />} />
-        <Route path="degreeprogram/our-sponsors-edit/:id" element={<OurSponsorsEditForm />} />
+        <Route
+          path="degreeprogram/our-sponsors-add"
+          element={<OurSponsorsAddForm />}
+        />
+        <Route
+          path="degreeprogram/our-sponsors-control"
+          element={<OurSponsorsControlPage />}
+        />
+        <Route
+          path="degreeprogram/our-sponsors-edit/:id"
+          element={<OurSponsorsEditForm />}
+        />
 
         <Route path="business/wcy-hire-add" element={<WCYHireAddForm />} />
-        <Route path="business/wcy-hire-control" element={<WCYHireControlPage />} />
-        <Route path="business/wcy-hire-edit/:id" element={<WCYHireUpdateForm />} />
+        <Route
+          path="business/wcy-hire-control"
+          element={<WCYHireControlPage />}
+        />
+        <Route
+          path="business/wcy-hire-edit/:id"
+          element={<WCYHireUpdateForm />}
+        />
 
         <Route path="career-add" element={<CareerAddForm />} />
         <Route path="career-control" element={<CareerControlPage />} />
         <Route path="career-edit/:id" element={<CareerUpdateForm />} />
 
-        <Route path="about/yearly-service-add" element={<YearlyServiceAddForm />} />
-        <Route path="about/yearly-service-control" element={<YearlyServiceControlPage />} />
-        <Route path="about/yearly-service-edit/:id" element={<YearlyServiceEditForm />} />
+        <Route
+          path="about/yearly-service-add"
+          element={<YearlyServiceAddForm />}
+        />
+        <Route
+          path="about/yearly-service-control"
+          element={<YearlyServiceControlPage />}
+        />
+        <Route
+          path="about/yearly-service-edit/:id"
+          element={<YearlyServiceEditForm />}
+        />
 
-        <Route path="degreeprogram/skill-vertical-add" element={<SkillVerticalAddForm />} />
-        <Route path="degreeprogram/skill-vertical-control" element={<SkillVerticalControlPage />} />
-        <Route path="degreeprogram/skill-vertical-edit/:id" element={<SkillVerticalEditForm />} />
+        <Route
+          path="degreeprogram/skill-vertical-add"
+          element={<SkillVerticalAddForm />}
+        />
+        <Route
+          path="degreeprogram/skill-vertical-control"
+          element={<SkillVerticalControlPage />}
+        />
+        <Route
+          path="degreeprogram/skill-vertical-edit/:id"
+          element={<SkillVerticalEditForm />}
+        />
         <Route path="college-add" element={<CollegeAddForm />} />
         <Route path="college-control" element={<CollegeControl />} />
         <Route path="college-edit/:id" element={<CollegeEditForm />} />
 
-        <Route path="business/learningjourney-add" element={<LearningJourneyAddForm />} />
-        <Route path="business/learningjourney-control" element={<LearningJourneyControlPage />} />
-        <Route path="/business/learningjourney-edit/:id" element={<LearningJourneyEditForm />} />
+        <Route
+          path="business/learningjourney-add"
+          element={<LearningJourneyAddForm />}
+        />
+        <Route
+          path="business/learningjourney-control"
+          element={<LearningJourneyControlPage />}
+        />
+        <Route
+          path="/business/learningjourney-edit/:id"
+          element={<LearningJourneyEditForm />}
+        />
 
-        <Route path="business/current-availability-add" element={<CurrentAvailabilityAddForm />} />
-        <Route path="business/current-availability-control" element={<CurrentAvailabilityControlPage />} />
-        <Route path="business/current-availability-edit/:id" element={<CurrentAvailabilityEditForm />} />
+        <Route
+          path="business/current-availability-add"
+          element={<CurrentAvailabilityAddForm />}
+        />
+        <Route
+          path="business/current-availability-control"
+          element={<CurrentAvailabilityControlPage />}
+        />
+        <Route
+          path="business/current-availability-edit/:id"
+          element={<CurrentAvailabilityEditForm />}
+        />
 
         {/* leftNavigation not include */}
 
-        <Route path="home/service-count-add" element={<HomeServiceCountAddForm />} />
-        <Route path="home/service-count-control" element={<HomeServiceCountControlPage />} />
+        <Route
+          path="home/service-count-add"
+          element={<HomeServiceCountAddForm />}
+        />
+        <Route
+          path="home/service-count-control"
+          element={<HomeServiceCountControlPage />}
+        />
         {/* form is submit but error message show */}
-        <Route path="home/service-count-edit/:id" element={<HomeServiceCountEditForm />} />
+        <Route
+          path="home/service-count-edit/:id"
+          element={<HomeServiceCountEditForm />}
+        />
 
-
-        <Route path="home/execution-highlights-add" element={<HomeExecutionHighlightsAddForm />} />
-        <Route path="home/execution-highlights-control" element={<HomeExecutionHighlightsControl />} />
-        <Route path="home/execution-highlights-edit/:id" element={<HomeExecutionHighlightsEditForm />} />
+        <Route
+          path="home/execution-highlights-add"
+          element={<HomeExecutionHighlightsAddForm />}
+        />
+        <Route
+          path="home/execution-highlights-control"
+          element={<HomeExecutionHighlightsControl />}
+        />
+        <Route
+          path="home/execution-highlights-edit/:id"
+          element={<HomeExecutionHighlightsEditForm />}
+        />
 
         <Route path="degreeprogram/company-add" element={<CompanyAddForm />} />
-        <Route path="degreeprogram/company-control" element={<CompanyControl />} />
-        <Route path="degreeprogram/company-edit/:companyId" element={<CompanyEditForm />} />
-
+        <Route
+          path="degreeprogram/company-control"
+          element={<CompanyControl />}
+        />
+        <Route
+          path="degreeprogram/company-edit/:companyId"
+          element={<CompanyEditForm />}
+        />
 
         <Route path="admin-add" element={<AdminRegistrationForm />} />
         <Route path="admin/control" element={<AdminControl />} />
         <Route path="admin-edit/:id" element={<AdminEditForm />} />
-          
+        <Route path="hiring-control" element={<HireFromUsFormsControl />} />
+        <Route
+          path="train-from-us-control"
+          element={<TrainFromUsFormsControl />}
+        />
+        <Route path="institute-control" element={<InstituteUsFormsControl />} />
       </Route>
-
 
       // not include in ad min panal
 

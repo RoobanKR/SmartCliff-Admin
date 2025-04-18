@@ -10,6 +10,9 @@ import {
   Alert,
   Grid,
   CircularProgress,
+  useTheme,
+  Box,
+  Tooltip,
 } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { useNavigate, useParams } from "react-router-dom";
@@ -17,12 +20,17 @@ import { useDispatch, useSelector } from "react-redux";
 import LeftNavigationBar from "../../../navbars/LeftNavigationBar";
 import { resetSignIn, userVerify } from "../../../redux/slices/user/Signin";
 import { useCookies } from "react-cookie";
-import { getAllAboutUs, updateAboutUs } from "../../../redux/slices/aboutpage/aboutUs/aboutus";
+import {
+  getAllAboutUs,
+  updateAboutUs,
+} from "../../../redux/slices/aboutpage/aboutUs/aboutus";
+import { HelpOutline } from "@mui/icons-material";
 
 const AboutUsEditForm = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const theme = useTheme();
 
   const aboutUss = useSelector((state) => state.aboutUs.aboutUss);
   const [formData, setFormData] = useState({
@@ -48,13 +56,13 @@ const AboutUsEditForm = () => {
       dispatch(getAllAboutUs()); // Ensure the data is loaded
     }
   }, [dispatch, aboutUss.length]);
-  
+
   useEffect(() => {
     console.log("aboutUss from Redux:", aboutUss); // Debugging log
     if (id) {
       const existingData = aboutUss.find((item) => item._id === id);
       console.log("existingData", existingData); // Debugging log
-      
+
       if (existingData) {
         setFormData({
           title: existingData.title || "",
@@ -66,7 +74,7 @@ const AboutUsEditForm = () => {
       }
     }
   }, [id, aboutUss]);
-  
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -101,7 +109,9 @@ const AboutUsEditForm = () => {
       formDataToSend.append("image", formData.preview.split("/").pop()); // Send existing image name
     }
 
-    dispatch(updateAboutUs({ id, formData: formDataToSend, token: cookies.token }))
+    dispatch(
+      updateAboutUs({ id, formData: formDataToSend, token: cookies.token })
+    )
       .unwrap()
       .then(() => {
         setMessage({ text: "Updated successfully", type: "success" });
@@ -109,7 +119,10 @@ const AboutUsEditForm = () => {
         setTimeout(() => navigate("/about/aboutus-control"), 2000);
       })
       .catch((error) => {
-        setMessage({ text: error?.message || "Something went wrong", type: "error" });
+        setMessage({
+          text: error?.message || "Something went wrong",
+          type: "error",
+        });
         setOpenSnackbar(true);
       })
       .finally(() => setLoading(false));
@@ -118,27 +131,29 @@ const AboutUsEditForm = () => {
   return (
     <LeftNavigationBar
       Content={
-        <Card sx={{ maxWidth: 600, margin: "auto", mt: 4, p: 3, boxShadow: 3 }}>
-          <CardContent>
-            <Snackbar open={openSnackbar} autoHideDuration={3000} onClose={() => setOpenSnackbar(false)}>
-              <Alert severity={message.type}>{message.text}</Alert>
-            </Snackbar>
+        <>
+          {" "}
+          <Box
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            gap={1}
+            mt={2}
+            mb={1}
+          >
             <Typography
               variant="h4"
               sx={{
                 position: "relative",
                 padding: 0,
                 margin: 0,
-                fontFamily: 'Merriweather, serif',
-                fontWeight: 700, textAlign: 'center',
+                fontFamily: "Merriweather, serif",
                 fontWeight: 300,
                 fontSize: { xs: "32px", sm: "40px" },
                 color: "#747474",
                 textAlign: "center",
                 textTransform: "uppercase",
                 paddingBottom: "5px",
-                mb: 3,
-                mt: -4,
                 "&::before": {
                   content: '""',
                   width: "28px",
@@ -163,57 +178,103 @@ const AboutUsEditForm = () => {
                 },
               }}
             >
-              Edit About Us
+              About Us Content
+              <br /> Edit Form
             </Typography>
-            <form onSubmit={handleSubmit}>
-              <Grid container spacing={2}>
-                <Grid item xs={12}>
-                  <TextField
-                    label="Title"
-                    name="title"
-                    value={formData.title}
-                    onChange={handleChange}
-                    fullWidth
-                    multiline
-                    rows={4}
-                    margin="normal"
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <Button
-                    variant="contained"
-                    component="label"
-                    fullWidth
-                    startIcon={<CloudUploadIcon />}
-                    sx={{ mt: 2 }}
-                  >
-                    Upload Image
-                    <input type="file" hidden accept="image/*" onChange={handleFileChange} />
-                  </Button>
-                  {formData.preview && (
-                    <img
-                      src={formData.preview}
-                      alt="Preview"
-                      style={{ width: "100%", height: "auto", marginTop: 10, borderRadius: 8 }}
+
+            <Tooltip
+              title="This is where you can add the execution count for the service."
+              arrow
+            >
+              <HelpOutline
+                sx={{ color: "#747474", fontSize: "24px", cursor: "pointer" }}
+              />
+            </Tooltip>
+          </Box>
+          <Card elevation={0} sx={{ maxWidth: 700, margin: "auto" }}>
+            <CardContent>
+              <Snackbar
+                open={openSnackbar}
+                autoHideDuration={3000}
+                onClose={() => setOpenSnackbar(false)}
+              >
+                <Alert severity={message.type}>{message.text}</Alert>
+              </Snackbar>
+
+              <form
+                onSubmit={handleSubmit}
+                style={{
+                  border: "2px dotted #D3D3D3",
+                  padding: "20px",
+                  borderRadius: "8px",
+                }}
+              >
+                <Grid container spacing={2}>
+                  <Grid item xs={12}>
+                    <TextField
+                      label="Title"
+                      name="title"
+                      value={formData.title}
+                      onChange={handleChange}
+                      fullWidth
+                      multiline
+                      rows={4}
+                      margin="normal"
                     />
-                  )}
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Button
+                      variant="contained"
+                      component="label"
+                      fullWidth
+                      startIcon={<CloudUploadIcon />}
+                      sx={{ mt: 2 }}
+                    >
+                      Click Here Update Image
+                      <input
+                        type="file"
+                        hidden
+                        accept="image/*"
+                        onChange={handleFileChange}
+                      />
+                    </Button>
+                    {formData.preview && (
+                      <img
+                        src={formData.preview}
+                        alt="Preview"
+                        style={{
+                          width: "100%",
+                          height: "auto",
+                          marginTop: 10,
+                          borderRadius: 8,
+                        }}
+                      />
+                    )}
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Button
+                      type="submit"
+                      variant="contained"
+                      sx={{
+                        backgroundColor: theme.palette.warning.main,
+                        color: theme.palette.warning.contrastText,
+                        display: "block",
+                        marginLeft: "auto",
+                        marginRight: "auto",
+                        mt: 3, // optional: top margin
+                        "&:hover": {
+                          backgroundColor: theme.palette.warning.dark,
+                        },
+                      }}
+                    >
+                      Submit Content
+                    </Button>
+                  </Grid>
                 </Grid>
-                <Grid item xs={12}>
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    color="primary"
-                    fullWidth
-                    sx={{ mt: 2 }}
-                    disabled={loading}
-                  >
-                    {loading ? <CircularProgress size={24} color="inherit" /> : "Update"}
-                  </Button>
-                </Grid>
-              </Grid>
-            </form>
-          </CardContent>
-        </Card>
+              </form>
+            </CardContent>
+          </Card>
+        </>
       }
     />
   );

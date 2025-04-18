@@ -80,7 +80,7 @@ import StepsIcon from "@material-ui/icons/ViewList";
 import { resetSignIn, userVerify } from "../redux/slices/user/Signin";
 import { useDispatch } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
- 
+
 import {
   faBusinessTime,
   faGraduationCap,
@@ -91,9 +91,9 @@ import {
   faHome,
   faHistory,
 } from "@fortawesome/free-solid-svg-icons"; // Import your desired icons
- 
+
 const drawerWidth = 300;
- 
+
 const openedMixin = (theme) => ({
   width: drawerWidth,
   transition: theme.transitions.create("width", {
@@ -102,7 +102,7 @@ const openedMixin = (theme) => ({
   }),
   overflowX: "hidden",
 });
- 
+
 const closedMixin = (theme) => ({
   transition: theme.transitions.create("width", {
     easing: theme.transitions.easing.sharp,
@@ -114,7 +114,7 @@ const closedMixin = (theme) => ({
     width: `calc(${theme.spacing(8)} + 1px)`,
   },
 });
- 
+
 const DrawerHeader = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
@@ -122,11 +122,11 @@ const DrawerHeader = styled("div")(({ theme }) => ({
   padding: theme.spacing(0, 1),
   ...theme.mixins.toolbar,
 }));
- 
+
 const orangeIconStyle = {
   color: "#1976d2",
 };
- 
+
 const AppBar = styled(MuiAppBar, {
   shouldForwardProp: (prop) => prop !== "open",
 })(({ theme, open }) => ({
@@ -144,7 +144,7 @@ const AppBar = styled(MuiAppBar, {
     }),
   }),
 }));
- 
+
 const Drawer = styled(MuiDrawer, {
   shouldForwardProp: (prop) => prop !== "open",
 })(({ theme, open }) => ({
@@ -161,34 +161,34 @@ const Drawer = styled(MuiDrawer, {
     "& .MuiDrawer-paper": closedMixin(theme),
   }),
 }));
- 
+
 export default function LeftNavigationBar({ Content }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [cookies, removeCookie] = useCookies(["token"]);
   const [anchorEl, setAnchorEl] = React.useState(false);
- 
+
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
   const [dropdownStates, setDropdownStates] = React.useState({});
- 
+
   const opens = Boolean(anchorEl);
- 
+
   const handleClose = () => {
     setAnchorEl(null);
   };
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
- 
+
   const handleDrawerOpen = () => {
     setOpen(true);
   };
- 
+
   const handleDrawerClose = () => {
     setOpen(false);
   };
- 
+
   React.useEffect(() => {
     if (!cookies.token || cookies.token === undefined) {
       dispatch(resetSignIn());
@@ -198,35 +198,84 @@ export default function LeftNavigationBar({ Content }) {
       console.log("user verify called");
     }
   }, [cookies]);
- 
+
   const handleDropdownToggle = (dropdown) => {
     setDropdownStates((prev) => ({
       ...prev,
       [dropdown]: !prev[dropdown],
     }));
   };
- 
+
   const handleLogout = () => {
     document.cookie.split(";").forEach((c) => {
       document.cookie = c
         .replace(/^ +/, "")
         .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
     });
- 
+
     dispatch(resetSignIn());
     navigate(0);
   };
- 
+
   const handleNavigation = (dropdown, action) => {
     const routes = {
       control: `/${dropdown}-control`,
       control: `/${dropdown}-control`,
     };
- 
+
     navigate(routes[action]);
   };
- 
+
   const modules = [
+    {
+      text: "Home",
+      icon: <FontAwesomeIcon icon={faHome} style={orangeIconStyle} />,
+      dropdown: "Home",
+      submodules: [
+        {
+          text: "Execution Count",
+          link: "home/service-count",
+          icon: <Numbers style={orangeIconStyle} />,
+        },
+        {
+          text: "Execution Slider",
+          link: "home/execution-highlights",
+          icon: <HighQualityRounded style={orangeIconStyle} />,
+        },
+        {
+          text: "Testimonial",
+          link: "Review",
+          icon: <Reviews style={orangeIconStyle} />,
+        },
+      ],
+    },
+    {
+      text: "About",
+      icon: <FontAwesomeIcon icon={faAddressCard} style={orangeIconStyle} />,
+      dropdown: "About",
+      submodules: [
+        {
+          text: "About Us",
+          link: "about/aboutus",
+          icon: <StayCurrentPortrait style={orangeIconStyle} />,
+        },
+        {
+          text: "Vision & Mission",
+          link: "about/vision-mission",
+          icon: <VisibilityOutlined style={orangeIconStyle} />,
+        },
+        {
+          text: "Shine",
+          link: "about/shine",
+          icon: <ShieldMoon style={orangeIconStyle} />,
+        },
+        {
+          text: "Yearly Service",
+          link: "about/yearly-service",
+          icon: <FontAwesomeIcon icon={faHistory} style={orangeIconStyle} />,
+        },
+      ],
+    },
     {
       text: "Services",
       icon: <FontAwesomeIcon icon={faBusinessTime} style={orangeIconStyle} />,
@@ -250,7 +299,7 @@ export default function LeftNavigationBar({ Content }) {
         {
           text: "Services Process",
           link: "Services-Process",
- 
+
           icon: <WifiProtectedSetupSharp style={orangeIconStyle} />,
         },
         {
@@ -297,7 +346,7 @@ export default function LeftNavigationBar({ Content }) {
           link: "Degree_Program",
           icon: <Terminal style={orangeIconStyle} />,
         },
- 
+
         {
           text: "Our Program",
           link: "Our_Program",
@@ -389,51 +438,6 @@ export default function LeftNavigationBar({ Content }) {
         },
       ],
     },
- 
-    {
-      text: "About",
-      icon: <FontAwesomeIcon icon={faAddressCard} style={orangeIconStyle} />,
-      dropdown: "About",
-      submodules: [
-        {
-          text: "About Us",
-          link: "about/aboutus",
-          icon: <StayCurrentPortrait style={orangeIconStyle} />,
-        },
-        {
-          text: "Vsion & Mission",
-          link: "about/vision-mission",
-          icon: <VisibilityOutlined style={orangeIconStyle} />,
-        },
-        {
-          text: "Shine",
-          link: "about/shine",
-          icon: <ShieldMoon style={orangeIconStyle} />,
-        },
-        {
-          text: "Yaerly Service",
-          link: "about/yearly-service",
-          icon: <FontAwesomeIcon icon={faHistory} style={orangeIconStyle} />,
-        },
-      ],
-    },
-    {
-      text: "Home",
-      icon: <FontAwesomeIcon icon={faHome} style={orangeIconStyle} />,
-      dropdown: "Home",
-      submodules: [
-        {
-          text: "Service Count",
-          link: "home/service-count",
-          icon: <Numbers style={orangeIconStyle} />,
-        },
-        {
-          text: "Execution Highlights",
-          link: "home/execution-highlights",
-          icon: <HighQualityRounded style={orangeIconStyle} />,
-        },
-      ],
-    },
     {
       text: "Common",
       icon: <FontAwesomeIcon icon={faComment} style={orangeIconStyle} />,
@@ -444,16 +448,11 @@ export default function LeftNavigationBar({ Content }) {
           link: "FAQ",
           icon: <FontAwesomeIcon icon={faQuestion} style={orangeIconStyle} />,
         },
-        {
-          text: "Review",
-          link: "Review",
-          icon: <Reviews style={orangeIconStyle} />,
-        },
       ],
     },
     // Add more modules as needed
   ];
- 
+
   return (
     <Box sx={{ display: "flex" }}>
       <CssBaseline />
@@ -471,7 +470,7 @@ export default function LeftNavigationBar({ Content }) {
           >
             <MenuIcon />
           </IconButton>
- 
+
           <div style={{ flexGrow: 1 }} />
           <Tooltip title="Account settings">
             <IconButton
@@ -526,7 +525,7 @@ export default function LeftNavigationBar({ Content }) {
               </ListItemIcon>
               Users
             </MenuItem>
- 
+
             <MenuItem
               onClick={() => {
                 dispatch(resetSignIn());
@@ -560,7 +559,7 @@ export default function LeftNavigationBar({ Content }) {
           </IconButton>
         </DrawerHeader>
         <Divider />
- 
+
         <List>
           {modules.map(({ text, icon, dropdown, submodules }) => (
             <React.Fragment key={text}>
@@ -597,7 +596,7 @@ export default function LeftNavigationBar({ Content }) {
                     sx={{ opacity: open ? 1 : 0 }}
                   />
                 </ListItemButton>
- 
+
                 {/* Submodules */}
                 <Collapse
                   in={dropdownStates[dropdown]}
@@ -656,7 +655,7 @@ export default function LeftNavigationBar({ Content }) {
           ))}
         </List>
       </Drawer>
- 
+
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
         <DrawerHeader />
         {Content}
@@ -664,5 +663,3 @@ export default function LeftNavigationBar({ Content }) {
     </Box>
   );
 }
- 
- 

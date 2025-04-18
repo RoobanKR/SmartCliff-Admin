@@ -32,20 +32,30 @@ import AddIcon from "@mui/icons-material/Add";
 import SearchIcon from "@mui/icons-material/Search";
 import LeftNavigationBar from "../../../navbars/LeftNavigationBar";
 import { useNavigate } from "react-router-dom";
-import { deleteHomeServiceCount, getAllHomeServicesCount } from "../../../redux/slices/home/homeServiceCount/homeServiceCount";
+import {
+  deleteHomeServiceCount,
+  getAllHomeServicesCount,
+} from "../../../redux/slices/home/homeServiceCount/homeServiceCount";
+import { Delete, Edit } from "@mui/icons-material";
 
 const HomeServiceCountControlPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { homeServices, loading, error } = useSelector((state) => state.homeServices);
-  const [snackbar, setSnackbar] = React.useState({ open: false, message: '', severity: 'success' });
+  const { homeServices, loading, error } = useSelector(
+    (state) => state.homeServices
+  );
+  const [snackbar, setSnackbar] = React.useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [serviceIdToDelete, setServiceIdToDelete] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   useEffect(() => {
     dispatch(getAllHomeServicesCount());
@@ -56,68 +66,74 @@ const HomeServiceCountControlPage = () => {
   };
 
   const handleDelete = async (id) => {
-      setServiceIdToDelete(id);
-      setDeleteDialogOpen(true);
-    }
-  
+    setServiceIdToDelete(id);
+    setDeleteDialogOpen(true);
+  };
 
   const handleDeleteConfirm = async () => {
     if (serviceIdToDelete) {
       try {
-        const resultAction = await dispatch(deleteHomeServiceCount(serviceIdToDelete));
-        
+        const resultAction = await dispatch(
+          deleteHomeServiceCount(serviceIdToDelete)
+        );
+
         // Extract a safe message to display
-        let successMessage = 'Home service count deleted successfully';
+        let successMessage = "Home service count deleted successfully";
         if (resultAction.payload) {
-          if (typeof resultAction.payload === 'string') {
+          if (typeof resultAction.payload === "string") {
             successMessage = resultAction.payload;
-          } else if (typeof resultAction.payload === 'object' && resultAction.payload.message) {
-            if (typeof resultAction.payload.message === 'string') {
+          } else if (
+            typeof resultAction.payload === "object" &&
+            resultAction.payload.message
+          ) {
+            if (typeof resultAction.payload.message === "string") {
               successMessage = resultAction.payload.message;
             }
           }
         }
-        
+
         setSnackbar({
           open: true,
           message: successMessage,
-          severity: 'success',
+          severity: "success",
         });
-        
+
         // Refresh the list after deletion
         dispatch(getAllHomeServicesCount());
-        
       } catch (error) {
-        console.error('Error deleting home service count:', error);
-        
+        console.error("Error deleting home service count:", error);
+
         // Create a safe error message string
-        let errorMessage = 'Failed to delete home service count';
-        
+        let errorMessage = "Failed to delete home service count";
+
         if (error) {
-          if (typeof error === 'string') {
+          if (typeof error === "string") {
             errorMessage = error;
-          } else if (typeof error === 'object') {
-            if (typeof error.message === 'string') {
+          } else if (typeof error === "object") {
+            if (typeof error.message === "string") {
               errorMessage = error.message;
             } else if (error.response?.data) {
               const data = error.response.data;
-              if (typeof data === 'string') {
+              if (typeof data === "string") {
                 errorMessage = data;
-              } else if (typeof data === 'object') {
-                if (typeof data.message === 'string') {
+              } else if (typeof data === "object") {
+                if (typeof data.message === "string") {
                   errorMessage = data.message;
-                } else if (data.errorMessage && typeof data.errorMessage === 'string') {
+                } else if (
+                  data.errorMessage &&
+                  typeof data.errorMessage === "string"
+                ) {
                   errorMessage = data.errorMessage;
                 }
               }
             }
           }
         }
-        
+
         setSnackbar({
           open: true,
           message: errorMessage,
-          severity: 'error',
+          severity: "error",
         });
       }
     }
@@ -128,8 +144,10 @@ const HomeServiceCountControlPage = () => {
     setSnackbar((prev) => ({ ...prev, open: false }));
   };
 
-  const filteredHomeServices = homeServices.filter(service =>
-    service.service && service.service.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredHomeServices = homeServices.filter(
+    (service) =>
+      service.service &&
+      service.service.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleChangePage = (event, newPage) => {
@@ -145,7 +163,12 @@ const HomeServiceCountControlPage = () => {
     return (
       <LeftNavigationBar
         Content={
-          <Box display="flex" justifyContent="center" alignItems="center" minHeight="80vh">
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            minHeight="80vh"
+          >
             <CircularProgress size={60} thickness={4} />
           </Box>
         }
@@ -158,15 +181,16 @@ const HomeServiceCountControlPage = () => {
       Content={
         <Box sx={{ p: isMobile ? 1 : 3 }}>
           {/* Header Section */}
-          <Box sx={{ mb: 4 }}>
+          <Box sx={{ mb: 4, mt: 2 }}>
             <Typography
               variant="h4"
               sx={{
                 position: "relative",
                 padding: 0,
                 margin: 0,
-                fontFamily: 'Merriweather, serif',
-                fontWeight: 700, textAlign: 'center',
+                fontFamily: "Merriweather, serif",
+                fontWeight: 700,
+                textAlign: "center",
                 fontWeight: 300,
                 fontSize: { xs: "32px", sm: "40px" },
                 color: "#747474",
@@ -199,7 +223,7 @@ const HomeServiceCountControlPage = () => {
                 },
               }}
             >
-              Home Service Count Control Page
+              Execution Count <br></br> Control Panel
             </Typography>
             <Grid container spacing={2} alignItems="center">
               <Grid item xs={12} md={6}>
@@ -209,61 +233,87 @@ const HomeServiceCountControlPage = () => {
                   size="small"
                   placeholder="Search home services..."
                   InputProps={{
-                    startAdornment: <SearchIcon color="action" sx={{ mr: 1 }} />,
+                    startAdornment: (
+                      <SearchIcon color="action" sx={{ mr: 1 }} />
+                    ),
                   }}
                   sx={{
-                    backgroundColor: 'background.paper',
+                    backgroundColor: "background.paper",
                     borderRadius: 1,
                   }}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   value={searchTerm}
                 />
               </Grid>
-              <Grid item xs={12} md={6} sx={{ textAlign: { xs: 'left', md: 'right' } }}>
+              <Grid
+                item
+                xs={12}
+                md={6}
+                sx={{ textAlign: { xs: "left", md: "right" } }}
+              >
                 <Button
                   variant="contained"
                   startIcon={<AddIcon />}
-                  onClick={() => navigate('/home/service-count-add')}
+                  onClick={() => navigate("/home/service-count-add")}
                   sx={{
                     backgroundColor: theme.palette.primary.main,
-                    color: 'white',
-                    '&:hover': {
-                      backgroundColor: theme.palette.primary.dark
+                    color: "white",
+                    "&:hover": {
+                      backgroundColor: theme.palette.primary.dark,
                     },
-                    whiteSpace: 'nowrap',
-                    width: { xs: '100%', md: 'auto' }
+                    whiteSpace: "nowrap",
+                    width: { xs: "100%", md: "auto" },
                   }}
                 >
-                  Add New Home Service Count
+                  Add Execution Count
                 </Button>
               </Grid>
             </Grid>
           </Box>
 
           {/* Table Section */}
-          <Paper elevation={3} sx={{ borderRadius: 2, overflow: 'hidden' }}>
+          <Paper elevation={3} sx={{ borderRadius: 2, overflow: "hidden" }}>
             <TableContainer>
               <Table>
                 <TableHead>
-                  <TableRow sx={{ backgroundColor: theme.palette.primary.main }}>
-                    <TableCell sx={{ color: 'white', fontWeight: 600 }}>Count</TableCell>
-                    <TableCell sx={{ color: 'white', fontWeight: 600 }}>Service</TableCell>
-                    <TableCell sx={{ color: 'white', fontWeight: 600 }}>Slug</TableCell>
-                    <TableCell align="right" sx={{ color: 'white', fontWeight: 600 }}>Actions</TableCell>
+                  <TableRow
+                    sx={{ backgroundColor: theme.palette.primary.main }}
+                  >
+                    <TableCell sx={{ color: "white", fontWeight: 600 }}>
+                      Count
+                    </TableCell>
+                    <TableCell sx={{ color: "white", fontWeight: 600 }}>
+                      Service
+                    </TableCell>
+                    <TableCell sx={{ color: "white", fontWeight: 600 }}>
+                      Slug
+                    </TableCell>
+                    <TableCell
+                      align="right"
+                      sx={{ color: "white", fontWeight: 600 }}
+                    >
+                      Actions
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {filteredHomeServices.length > 0 ? (
                     filteredHomeServices
-                      .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                      .slice(
+                        page * rowsPerPage,
+                        page * rowsPerPage + rowsPerPage
+                      )
                       .map((service) => (
                         <TableRow key={service._id}>
                           <TableCell>{service.count}</TableCell>
                           <TableCell>{service.service}</TableCell>
                           <TableCell>{service.slug}</TableCell>
                           <TableCell align="right">
-                            <Button variant="outlined" onClick={() => handleEdit(service._id)}>
-                              Edit
+                            <Button
+                              variant="outlined"
+                              onClick={() => handleEdit(service._id)}
+                            >
+                              <Edit />
                             </Button>
                             <Button
                               variant="outlined"
@@ -271,7 +321,7 @@ const HomeServiceCountControlPage = () => {
                               onClick={() => handleDelete(service._id)}
                               sx={{ ml: 1 }}
                             >
-                              Delete
+                              <Delete />
                             </Button>
                           </TableCell>
                         </TableRow>
@@ -301,10 +351,10 @@ const HomeServiceCountControlPage = () => {
                 onRowsPerPageChange={handleChangeRowsPerPage}
                 sx={{
                   borderTop: `1px solid ${theme.palette.divider}`,
-                  '& .MuiTablePagination-toolbar': {
+                  "& .MuiTablePagination-toolbar": {
                     paddingLeft: 2,
-                    paddingRight: 1
-                  }
+                    paddingRight: 1,
+                  },
                 }}
               />
             )}
@@ -317,20 +367,23 @@ const HomeServiceCountControlPage = () => {
             PaperProps={{
               sx: {
                 borderRadius: 2,
-                minWidth: isMobile ? '90%' : 400
-              }
+                minWidth: isMobile ? "90%" : 400,
+              },
             }}
- >
-            <DialogTitle sx={{
-              backgroundColor: theme.palette.error.light,
-              color: 'white',
-              fontWeight: 600
-            }}>
+          >
+            <DialogTitle
+              sx={{
+                backgroundColor: theme.palette.error.light,
+                color: "white",
+                fontWeight: 600,
+              }}
+            >
               Confirm Deletion
             </DialogTitle>
             <DialogContent sx={{ py: 3 }}>
               <Typography variant="body1">
-                Are you sure you want to delete this home service count? This action cannot be undone.
+                Are you sure you want to delete this home service count? This
+                action cannot be undone.
               </Typography>
             </DialogContent>
             <DialogActions sx={{ px: 3, pb: 2 }}>
@@ -339,7 +392,7 @@ const HomeServiceCountControlPage = () => {
                 variant="outlined"
                 sx={{
                   borderColor: theme.palette.grey[400],
-                  color: theme.palette.text.primary
+                  color: theme.palette.text.primary,
                 }}
               >
                 Cancel
@@ -350,9 +403,9 @@ const HomeServiceCountControlPage = () => {
                 color="error"
                 sx={{
                   backgroundColor: theme.palette.error.main,
-                  '&:hover': {
-                    backgroundColor: theme.palette.error.dark
-                  }
+                  "&:hover": {
+                    backgroundColor: theme.palette.error.dark,
+                  },
                 }}
               >
                 Delete
@@ -365,16 +418,16 @@ const HomeServiceCountControlPage = () => {
             open={snackbar.open}
             autoHideDuration={6000}
             onClose={handleCloseSnackbar}
-            anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
           >
             <Alert
               onClose={handleCloseSnackbar}
               severity={snackbar.severity}
               variant="filled"
-              sx={{ width: '100%' }}
+              sx={{ width: "100%" }}
             >
-              {typeof snackbar.message === 'object' 
-                ? JSON.stringify(snackbar.message) 
+              {typeof snackbar.message === "object"
+                ? JSON.stringify(snackbar.message)
                 : snackbar.message}
             </Alert>
           </Snackbar>
