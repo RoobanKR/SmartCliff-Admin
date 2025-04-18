@@ -8,6 +8,9 @@ import {
   Grid,
   Snackbar,
   Alert,
+  Tooltip,
+  Box,
+  useTheme,
 } from "@mui/material";
 import { DropzoneArea } from "material-ui-dropzone";
 import { useDispatch, useSelector } from "react-redux";
@@ -22,14 +25,20 @@ import {
   resetBussinessService,
   selectAddBussinessServiceError,
 } from "../../../redux/slices/services/bussinessServices/BussinessSerives";
+import { HelpOutline } from "@mui/icons-material";
 
 const BussinessServicesAddForm = () => {
   const dispatch = useDispatch();
   const isSuccess = useSelector((state) => state.businessService.isSuccess);
   const error = useSelector(selectAddBussinessServiceError);
   const navigate = useNavigate();
+  const theme = useTheme();
   const [cookies] = useCookies(["token"]);
-  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
 
   const initialValues = {
     name: "",
@@ -44,7 +53,10 @@ const BussinessServicesAddForm = () => {
     name: Yup.string()
       .min(2, "Name must be at least 2 characters")
       .max(50, "Name must be at most 50 characters")
-      .matches(/^[a-zA-Z0-9\s]+$/, "Name must contain only alphabets and numbers")
+      .matches(
+        /^[a-zA-Z0-9\s]+$/,
+        "Name must contain only alphabets and numbers"
+      )
       .required("Name is required"),
     title: Yup.string()
       .min(2, "Title must be at least 2 characters")
@@ -55,16 +67,35 @@ const BussinessServicesAddForm = () => {
       .max(500, "Description must be at most 500 characters")
       .required("Description is required"),
     slug: Yup.string()
-      .matches(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Slug must be lowercase and can contain hyphens")
+      .matches(
+        /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
+        "Slug must be lowercase and can contain hyphens"
+      )
       .required("Slug is required"),
     image: Yup.mixed()
       .required("Image is required")
-      .test("fileFormat", "Only image files are supported", (value) => value && value.type.startsWith("image/"))
-      .test("fileSize", "File size must be less than 5MB", (value) => value && value.size <= 5 * 1024 * 1024),
+      .test(
+        "fileFormat",
+        "Only image files are supported",
+        (value) => value && value.type.startsWith("image/")
+      )
+      .test(
+        "fileSize",
+        "File size must be less than 5MB",
+        (value) => value && value.size <= 5 * 1024 * 1024
+      ),
     logo: Yup.mixed()
       .required("Logo is required")
-      .test("fileFormat", "Only image files are supported", (value) => value && value.type.startsWith("image/"))
-      .test("fileSize", "File size must be less than 5MB", (value) => value && value.size <= 5 * 1024 * 1024),
+      .test(
+        "fileFormat",
+        "Only image files are supported",
+        (value) => value && value.type.startsWith("image/")
+      )
+      .test(
+        "fileSize",
+        "File size must be less than 5MB",
+        (value) => value && value.size <= 5 * 1024 * 1024
+      ),
   });
 
   const handleSubmit = async (values, { setSubmitting }) => {
@@ -91,7 +122,11 @@ const BussinessServicesAddForm = () => {
 
   useEffect(() => {
     if (isSuccess) {
-      setSnackbar({ open: true, message: "Business service created successfully!", severity: "success" });
+      setSnackbar({
+        open: true,
+        message: "Business service created successfully!",
+        severity: "success",
+      });
       navigate("/Business-Services-control");
       dispatch(resetBussinessService());
     }
@@ -105,14 +140,13 @@ const BussinessServicesAddForm = () => {
     <LeftNavigationBar
       Content={
         <Container component="main" maxWidth="md">
-          <Paper
-            elevation={3}
-            sx={{
-              padding: 3,
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-            }}
+          <Box
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            gap={1}
+            mt={2}
+            mb={1}
           >
             <Typography
               variant="h4"
@@ -120,15 +154,13 @@ const BussinessServicesAddForm = () => {
                 position: "relative",
                 padding: 0,
                 margin: 0,
-                fontFamily: 'Merriweather, serif',
-                fontWeight: 700, textAlign: 'center',
+                fontFamily: "Merriweather, serif",
                 fontWeight: 300,
                 fontSize: { xs: "32px", sm: "40px" },
                 color: "#747474",
                 textAlign: "center",
                 textTransform: "uppercase",
                 paddingBottom: "5px",
-                mb: 5,
                 "&::before": {
                   content: '""',
                   width: "28px",
@@ -153,9 +185,28 @@ const BussinessServicesAddForm = () => {
                 },
               }}
             >
-              Business Services Add Form
+              Business Service
+              <br /> Add Form
             </Typography>
-            <br />
+
+            <Tooltip
+              title="This is where you can add the execution count for the service."
+              arrow
+            >
+              <HelpOutline
+                sx={{ color: "#747474", fontSize: "24px", cursor: "pointer" }}
+              />
+            </Tooltip>
+          </Box>
+          <Paper
+            elevation={0}
+            sx={{
+              padding: 2,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+            }}
+          >
             <Formik
               initialValues={initialValues}
               validationSchema={validationSchema}
@@ -171,7 +222,14 @@ const BussinessServicesAddForm = () => {
                 setFieldValue,
                 isSubmitting,
               }) => (
-                <form onSubmit={handleSubmit} style={{ width: "100%" }}>
+                <form
+                  onSubmit={handleSubmit}
+                  style={{
+                    border: "2px dotted #D3D3D3",
+                    padding: "20px",
+                    borderRadius: "8px",
+                  }}
+                >
                   <Grid container spacing={2}>
                     <Grid item xs={12}>
                       <TextField
@@ -210,7 +268,9 @@ const BussinessServicesAddForm = () => {
                         value={values.description}
                         onChange={handleChange}
                         onBlur={handleBlur}
-                        error={Boolean(touched.description && errors.description)}
+                        error={Boolean(
+                          touched.description && errors.description
+                        )}
                         helperText={touched.description && errors.description}
                       />
                     </Grid>
@@ -227,37 +287,55 @@ const BussinessServicesAddForm = () => {
                         helperText={touched.slug && errors.slug}
                       />
                     </Grid>
-                <Grid item xs={12}>
+                    <Grid item xs={12}>
                       <DropzoneArea
                         acceptedFiles={["image/*"]}
                         filesLimit={1}
                         dropzoneText="Drag and drop an image here or click Max 3MB only Uploads"
-                        onChange={(fileArray) => setFieldValue("image", fileArray[0])}
+                        onChange={(fileArray) =>
+                          setFieldValue("image", fileArray[0])
+                        }
                         onBlur={handleBlur}
                       />
-                      <ErrorMessage name="image" component="div" style={{ color: "red" }} />
+                      <ErrorMessage
+                        name="image"
+                        component="div"
+                        style={{ color: "red" }}
+                      />
                     </Grid>
                     <Grid item xs={12}>
                       <DropzoneArea
                         acceptedFiles={["image/*"]}
                         filesLimit={1}
                         dropzoneText="Drag and drop logo(icon) here or click"
-                        onChange={(fileArray) => setFieldValue("logo", fileArray[0])}
+                        onChange={(fileArray) =>
+                          setFieldValue("logo", fileArray[0])
+                        }
                         onBlur={handleBlur}
                       />
-                      <ErrorMessage name="logo" component="div" style={{ color: "red" }} />
+                      <ErrorMessage
+                        name="logo"
+                        component="div"
+                        style={{ color: "red" }}
+                      />
                     </Grid>
                   </Grid>
                   <Button
                     type="submit"
-                    fullWidth
                     variant="contained"
-                    color="primary"
-                    disabled={isSubmitting}
-                    sx={{ mt: 3 }}
-                    style={{ background: "green" }}
+                    sx={{
+                      backgroundColor: theme.palette.primary.main,
+                      color: theme.palette.primary.contrastText,
+                      display: "block",
+                      marginLeft: "auto",
+                      marginRight: "auto",
+                      mt: 3, // optional: top margin
+                      "&:hover": {
+                        backgroundColor: theme.palette.primary.dark,
+                      },
+                    }}
                   >
-                    Submit
+                    Submit Business Service
                   </Button>
                 </form>
               )}
@@ -269,9 +347,13 @@ const BussinessServicesAddForm = () => {
             open={snackbar.open}
             autoHideDuration={6000}
             onClose={handleCloseSnackbar}
-            anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+            anchorOrigin={{ vertical: "top", horizontal: "right" }}
           >
-            <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} variant="filled">
+            <Alert
+              onClose={handleCloseSnackbar}
+              severity={snackbar.severity}
+              variant="filled"
+            >
               {snackbar.message}
             </Alert>
           </Snackbar>

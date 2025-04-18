@@ -7,6 +7,9 @@ import {
   Container,
   Paper,
   Grid,
+  Box,
+  Tooltip,
+  useTheme,
 } from "@mui/material";
 import { DropzoneArea } from "material-ui-dropzone";
 import { useNavigate, useParams } from "react-router-dom";
@@ -18,12 +21,13 @@ import {
 } from "../../../redux/slices/services/services/Services";
 import { resetSignIn, userVerify } from "../../../redux/slices/user/Signin";
 import LeftNavigationBar from "../../../navbars/LeftNavigationBar";
+import { HelpOutline } from "@mui/icons-material";
 
 const ServiceEditForm = () => {
   const { serviceId } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
+  const theme = useTheme();
   const [title, setTitle] = useState("");
   const [slug, setSlug] = useState("");
   const [description, setDescription] = useState("");
@@ -79,7 +83,7 @@ const ServiceEditForm = () => {
 
     try {
       await dispatch(updateService({ serviceId, formData }));
-      
+
       // Show toast notification
       toast.success("Service updated successfully!", {
         position: "top-right",
@@ -91,7 +95,7 @@ const ServiceEditForm = () => {
         onClose: () => {
           // Navigate to the next page after toast is closed or after timeout
           navigate("/Services-control");
-        }
+        },
       });
     } catch (error) {
       console.error("Error updating service:", error);
@@ -105,15 +109,13 @@ const ServiceEditForm = () => {
         <Container component="main" maxWidth="md">
           {/* Add ToastContainer to render notifications */}
           <ToastContainer />
-          
-          <Paper
-            elevation={3}
-            sx={{
-              padding: 3,
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-            }}
+          <Box
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            gap={1}
+            mt={2}
+            mb={1}
           >
             <Typography
               variant="h4"
@@ -121,15 +123,13 @@ const ServiceEditForm = () => {
                 position: "relative",
                 padding: 0,
                 margin: 0,
-                fontFamily: 'Merriweather, serif',
-                fontWeight: 700, textAlign: 'center',
+                fontFamily: "Merriweather, serif",
                 fontWeight: 300,
                 fontSize: { xs: "32px", sm: "40px" },
                 color: "#747474",
                 textAlign: "center",
                 textTransform: "uppercase",
                 paddingBottom: "5px",
-                mb: 5,
                 "&::before": {
                   content: '""',
                   width: "28px",
@@ -154,10 +154,36 @@ const ServiceEditForm = () => {
                 },
               }}
             >
-              Service Edit Form
+              Service
+              <br /> Edit Form
             </Typography>
-            <br />
-            <form onSubmit={handleSubmit} style={{ width: "100%" }}>
+
+            <Tooltip
+              title="This is where you can add the execution count for the service."
+              arrow
+            >
+              <HelpOutline
+                sx={{ color: "#747474", fontSize: "24px", cursor: "pointer" }}
+              />
+            </Tooltip>
+          </Box>
+          <Paper
+            elevation={0}
+            sx={{
+              padding: 2,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+            }}
+          >
+            <form
+              onSubmit={handleSubmit}
+              style={{
+                border: "2px dotted #D3D3D3",
+                padding: "20px",
+                borderRadius: "8px",
+              }}
+            >
               <Grid container spacing={2}>
                 <Grid item xs={12}>
                   <TextField
@@ -207,7 +233,11 @@ const ServiceEditForm = () => {
                       <img
                         src={existingImages}
                         alt="Existing Image"
-                        style={{ width: "100px", height: "auto", marginRight: "8px" }}
+                        style={{
+                          width: "100px",
+                          height: "auto",
+                          marginRight: "8px",
+                        }}
                       />
                       <Typography>{existingImages.split("/").pop()}</Typography>
                     </div>
@@ -217,12 +247,20 @@ const ServiceEditForm = () => {
               {error && <Typography color="error">{error}</Typography>}
               <Button
                 type="submit"
-                fullWidth
                 variant="contained"
-                color="primary"
-                sx={{ mt: 3 }}
+                sx={{
+                  backgroundColor: theme.palette.warning.main,
+                  color: theme.palette.warning.contrastText,
+                  display: "block",
+                  marginLeft: "auto",
+                  marginRight: "auto",
+                  mt: 3, // optional: top margin
+                  "&:hover": {
+                    backgroundColor: theme.palette.warning.dark,
+                  },
+                }}
               >
-                Update
+                Update Service Data
               </Button>
             </form>
           </Paper>

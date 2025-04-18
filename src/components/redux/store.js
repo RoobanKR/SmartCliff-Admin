@@ -48,23 +48,25 @@ import visionMissionReducer from "./slices/aboutpage/visionMission/visionMission
 import galleryReducer from "./slices/gallery/gallery";
 import aboutUsReducer from "./slices/aboutpage/aboutUs/aboutus";
 import shineReducer from "./slices/aboutpage/shine/shine";
-import ourPartnersReducer from './slices/services/ourPartners/ourPartners';
-import ourSponsorsReducer from './slices/services/ourSponsors/ourSponsors';
-import wcyHireReducer from './slices/business/WCYHire/WcyHire';
-import careerReducer from './slices/career/career'; 
-import yearlyServiceReducer from './slices/aboutpage/yearlyServices/yearlyServices'; 
-import skillVerticalReducer from './slices/mca/skillVertical/skillVertical'; 
-import targetStudentReducer from './slices/mca/targetStudent/targetStudent';
-import collegeReducer from './slices/mca/college/college';
-import currentAvailabilityReducer from './slices/business/currentAvailability/currentAvailability';
-import journeyReducer from "./slices/business/learningJourney/learningJourney"
+import ourPartnersReducer from "./slices/services/ourPartners/ourPartners";
+import ourSponsorsReducer from "./slices/services/ourSponsors/ourSponsors";
+import wcyHireReducer from "./slices/business/WCYHire/WcyHire";
+import careerReducer from "./slices/career/career";
+import yearlyServiceReducer from "./slices/aboutpage/yearlyServices/yearlyServices";
+import skillVerticalReducer from "./slices/mca/skillVertical/skillVertical";
+import targetStudentReducer from "./slices/mca/targetStudent/targetStudent";
+import collegeReducer from "./slices/mca/college/college";
+import currentAvailabilityReducer from "./slices/business/currentAvailability/currentAvailability";
+import journeyReducer from "./slices/business/learningJourney/learningJourney";
 import homeServiceReducer from "./slices/home/homeServiceCount/homeServiceCount";
 import homeExecutionHighlightsReducer from "./slices/home/homeExecutionHighlights/homeExecutionHighlights";
 import companiesReducer from "./slices/mca/company/company";
-import hireFromUsReducer from "./slices/business/form/hireFromUsForm"
-import trainFromUsReducer from "./slices/business/form/trainFormUsForm"
-import instituteReducer from "./slices/business/form/instituteForm"
-
+import hireFromUsReducer from "./slices/business/form/hireFromUsForm";
+import trainFromUsReducer from "./slices/business/form/trainFormUsForm";
+import instituteReducer from "./slices/business/form/instituteForm";
+import wcuReducer from "./slices/home/wcu/WhyCU";
+import howItWorksReducer from "./slices/business/howItWorks/howItWorks";
+import footerReducer from "./slices/footer/footer";
 
 export default configureStore({
   reducer: {
@@ -72,7 +74,7 @@ export default configureStore({
     userSignUp: userSignUpSlice,
     superAdminRegister: superAdminSignUpSlice,
     adminRegister: adminSignUpSlice,
-    admin:adminRegister,
+    admin: adminRegister,
     category: categoryReducer,
     careerOpportunities: careerOpportunitiesReducer,
     softwareTools: softwareToolsReducer,
@@ -112,7 +114,7 @@ export default configureStore({
     contact: contactReducer,
     careerForm: careerFormReducer,
     reviews: reviewReducer,
-    joinUs: joinUsReducer,  // This should match useSelector(state => state.joinUs)
+    joinUs: joinUsReducer, // This should match useSelector(state => state.joinUs)
     placementTrainingTrack: placementTrainingTrackReducer,
     visionMission: visionMissionReducer,
     aboutUs: aboutUsReducer,
@@ -124,18 +126,20 @@ export default configureStore({
 
     wcyHire: wcyHireReducer,
     career: careerReducer,
-    yearlyService:yearlyServiceReducer,
-    skillVertical:skillVerticalReducer,
-    targetStudent:targetStudentReducer,
-    college:collegeReducer,
-    currentAvailability:currentAvailabilityReducer,
-    journey:journeyReducer,
+    yearlyService: yearlyServiceReducer,
+    skillVertical: skillVerticalReducer,
+    targetStudent: targetStudentReducer,
+    college: collegeReducer,
+    currentAvailability: currentAvailabilityReducer,
+    journey: journeyReducer,
     homeServices: homeServiceReducer,
-    homeExecutionHighlights:homeExecutionHighlightsReducer,
-    companies:companiesReducer,
+    homeExecutionHighlights: homeExecutionHighlightsReducer,
+    companies: companiesReducer,
     hireFromUs: hireFromUsReducer,
     trainFromUs: trainFromUsReducer,
     institute: instituteReducer,
-
+    wcu: wcuReducer,
+    howItWorks: howItWorksReducer,
+    footer: footerReducer,
   },
 });

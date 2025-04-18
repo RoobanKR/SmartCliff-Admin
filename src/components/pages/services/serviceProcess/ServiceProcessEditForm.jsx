@@ -11,14 +11,21 @@ import {
   Alert,
   FormControl,
   Autocomplete,
+  useTheme,
+  Tooltip,
+  Box,
 } from "@mui/material";
-import { Add, Delete } from "@mui/icons-material";
+import { Add, Delete, HelpOutline } from "@mui/icons-material";
 import LeftNavigationBar from "../../../navbars/LeftNavigationBar";
 import { getAllBussinessServices } from "../../../redux/slices/services/bussinessServices/BussinessSerives";
 import { fetchServices } from "../../../redux/slices/services/services/Services";
 import { useDispatch, useSelector } from "react-redux";
 import { useCookies } from "react-cookie";
-import { clearUpdateStatus, getServiceProcessById, updateServiceProcess } from "../../../redux/slices/services/process/process";
+import {
+  clearUpdateStatus,
+  getServiceProcessById,
+  updateServiceProcess,
+} from "../../../redux/slices/services/process/process";
 import { DropzoneArea } from "material-ui-dropzone";
 
 const ServiceProcessEditForm = () => {
@@ -26,6 +33,7 @@ const ServiceProcessEditForm = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [cookies] = useCookies(["token"]);
+  const theme = useTheme();
 
   const {
     selectedServiceProcess,
@@ -55,9 +63,7 @@ const ServiceProcessEditForm = () => {
     service: "",
   });
 
-  const [processs, setProcess] = useState([
-    { heading: "", icon: null },
-  ]);
+  const [processs, setProcess] = useState([{ heading: "", icon: null }]);
 
   // Fetch initial data
   useEffect(() => {
@@ -90,8 +96,14 @@ const ServiceProcessEditForm = () => {
             let iconFile = null;
             if (f.icon) {
               const fileExt = f.icon.split(".").pop().split("?")[0];
-              const mimeType = `image/${fileExt === "svg" ? "svg+xml" : fileExt}`;
-              iconFile = await urlToFile(f.icon, `icon_${i}.${fileExt}`, mimeType);
+              const mimeType = `image/${
+                fileExt === "svg" ? "svg+xml" : fileExt
+              }`;
+              iconFile = await urlToFile(
+                f.icon,
+                `icon_${i}.${fileExt}`,
+                mimeType
+              );
             }
             return { heading: f.heading, icon: iconFile };
           })
@@ -123,7 +135,7 @@ const ServiceProcessEditForm = () => {
           heading: f.heading,
           icon: f.icon,
         }))
- );
+      );
     }
   }, [selectedServiceProcess, businessServiceData, serviceData]);
 
@@ -131,7 +143,8 @@ const ServiceProcessEditForm = () => {
   useEffect(() => {
     if (selectedBusinessService) {
       const filtered = serviceData.filter(
-        (service) => service.business_services?._id === selectedBusinessService._id
+        (service) =>
+          service.business_services?._id === selectedBusinessService._id
       );
       setFilteredServices(filtered);
     } else {
@@ -150,7 +163,6 @@ const ServiceProcessEditForm = () => {
     setTouchedFields((prev) => ({ ...prev, service: true }));
     setErrors((prev) => ({ ...prev, service: "" }));
   };
-
 
   const handleProcessChange = (index, e) => {
     const updatedprocess = [...processs];
@@ -196,7 +208,9 @@ const ServiceProcessEditForm = () => {
       data.append(`icon_${index}`, f.icon);
     });
 
-    dispatch(updateServiceProcess({ token: cookies.token, id, formData: data }));
+    dispatch(
+      updateServiceProcess({ token: cookies.token, id, formData: data })
+    );
   };
 
   useEffect(() => {
@@ -229,23 +243,27 @@ const ServiceProcessEditForm = () => {
               {updateError}
             </Alert>
           )}
-
-          <Paper elevation={3} sx={{ padding: 3, maxWidth: 600, margin: "auto" }}>
+          <Box
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            gap={1}
+            mt={2}
+            mb={1}
+          >
             <Typography
               variant="h4"
               sx={{
                 position: "relative",
                 padding: 0,
                 margin: 0,
-                fontFamily: 'Merriweather, serif',
-                fontWeight: 700, textAlign: 'center',
+                fontFamily: "Merriweather, serif",
                 fontWeight: 300,
                 fontSize: { xs: "32px", sm: "40px" },
                 color: "#747474",
                 textAlign: "center",
                 textTransform: "uppercase",
                 paddingBottom: "5px",
-                mb: 5,
                 "&::before": {
                   content: '""',
                   width: "28px",
@@ -270,9 +288,32 @@ const ServiceProcessEditForm = () => {
                 },
               }}
             >
-              Edit Service About
+              Service Process Details
+              <br /> Edit Form
             </Typography>
-            <form onSubmit={handleSubmit} encType="multipart/form-data">
+
+            <Tooltip
+              title="This is where you can add the execution count for the service."
+              arrow
+            >
+              <HelpOutline
+                sx={{ color: "#747474", fontSize: "24px", cursor: "pointer" }}
+              />
+            </Tooltip>
+          </Box>
+          <Paper
+            elevation={0}
+            sx={{ padding: 2, maxWidth: 700, margin: "auto" }}
+          >
+            <form
+              onSubmit={handleSubmit}
+              encType="multipart/form-data"
+              style={{
+                border: "2px dotted #D3D3D3",
+                padding: "20px",
+                borderRadius: "8px",
+              }}
+            >
               <FormControl fullWidth>
                 <Autocomplete
                   id="business-services"
@@ -291,7 +332,8 @@ const ServiceProcessEditForm = () => {
                       fullWidth
                       error={Boolean(errors.business_service)}
                       helperText={
-                        touchedFields.business_service && errors.business_service
+                        touchedFields.business_service &&
+                        errors.business_service
                       }
                     />
                   )}
@@ -315,16 +357,15 @@ const ServiceProcessEditForm = () => {
                       error={touchedFields.service && Boolean(errors.service)}
                       helperText={touchedFields.service && errors.service}
                       onBlur={() =>
-                          setTouchedFields((prev) => ({ ...prev, service: true }))
+                        setTouchedFields((prev) => ({ ...prev, service: true }))
                       }
                     />
                   )}
                 />
-              </FormControl>
-
-              <Typography variant="h6" mt={2}>
-                Features
-              </Typography>
+              </FormControl>{" "}
+              <br /> <br />
+              <Typography variant="h6">Features</Typography>
+              <br></br>
               {processs.map((process, index) => (
                 <div
                   key={index}
@@ -344,7 +385,7 @@ const ServiceProcessEditForm = () => {
                     required
                   />
                   <DropzoneArea
-                    acceptedFiles={['image/*']}
+                    acceptedFiles={["image/*"]}
                     onChange={(files) => handleProcessIconChange(index, files)}
                     dropzoneText="Drag and drop an icon here or click to select"
                     showPreviews={true}
@@ -364,24 +405,35 @@ const ServiceProcessEditForm = () => {
                     />
                   )}
 
-                  <IconButton onClick={() => removeprocess(index)} color="error">
-                    <Delete />
-                  </IconButton>
+                  <Button
+                    variant="outlined"
+                    onClick={() => removeprocess(index)}
+                    color="error"
+                    startIcon={<Delete />}
+                  >
+                    Delete Image
+                  </Button>
                 </div>
               ))}
               <Button startIcon={<Add />} onClick={addProcess}>
                 Add Feature
               </Button>
-
               <Button
                 type="submit"
                 variant="contained"
-                color="primary"
-                fullWidth
-                sx={{ mt: 3 }}
-                disabled={updateLoading}
+                sx={{
+                  backgroundColor: theme.palette.warning.main,
+                  color: theme.palette.warning.contrastText,
+                  display: "block",
+                  marginLeft: "auto",
+                  marginRight: "auto",
+                  mt: 3, // optional: top margin
+                  "&:hover": {
+                    backgroundColor: theme.palette.warning.dark,
+                  },
+                }}
               >
-                {updateLoading ? "Updating..." : "Update"}
+                Update Data
               </Button>
             </form>
           </Paper>

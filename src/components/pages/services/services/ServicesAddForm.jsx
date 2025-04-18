@@ -8,6 +8,9 @@ import {
   Grid,
   Autocomplete,
   FormControl,
+  Tooltip,
+  Box,
+  useTheme,
 } from "@mui/material";
 import { DropzoneArea } from "material-ui-dropzone";
 import { useDispatch, useSelector } from "react-redux";
@@ -23,9 +26,11 @@ import {
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { getAllBussinessServices } from "../../../redux/slices/services/bussinessServices/BussinessSerives";
+import { HelpOutline } from "@mui/icons-material";
 
 const ServicesAddForm = () => {
   const dispatch = useDispatch();
+  const theme = useTheme();
   const isSuccess = useSelector((state) => state.service.isSuccess);
   const error = useSelector(selectAddServiceError);
   const navigate = useNavigate();
@@ -118,14 +123,13 @@ const ServicesAddForm = () => {
     <LeftNavigationBar
       Content={
         <Container component="main" maxWidth="md">
-          <Paper
-            elevation={3}
-            sx={{
-              padding: 3,
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-            }}
+          <Box
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            gap={1}
+            mt={2}
+            mb={1}
           >
             <Typography
               variant="h4"
@@ -133,15 +137,13 @@ const ServicesAddForm = () => {
                 position: "relative",
                 padding: 0,
                 margin: 0,
-                fontFamily: 'Merriweather, serif',
-                fontWeight: 700, textAlign: 'center',
+                fontFamily: "Merriweather, serif",
                 fontWeight: 300,
                 fontSize: { xs: "32px", sm: "40px" },
                 color: "#747474",
                 textAlign: "center",
                 textTransform: "uppercase",
                 paddingBottom: "5px",
-                mb: 5,
                 "&::before": {
                   content: '""',
                   width: "28px",
@@ -166,9 +168,28 @@ const ServicesAddForm = () => {
                 },
               }}
             >
-              Services Add Form
+              Service
+              <br /> Add Form
             </Typography>
-            <br />
+
+            <Tooltip
+              title="This is where you can add the execution count for the service."
+              arrow
+            >
+              <HelpOutline
+                sx={{ color: "#747474", fontSize: "24px", cursor: "pointer" }}
+              />
+            </Tooltip>
+          </Box>
+          <Paper
+            elevation={0}
+            sx={{
+              padding: 1,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+            }}
+          >
             <Formik
               initialValues={initialValues}
               validationSchema={validationSchema}
@@ -183,9 +204,16 @@ const ServicesAddForm = () => {
                 handleSubmit,
                 isSubmitting,
               }) => (
-                <form onSubmit={handleSubmit} style={{ width: "100%" }}>
+                <form
+                  onSubmit={handleSubmit}
+                  style={{
+                    border: "2px dotted #D3D3D3",
+                    padding: "20px",
+                    borderRadius: "8px",
+                  }}
+                >
                   <Grid container spacing={2}>
-                    <Grid item xs={12}>
+                    <Grid item xs={6}>
                       <TextField
                         fullWidth
                         label="Title"
@@ -198,7 +226,7 @@ const ServicesAddForm = () => {
                         helperText={touched.title && errors.title}
                       />
                     </Grid>
-                    <Grid item xs={12}>
+                    <Grid item xs={6}>
                       <TextField
                         fullWidth
                         type="text"
@@ -258,40 +286,49 @@ const ServicesAddForm = () => {
                         style={{ color: "red" }}
                       />
                     </Grid>
-
-                    <FormControl fullWidth>
-                      <Autocomplete
-                        id="Business Services"
-                        options={businessServiceData || []}
-                        getOptionLabel={(option) => option?.name || ""}
-                        value={selectedBusinessService}
-                        onChange={handleServiceChange}
-                        isOptionEqualToValue={(option, value) =>
-                          option._id === value._id
-                        } // ✅ Fix: Proper comparison
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            variant="outlined"
-                            label="Business Services"
-                            fullWidth
-                            error={Boolean(errors.service)}
-                            helperText={touchedFields.service && errors.service}
-                          />
-                        )}
-                      />
-                    </FormControl>
+                    <Grid item xs={12}>
+                      <FormControl fullWidth>
+                        <Autocomplete
+                          id="Business Services"
+                          options={businessServiceData || []}
+                          getOptionLabel={(option) => option?.name || ""}
+                          value={selectedBusinessService}
+                          onChange={handleServiceChange}
+                          isOptionEqualToValue={(option, value) =>
+                            option._id === value._id
+                          } // ✅ Fix: Proper comparison
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              variant="outlined"
+                              label="Business Services"
+                              fullWidth
+                              error={Boolean(errors.service)}
+                              helperText={
+                                touchedFields.service && errors.service
+                              }
+                            />
+                          )}
+                        />
+                      </FormControl>
+                    </Grid>
                   </Grid>
                   <Button
                     type="submit"
-                    fullWidth
                     variant="contained"
-                    color="primary"
-                    disabled={isSubmitting}
-                    sx={{ mt: 3 }}
-                    style={{ background: "green" }}
+                    sx={{
+                      backgroundColor: theme.palette.primary.main,
+                      color: theme.palette.primary.contrastText,
+                      display: "block",
+                      marginLeft: "auto",
+                      marginRight: "auto",
+                      mt: 3, // optional: top margin
+                      "&:hover": {
+                        backgroundColor: theme.palette.primary.dark,
+                      },
+                    }}
                   >
-                    Submit
+                    Submit Service Data
                   </Button>
                 </form>
               )}

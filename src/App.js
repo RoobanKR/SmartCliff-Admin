@@ -175,6 +175,15 @@ import AdminEditForm from "./components/admin/AdminEdit";
 import HireFromUsFormsControl from "./components/pages/business/forms/HireFromUsFormsControl";
 import TrainFromUsFormsControl from "./components/pages/business/forms/TrainFromUsFormsControl";
 import InstituteUsFormsControl from "./components/pages/business/forms/InstituteFormControl";
+import WCUControl from "./components/pages/home/wcu/WCUControl";
+import WCUAddForm from "./components/pages/home/wcu/WCUAddForm";
+import WCUEditForm from "./components/pages/home/wcu/WCUEditForm";
+import HowItWorksControl from "./components/pages/business/howItsWork/HowItWorksControl";
+import HowItWorksAddForm from "./components/pages/business/howItsWork/HowItWorksAddForm";
+import HowItWorksEditForm from "./components/pages/business/howItsWork/HowItWorksEditForm";
+import FooterAddForm from "./components/pages/footer/FooterAddForm";
+import FooterEditForm from "./components/pages/footer/FooterEditFrom";
+import FooterControlPage from "./components/pages/footer/FooterControlPage";
 
 function App() {
   const router = createBrowserRouter(
@@ -667,13 +676,29 @@ function App() {
           element={<TrainFromUsFormsControl />}
         />
         <Route path="institute-control" element={<InstituteUsFormsControl />} />
+
+        <Route path="home/wcu-control" element={<WCUControl />} />
+        <Route path="home/wcu-add" element={<WCUAddForm />} />
+        <Route path="home/wcu-edit/:id" element={<WCUEditForm />} />
+
+        <Route
+          path="business/how-it-works-control"
+          element={<HowItWorksControl />}
+        />
+        <Route
+          path="business/how-it-works-add"
+          element={<HowItWorksAddForm />}
+        />
+
+        <Route
+          path="business/how-it-works-edit/:id"
+          element={<HowItWorksEditForm />}
+        />
+
+        <Route path="footer-add" element={<FooterAddForm />} />
+        <Route path="footer-control" element={<FooterControlPage />} />
+        <Route path="footer-edit/:id" element={<FooterEditForm />} />
       </Route>
-
-      // not include in ad min panal
-
-      //  2.. How It work
-
-      // 4 .wcu
     )
   );
 

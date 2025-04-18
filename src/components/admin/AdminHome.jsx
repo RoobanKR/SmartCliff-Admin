@@ -250,7 +250,7 @@ const AdminHome = () => {
 
       ].map((item, index) => (
         <Grid item xs={6} md={3} key={item.label}>
-           <Box
+  <Box
                           onClick={() => navigate(item.path)}
                           sx={{
                             p: 2,
@@ -265,8 +265,7 @@ const AdminHome = () => {
                             },
                           }}
                         >
- 
-            <Typography variant="body2" fontWeight={500}>
+             <Typography variant="body2" fontWeight={500}>
               {item.label}
             </Typography>
             <Box mt={1}>{item.icon}</Box>

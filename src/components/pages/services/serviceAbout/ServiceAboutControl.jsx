@@ -43,17 +43,18 @@ import { useDispatch, useSelector } from "react-redux";
 
 const ServiceAboutControl = () => {
   const dispatch = useDispatch();
-  const serviceAboutData = useSelector((state) => state.serviceAbout.serviceAbouts) || [];
+  const serviceAboutData =
+    useSelector((state) => state.serviceAbout.serviceAbouts) || [];
   const navigate = useNavigate();
   const [deleteId, setDeleteId] = useState(null);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [cookies] = useCookies(["token"]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   useEffect(() => {
     if (!cookies.token) {
@@ -117,12 +118,17 @@ const ServiceAboutControl = () => {
     setPage(0);
   };
 
-  const filteredServices = serviceAboutData.filter(service =>
-    service && (
-      (service.heading && service.heading.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (service.subHeading && service.subHeading.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (service.description && service.description.toLowerCase().includes(searchTerm.toLowerCase()))
-    )
+  const filteredServices = serviceAboutData.filter(
+    (service) =>
+      service &&
+      ((service.heading &&
+        service.heading.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (service.subHeading &&
+          service.subHeading
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase())) ||
+        (service.description &&
+          service.description.toLowerCase().includes(searchTerm.toLowerCase())))
   );
 
   // Reset to first page when search term changes
@@ -134,7 +140,12 @@ const ServiceAboutControl = () => {
     return (
       <LeftNavigationBar
         Content={
-          <Box display="flex" justifyContent="center" alignItems="center" minHeight="80vh">
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            minHeight="80vh"
+          >
             <CircularProgress />
           </Box>
         }
@@ -154,8 +165,9 @@ const ServiceAboutControl = () => {
                 position: "relative",
                 padding: 0,
                 margin: 0,
-                fontFamily: 'Merriweather, serif',
-                fontWeight: 700, textAlign: 'center',
+                fontFamily: "Merriweather, serif",
+                fontWeight: 700,
+                textAlign: "center",
                 fontWeight: 300,
                 fontSize: { xs: "32px", sm: "40px" },
                 color: "#747474",
@@ -199,22 +211,29 @@ const ServiceAboutControl = () => {
                   size="small"
                   placeholder="Search services about..."
                   InputProps={{
-                    startAdornment: <SearchIcon color="action" sx={{ mr: 1 }} />,
+                    startAdornment: (
+                      <SearchIcon color="action" sx={{ mr: 1 }} />
+                    ),
                   }}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   value={searchTerm}
                 />
               </Grid>
-              <Grid item xs={12} md={6} sx={{ textAlign: { xs: 'left', md: 'right' } }}>
+              <Grid
+                item
+                xs={12}
+                md={6}
+                sx={{ textAlign: { xs: "left", md: "right" } }}
+              >
                 <Button
                   variant="contained"
                   startIcon={<AddIcon />}
                   onClick={handleAddServiceAbout}
                   sx={{
                     backgroundColor: theme.palette.primary.main,
-                    color: 'white',
-                    '&:hover': {
-                      backgroundColor: theme.palette.primary.dark
+                    color: "white",
+                    "&:hover": {
+                      backgroundColor: theme.palette.primary.dark,
                     },
                   }}
                 >
@@ -225,56 +244,88 @@ const ServiceAboutControl = () => {
           </Box>
 
           {/* Table Section */}
-          <Paper elevation={3} sx={{ borderRadius: 2, overflow: 'hidden' }}>
+          <Paper elevation={3} sx={{ borderRadius: 2, overflow: "hidden" }}>
             <TableContainer>
               <Table>
                 <TableHead>
-                  <TableRow sx={{ backgroundColor: theme.palette.primary.main }}>
-                    <TableCell sx={{ color: 'white', fontWeight: 600 }}>Heading</TableCell>
-                    <TableCell sx={{ color: 'white', fontWeight: 600 }}>Subheading</TableCell>
-                    <TableCell sx={{ color: 'white', fontWeight: 600 }}>Images</TableCell>
-                    <TableCell sx={{ color: 'white', fontWeight: 600 }}>Features</TableCell>
-                    <TableCell sx={{ color: 'white', fontWeight: 600 }}>Actions</TableCell>
+                  <TableRow
+                    sx={{ backgroundColor: theme.palette.primary.main }}
+                  >
+                    <TableCell sx={{ color: "white", fontWeight: 600 }}>
+                      Heading
+                    </TableCell>
+                    <TableCell sx={{ color: "white", fontWeight: 600 }}>
+                      Subheading
+                    </TableCell>
+                    <TableCell sx={{ color: "white", fontWeight: 600 }}>
+                      Images
+                    </TableCell>
+                    <TableCell sx={{ color: "white", fontWeight: 600 }}>
+                      Features
+                    </TableCell>
+                    <TableCell sx={{ color: "white", fontWeight: 600 }}>
+                      Actions
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {filteredServices.length > 0 ? (
                     filteredServices
-                      .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                      .slice(
+                        page * rowsPerPage,
+                        page * rowsPerPage + rowsPerPage
+                      )
                       .map((service) => (
                         <TableRow key={service._id} hover>
                           <TableCell>{service.heading}</TableCell>
                           <TableCell>{service.subHeading}</TableCell>
                           <TableCell>
                             {service.images.map((img, index) => (
-                              <img key={index} src={img} alt="Service" width={50} height={50} style={{ marginRight: 5 }} />
+                              <img
+                                key={index}
+                                src={img}
+                                alt="Service"
+                                width={50}
+                                height={50}
+                                style={{ marginRight: 5 }}
+                              />
                             ))}
                           </TableCell>
                           <TableCell>
                             {service.feature.map((feature, index) => (
                               <div key={index}>
-                                {feature.icon && <img src={feature.icon} alt="Icon" width={20} height={20} style={{ marginRight: 5 }} />}
+                                {feature.icon && (
+                                  <img
+                                    src={feature.icon}
+                                    alt="Icon"
+                                    width={20}
+                                    height={20}
+                                    style={{ marginRight: 5 }}
+                                  />
+                                )}
                                 {feature.title}
                               </div>
                             ))}
                           </TableCell>
                           <TableCell>
-                            <Box sx={{ display: 'flex', gap: 1 }}>
+                            <Box sx={{ display: "flex", gap: 1 }}>
                               <Tooltip title="Edit">
-                                <IconButton
+                                <Button
+                                  variant="outlined"
                                   onClick={() => handleEdit(service._id)}
                                   color="primary"
                                 >
                                   <EditIcon />
-                                </IconButton>
+                                </Button>
                               </Tooltip>
                               <Tooltip title="Delete">
-                                <IconButton
+                                <Button
+                                  variant="outlined"
                                   onClick={() => handleDelete(service._id)}
                                   color="error"
                                 >
                                   <DeleteIcon />
-                                </IconButton>
+                                </Button>
                               </Tooltip>
                             </Box>
                           </TableCell>
@@ -314,20 +365,23 @@ const ServiceAboutControl = () => {
             PaperProps={{
               sx: {
                 borderRadius: 2,
-                minWidth: isMobile ? '90%' : 400
-              }
+                minWidth: isMobile ? "90%" : 400,
+              },
             }}
           >
-            <DialogTitle sx={{
-              backgroundColor: theme.palette.error.light,
-              color: 'white',
-              fontWeight: 600
-            }}>
+            <DialogTitle
+              sx={{
+                backgroundColor: theme.palette.error.light,
+                color: "white",
+                fontWeight: 600,
+              }}
+            >
               Confirm Deletion
             </DialogTitle>
             <DialogContent sx={{ py: 3 }}>
               <Typography variant="body1">
-                Are you sure you want to delete this service about? This action cannot be undone.
+                Are you sure you want to delete this service about? This action
+                cannot be undone.
               </Typography>
             </DialogContent>
             <DialogActions sx={{ px: 3, pb: 2 }}>
@@ -336,7 +390,7 @@ const ServiceAboutControl = () => {
                 variant="outlined"
                 sx={{
                   borderColor: theme.palette.grey[400],
-                  color: theme.palette.text.primary
+                  color: theme.palette.text.primary,
                 }}
               >
                 Cancel
@@ -347,9 +401,9 @@ const ServiceAboutControl = () => {
                 color="error"
                 sx={{
                   backgroundColor: theme.palette.error.main,
-                  '&:hover': {
-                    backgroundColor: theme.palette.error.dark
-                  }
+                  "&:hover": {
+                    backgroundColor: theme.palette.error.dark,
+                  },
                 }}
               >
                 Delete

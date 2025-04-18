@@ -10,6 +10,9 @@ import {
   FormControl,
   Snackbar,
   Alert,
+  useTheme,
+  Tooltip,
+  Box,
 } from "@mui/material";
 import { DropzoneArea } from "material-ui-dropzone";
 import { useNavigate, useParams } from "react-router-dom";
@@ -22,11 +25,13 @@ import {
 import { fetchServices } from "../../../redux/slices/services/services/Services";
 import LeftNavigationBar from "../../../navbars/LeftNavigationBar";
 import { getAllBussinessServices } from "../../../redux/slices/services/bussinessServices/BussinessSerives";
+import { HelpOutline } from "@mui/icons-material";
 
 const ExecutionHighlightsEditForm = () => {
   const { executionHighlightId } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const theme = useTheme();
 
   const { updateSuccess, successMessage, error } = useSelector(
     (state) => state.executionHighlights
@@ -52,8 +57,8 @@ const ExecutionHighlightsEditForm = () => {
 
   useEffect(() => {
     if (executionHighlightId) {
-      dispatch(fetchExecutionHighlightsById(executionHighlightId)).then(
-        (response) => {
+      dispatch(fetchExecutionHighlightsById(executionHighlightId))
+        .then((response) => {
           const data = response.payload;
           if (data) {
             setStack(data.stack || "");
@@ -68,8 +73,10 @@ const ExecutionHighlightsEditForm = () => {
               setSelectedBusinessService(businessService || null);
             }
           }
-        }
-      ).catch((error) => console.error("Error fetching execution highlights:", error)); 
+        })
+        .catch((error) =>
+          console.error("Error fetching execution highlights:", error)
+        );
     }
   }, [executionHighlightId, dispatch, businessServiceData, serviceData]);
 
@@ -77,7 +84,8 @@ const ExecutionHighlightsEditForm = () => {
     if (selectedBusinessService) {
       setFilteredServices(
         serviceData.filter(
-          (service) => service.business_services?._id === selectedBusinessService._id
+          (service) =>
+            service.business_services?._id === selectedBusinessService._id
         )
       );
     } else {
@@ -102,18 +110,21 @@ const ExecutionHighlightsEditForm = () => {
       formData.append("image", image);
     }
     formData.append("count", count);
-    if (selectedBusinessService) formData.append("business_service", selectedBusinessService._id);
+    if (selectedBusinessService)
+      formData.append("business_service", selectedBusinessService._id);
     if (selectedService) formData.append("service", selectedService._id);
-  
+
     try {
-      await dispatch(updateExecutionHighlights({ executionHighlightId, formData }));
+      await dispatch(
+        updateExecutionHighlights({ executionHighlightId, formData })
+      );
       navigate("/Execution_Highlights-control");
 
       setOpenSnackbar(true);
     } catch (error) {
       console.error("Error updating execution highlights:", error);
     }
-  }
+  };
   useEffect(() => {
     if (updateSuccess) {
       setOpenSnackbar(true);
@@ -121,53 +132,35 @@ const ExecutionHighlightsEditForm = () => {
         dispatch(clearUpdateStatus());
         navigate("/Execution_Highlights-control");
       }, 2000);
-      
+
       return () => clearTimeout(timer); // Cleanup the timer on unmount
     }
   }, [updateSuccess, navigate, dispatch]);
   return (
     <LeftNavigationBar
       Content={
-        <Container component="main" maxWidth="xs">
-          <Paper
-            elevation={3}
-            sx={{
-              padding: 3,
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-            }}
+        <Container component="main" maxWidth="md">
+          <Box
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            gap={1}
+            mt={2}
+            mb={1}
           >
-<Snackbar
-  open={openSnackbar}
-  autoHideDuration={2000}
-  onClose={() => setOpenSnackbar(false)}
-  anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
->
-  <Alert severity="success" onClose={() => setOpenSnackbar(false)}>
-    {successMessage || "Update successful!"}
-  </Alert>
-</Snackbar>
-            {error && (
-              <Alert severity="error" sx={{ mb: 2 }}>
-                {error}
-              </Alert>
-            )}
             <Typography
               variant="h4"
               sx={{
                 position: "relative",
                 padding: 0,
                 margin: 0,
-                fontFamily: 'Merriweather, serif',
-                fontWeight: 700, textAlign: 'center',
+                fontFamily: "Merriweather, serif",
                 fontWeight: 300,
                 fontSize: { xs: "32px", sm: "40px" },
                 color: "#747474",
                 textAlign: "center",
                 textTransform: "uppercase",
                 paddingBottom: "5px",
-                mb: 5,
                 "&::before": {
                   content: '""',
                   width: "28px",
@@ -192,10 +185,43 @@ const ExecutionHighlightsEditForm = () => {
                 },
               }}
             >
-              Execution Highlights Edit Form
+              Execution Highlights
+              <br /> Edit Form
             </Typography>
-            <br />
-            <form onSubmit={handleSubmit} style={{ width: "100%" }}>
+
+            <Tooltip
+              title="This is where you can add the execution count for the service."
+              arrow
+            >
+              <HelpOutline
+                sx={{ color: "#747474", fontSize: "24px", cursor: "pointer" }}
+              />
+            </Tooltip>
+          </Box>
+          <Paper elevation={0}>
+            <Snackbar
+              open={openSnackbar}
+              autoHideDuration={2000}
+              onClose={() => setOpenSnackbar(false)}
+              anchorOrigin={{ vertical: "top", horizontal: "center" }}
+            >
+              <Alert severity="success" onClose={() => setOpenSnackbar(false)}>
+                {successMessage || "Update successful!"}
+              </Alert>
+            </Snackbar>
+            {error && (
+              <Alert severity="error" sx={{ mb: 2 }}>
+                {error}
+              </Alert>
+            )}
+            <form
+              onSubmit={handleSubmit}
+              style={{
+                border: "2px dotted #D3D3D3",
+                padding: "20px",
+                borderRadius: "8px",
+              }}
+            >
               <Grid container spacing={2}>
                 <Grid item xs={12}>
                   <FormControl fullWidth>
@@ -205,8 +231,17 @@ const ExecutionHighlightsEditForm = () => {
                       getOptionLabel={(option) => option?.name || ""}
                       value={selectedBusinessService}
                       onChange={handleBusinessServiceChange}
-                      isOptionEqualToValue={(option, value) => option._id === value._id}
-                      renderInput={(params) => <TextField {...params} variant="outlined" label="Business Services" fullWidth />}
+                      isOptionEqualToValue={(option, value) =>
+                        option._id === value._id
+                      }
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          variant="outlined"
+                          label="Business Services"
+                          fullWidth
+                        />
+                      )}
                     />
                   </FormControl>
                 </Grid>
@@ -218,7 +253,15 @@ const ExecutionHighlightsEditForm = () => {
                       getOptionLabel={(option) => option?.title || ""}
                       value={selectedService}
                       onChange={handleServiceChange}
-                      renderInput={(params) => <TextField {...params} variant="outlined" label="Service" fullWidth required />}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          variant="outlined"
+                          label="Service"
+                          fullWidth
+                          required
+                        />
+                      )}
                     />
                   </FormControl>
                 </Grid>
@@ -233,7 +276,7 @@ const ExecutionHighlightsEditForm = () => {
                   />
                 </Grid>
                 <Grid item xs={12}>
-                  <div style={{ marginTop: '16px' }}>
+                  <div style={{ marginTop: "16px" }}>
                     <DropzoneArea
                       onChange={(fileArray) => setImage(fileArray[0])}
                       acceptedFiles={["image/*"]}
@@ -271,12 +314,20 @@ const ExecutionHighlightsEditForm = () => {
               </Grid>
               <Button
                 type="submit"
-                fullWidth
                 variant="contained"
-                color="primary"
-                sx={{ mt: 3 }}
+                sx={{
+                  backgroundColor: theme.palette.warning.main,
+                  color: theme.palette.warning.contrastText,
+                  display: "block",
+                  marginLeft: "auto",
+                  marginRight: "auto",
+                  mt: 3, // optional: top margin
+                  "&:hover": {
+                    backgroundColor: theme.palette.warning.dark,
+                  },
+                }}
               >
-                Update
+                Update highlights Data
               </Button>
             </form>
           </Paper>

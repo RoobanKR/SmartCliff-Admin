@@ -9,6 +9,9 @@ import {
   Grid,
   Snackbar,
   Alert,
+  useTheme,
+  Tooltip,
+  Box,
 } from "@mui/material";
 import { DropzoneArea } from "material-ui-dropzone";
 import { useNavigate, useParams } from "react-router-dom";
@@ -17,12 +20,13 @@ import {
   updateBussinessService,
 } from "../../../redux/slices/services/bussinessServices/BussinessSerives";
 import LeftNavigationBar from "../../../navbars/LeftNavigationBar";
+import { HelpOutline } from "@mui/icons-material";
 
 const BussinessServiceEditForm = () => {
   const { businessServiceId } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
+  const theme = useTheme();
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [slug, setSlug] = useState("");
@@ -31,7 +35,11 @@ const BussinessServiceEditForm = () => {
   const [logo, setLogo] = useState(null);
   const [existingIcon, setExistingIcon] = useState("");
   const [existingLogo, setExistingLogo] = useState("");
-  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
 
   const selectBussinessServices = useSelector(
     (state) => state.businessService.selectedService
@@ -69,11 +77,19 @@ const BussinessServiceEditForm = () => {
 
     try {
       await dispatch(updateBussinessService({ businessServiceId, formData }));
-      setSnackbar({ open: true, message: "Business service updated successfully!", severity: "success" });
+      setSnackbar({
+        open: true,
+        message: "Business service updated successfully!",
+        severity: "success",
+      });
       navigate("/Business-Services-control");
     } catch (error) {
       console.error("Error updating service:", error);
-      setSnackbar({ open: true, message: "Failed to update business service.", severity: "error" });
+      setSnackbar({
+        open: true,
+        message: "Failed to update business service.",
+        severity: "error",
+      });
     }
   };
 
@@ -85,14 +101,13 @@ const BussinessServiceEditForm = () => {
     <LeftNavigationBar
       Content={
         <Container component="main" maxWidth="md">
-          <Paper
-            elevation={3}
-            sx={{
-              padding: 3,
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-            }}
+          <Box
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            gap={1}
+            mt={2}
+            mb={1}
           >
             <Typography
               variant="h4"
@@ -100,15 +115,13 @@ const BussinessServiceEditForm = () => {
                 position: "relative",
                 padding: 0,
                 margin: 0,
-                fontFamily: 'Merriweather, serif',
-                fontWeight: 700, textAlign: 'center',
+                fontFamily: "Merriweather, serif",
                 fontWeight: 300,
                 fontSize: { xs: "32px", sm: "40px" },
                 color: "#747474",
                 textAlign: "center",
                 textTransform: "uppercase",
                 paddingBottom: "5px",
-                mb: 5,
                 "&::before": {
                   content: '""',
                   width: "28px",
@@ -133,10 +146,36 @@ const BussinessServiceEditForm = () => {
                 },
               }}
             >
-              Service Edit Form
+              Business Service
+              <br /> Edit Form
             </Typography>
-            <br />
-            <form onSubmit={handleSubmit} style={{ width: "100%" }}>
+
+            <Tooltip
+              title="This is where you can add the execution count for the service."
+              arrow
+            >
+              <HelpOutline
+                sx={{ color: "#747474", fontSize: "24px", cursor: "pointer" }}
+              />
+            </Tooltip>
+          </Box>
+          <Paper
+            elevation={0}
+            sx={{
+              padding: 2,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+            }}
+          >
+            <form
+              onSubmit={handleSubmit}
+              style={{
+                border: "2px dotted #D3D3D3",
+                padding: "20px",
+                borderRadius: "8px",
+              }}
+            >
               <Grid container spacing={2}>
                 <Grid item xs={12}>
                   <TextField
@@ -158,7 +197,7 @@ const BussinessServiceEditForm = () => {
                     onChange={(e) => setTitle(e.target.value)}
                   />
                 </Grid>
- <Grid item xs={12}>
+                <Grid item xs={12}>
                   <TextField
                     fullWidth
                     label="Description"
@@ -201,21 +240,31 @@ const BussinessServiceEditForm = () => {
                 </Grid>
                 <Grid item xs={12}>
                   <Typography variant="subtitle1" color="textSecondary">
-                    Existing Image: {existingIcon && existingIcon.split("/").pop()}
+                    Existing Image:{" "}
+                    {existingIcon && existingIcon.split("/").pop()}
                   </Typography>
                   <Typography variant="subtitle1" color="textSecondary">
-                    Existing Logo: {existingLogo && existingLogo.split("/").pop()}
+                    Existing Logo:{" "}
+                    {existingLogo && existingLogo.split("/").pop()}
                   </Typography>
                 </Grid>
               </Grid>
               <Button
                 type="submit"
-                fullWidth
                 variant="contained"
-                color="primary"
-                sx={{ mt: 3 }}
+                sx={{
+                  backgroundColor: theme.palette.warning.main,
+                  color: theme.palette.warning.contrastText,
+                  display: "block",
+                  marginLeft: "auto",
+                  marginRight: "auto",
+                  mt: 3, // optional: top margin
+                  "&:hover": {
+                    backgroundColor: theme.palette.warning.dark,
+                  },
+                }}
               >
-                Update
+                Submit Business Service
               </Button>
             </form>
           </Paper>
@@ -225,9 +274,13 @@ const BussinessServiceEditForm = () => {
             open={snackbar.open}
             autoHideDuration={6000}
             onClose={handleCloseSnackbar}
-            anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
           >
-            <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} variant="filled">
+            <Alert
+              onClose={handleCloseSnackbar}
+              severity={snackbar.severity}
+              variant="filled"
+            >
               {snackbar.message}
             </Alert>
           </Snackbar>

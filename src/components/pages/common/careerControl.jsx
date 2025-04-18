@@ -34,7 +34,7 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  OutlinedInput
+  OutlinedInput,
 } from "@mui/material";
 import {
   Delete as DeleteIcon,
@@ -43,18 +43,22 @@ import {
   Email as EmailIcon,
   FileDownload as FileDownloadIcon,
   Clear as ClearIcon,
-  Tune as FilterListIcon
+  Tune as FilterListIcon,
 } from "@mui/icons-material";
-import { deleteCareerForm, getAllCareerForm, sendEmailToApplicants } from "../../redux/slices/career/careerForm";
+import {
+  deleteCareerForm,
+  getAllCareerForm,
+  sendEmailToApplicants,
+} from "../../redux/slices/career/careerForm";
 import LeftNavigationBar from "../../navbars/LeftNavigationBar";
-import * as XLSX from 'xlsx';
+import * as XLSX from "xlsx";
 import { useNavigate } from "react-router-dom";
 
 const CareerControl = () => {
   const dispatch = useDispatch();
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const isTablet = useMediaQuery(theme.breakpoints.down('md'));
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isTablet = useMediaQuery(theme.breakpoints.down("md"));
 
   const careeries = useSelector((state) => state.careerForm.careeries) || [];
   const [loading, setLoading] = useState(true);
@@ -71,22 +75,22 @@ const CareerControl = () => {
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
-    severity: "success"
+    severity: "success",
   });
 
   // Filter states
-  const [nameSearchTerm, setNameSearchTerm] = useState('');
-  const [emailSearchTerm, setEmailSearchTerm] = useState('');
-  const [positionSearchTerm, setPositionSearchTerm] = useState('');
-  const [qualificationSearchTerm, setQualificationSearchTerm] = useState('');
-  const [emailNameSearchTerm, setEmailNameSearchTerm] = useState('');
-  const [emailAddressSearchTerm, setEmailAddressSearchTerm] = useState('');
+  const [nameSearchTerm, setNameSearchTerm] = useState("");
+  const [emailSearchTerm, setEmailSearchTerm] = useState("");
+  const [positionSearchTerm, setPositionSearchTerm] = useState("");
+  const [qualificationSearchTerm, setQualificationSearchTerm] = useState("");
+  const [emailNameSearchTerm, setEmailNameSearchTerm] = useState("");
+  const [emailAddressSearchTerm, setEmailAddressSearchTerm] = useState("");
   const [filtersVisible, setFiltersVisible] = useState(false);
   // Add these state variables at the top with your other filter states
-  const [dateRangeFrom, setDateRangeFrom] = useState('');
-  const [dateRangeTo, setDateRangeTo] = useState('');
-  const [emailDateRangeFrom, setEmailDateRangeFrom] = useState('');
-  const [emailDateRangeTo, setEmailDateRangeTo] = useState('');
+  const [dateRangeFrom, setDateRangeFrom] = useState("");
+  const [dateRangeTo, setDateRangeTo] = useState("");
+  const [emailDateRangeFrom, setEmailDateRangeFrom] = useState("");
+  const [emailDateRangeTo, setEmailDateRangeTo] = useState("");
 
   // Pagination states
   const [page, setPage] = useState(0);
@@ -105,17 +109,16 @@ const CareerControl = () => {
   // Function to handle back navigation
   const handleBack = () => {
     navigate(-1); // Navigate to the previous page
-  };  // Extract unique job positions for dropdown filter
-  const uniquePositions = [...new Set(
-    careeries.map(career => career.job_position).filter(Boolean)
-  )];
-
+  }; // Extract unique job positions for dropdown filter
+  const uniquePositions = [
+    ...new Set(careeries.map((career) => career.job_position).filter(Boolean)),
+  ];
 
   const [loadingEmail, setLoadingEmail] = useState(false);
   // Extract unique qualifications for dropdown filter
-  const uniqueQualifications = [...new Set(
-    careeries.map(career => career.qualification).filter(Boolean)
-  )];
+  const uniqueQualifications = [
+    ...new Set(careeries.map((career) => career.qualification).filter(Boolean)),
+  ];
 
   useEffect(() => {
     const fetchData = async () => {
@@ -139,22 +142,22 @@ const CareerControl = () => {
   }, [tabIndex]);
 
   const toggleFilters = () => {
-    setFiltersVisible(prev => !prev);
+    setFiltersVisible((prev) => !prev);
   };
 
   const resetFilters = () => {
     if (tabIndex === 0) {
-      setNameSearchTerm('');
-      setEmailSearchTerm('');
-      setPositionSearchTerm('');
-      setQualificationSearchTerm('');
-      setDateRangeFrom(''); // Add this line
-      setDateRangeTo('');   // Add this line
+      setNameSearchTerm("");
+      setEmailSearchTerm("");
+      setPositionSearchTerm("");
+      setQualificationSearchTerm("");
+      setDateRangeFrom(""); // Add this line
+      setDateRangeTo(""); // Add this line
     } else {
-      setEmailNameSearchTerm('');
-      setEmailAddressSearchTerm('');
-      setEmailDateRangeFrom(''); // Add this line
-      setEmailDateRangeTo('');   // Add this line
+      setEmailNameSearchTerm("");
+      setEmailAddressSearchTerm("");
+      setEmailDateRangeFrom(""); // Add this line
+      setEmailDateRangeTo(""); // Add this line
     }
   };
 
@@ -171,14 +174,14 @@ const CareerControl = () => {
         setSnackbar({
           open: true,
           message: "Application deleted successfully",
-          severity: "success"
+          severity: "success",
         });
       })
       .catch((error) => {
         setSnackbar({
           open: true,
           message: "Failed to delete application",
-          severity: "error"
+          severity: "error",
         });
       });
   };
@@ -189,9 +192,9 @@ const CareerControl = () => {
   };
 
   const handleCheckboxChange = (id) => {
-    setSelectedApplicants(prev => {
+    setSelectedApplicants((prev) => {
       if (prev.includes(id)) {
-        return prev.filter(applicantId => applicantId !== id);
+        return prev.filter((applicantId) => applicantId !== id);
       } else {
         return [...prev, id];
       }
@@ -199,9 +202,9 @@ const CareerControl = () => {
   };
 
   const handleEmailCheckboxChange = (id) => {
-    setSelectedEmails(prev => {
+    setSelectedEmails((prev) => {
       if (prev.includes(id)) {
-        return prev.filter(emailId => emailId !== id);
+        return prev.filter((emailId) => emailId !== id);
       } else {
         return [...prev, id];
       }
@@ -212,7 +215,7 @@ const CareerControl = () => {
     if (selectAll) {
       setSelectedApplicants([]);
     } else {
-      setSelectedApplicants(filteredApplications.map(career => career._id));
+      setSelectedApplicants(filteredApplications.map((career) => career._id));
     }
     setSelectAll(!selectAll);
   };
@@ -231,7 +234,7 @@ const CareerControl = () => {
       setSnackbar({
         open: true,
         message: "Please select at least one applicant",
-        severity: "warning"
+        severity: "warning",
       });
       return;
     }
@@ -249,7 +252,7 @@ const CareerControl = () => {
       setSnackbar({
         open: true,
         message: "Subject and message are required",
-        severity: "error"
+        severity: "error",
       });
       return;
     }
@@ -258,14 +261,16 @@ const CareerControl = () => {
 
     try {
       // Dispatch the sendEmailToApplicants thunk
-      const response = await dispatch(sendEmailToApplicants({
-        subject: emailSubject,
-        message: emailMessage,
-        applicationIds: selectedApplicants
-      })).unwrap(); // Use unwrap to handle the promise
+      const response = await dispatch(
+        sendEmailToApplicants({
+          subject: emailSubject,
+          message: emailMessage,
+          applicationIds: selectedApplicants,
+        })
+      ).unwrap(); // Use unwrap to handle the promise
 
       // Update the responseEmails in the Redux store
-      const updatedCareers = careeries.map(career => {
+      const updatedCareers = careeries.map((career) => {
         if (selectedApplicants.includes(career._id)) {
           return {
             ...career,
@@ -274,21 +279,23 @@ const CareerControl = () => {
               {
                 subject: emailSubject,
                 body: emailMessage,
-                sentOn: new Date().toISOString()
-              }
-            ]
+                sentOn: new Date().toISOString(),
+              },
+            ],
           };
         }
         return career;
       });
 
       // Dispatch the updated careers to the Redux store
-      dispatch({ type: 'UPDATE_CAREERS', payload: updatedCareers });
+      dispatch({ type: "UPDATE_CAREERS", payload: updatedCareers });
 
       setSnackbar({
         open: true,
-        message: `Email sent successfully to ${response?.results?.success?.length || selectedApplicants.length} applicants`,
-        severity: "success"
+        message: `Email sent successfully to ${
+          response?.results?.success?.length || selectedApplicants.length
+        } applicants`,
+        severity: "success",
       });
       handleCloseEmailDialog();
       setSelectedApplicants([]);
@@ -296,8 +303,9 @@ const CareerControl = () => {
     } catch (error) {
       setSnackbar({
         open: true,
-        message: error.response?.data?.message?.[0]?.value || "Failed to send emails",
-        severity: "error"
+        message:
+          error.response?.data?.message?.[0]?.value || "Failed to send emails",
+        severity: "error",
       });
     } finally {
       setLoadingEmail(false); // Stop loading
@@ -305,9 +313,11 @@ const CareerControl = () => {
   };
 
   const handleDownloadResume = (resumeUrl, applicantName) => {
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = resumeUrl;
-    link.download = `${applicantName}_resume${resumeUrl.substring(resumeUrl.lastIndexOf('.'))}`;
+    link.download = `${applicantName}_resume${resumeUrl.substring(
+      resumeUrl.lastIndexOf(".")
+    )}`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -344,39 +354,47 @@ const CareerControl = () => {
   // Export data to Excel
   const exportToExcel = (type) => {
     let dataToExport = [];
-    let fileName = '';
+    let fileName = "";
 
-    if (type === 'applications') {
+    if (type === "applications") {
       // Prepare data for applications export
-      const selectedData = selectedApplicants.length > 0
-        ? careeries.filter(app => selectedApplicants.includes(app._id))
-        : filteredApplications;
+      const selectedData =
+        selectedApplicants.length > 0
+          ? careeries.filter((app) => selectedApplicants.includes(app._id))
+          : filteredApplications;
 
-      dataToExport = selectedData.map(app => ({
-        'Name': app.name || 'N/A',
-        'Email': app.email || 'N/A',
-        'Phone': app.phone || 'N/A',
-        'Qualification': app.qualification || 'N/A',
-        'Job Position': app.job_position || 'N/A',
-        'Resume URL': app.resume || 'N/A'
+      dataToExport = selectedData.map((app) => ({
+        Name: app.name || "N/A",
+        Email: app.email || "N/A",
+        Phone: app.phone || "N/A",
+        Qualification: app.qualification || "N/A",
+        "Job Position": app.job_position || "N/A",
+        "Resume URL": app.resume || "N/A",
       }));
 
-      fileName = 'Career_Applications_Export_' + new Date().toISOString().split('T')[0] + '.xlsx';
-    } else if (type === 'emails') {
+      fileName =
+        "Career_Applications_Export_" +
+        new Date().toISOString().split("T")[0] +
+        ".xlsx";
+    } else if (type === "emails") {
       // Prepare data for email history export
-      const selectedEmailData = selectedEmails.length > 0
-        ? sentEmails.filter((_, index) => selectedEmails.includes(index))
-        : filteredSentEmails;
+      const selectedEmailData =
+        selectedEmails.length > 0
+          ? sentEmails.filter((_, index) => selectedEmails.includes(index))
+          : filteredSentEmails;
 
-      dataToExport = selectedEmailData.map(email => ({
-        'Name': email.applicantName || 'N/A',
-        'Email': email.applicantEmail || 'N/A',
-        'Subject': email.subject || 'N/A',
-        'Message': email.body || 'N/A',
-        'Sent On': new Date(email.sentOn).toLocaleString() || 'N/A'
+      dataToExport = selectedEmailData.map((email) => ({
+        Name: email.applicantName || "N/A",
+        Email: email.applicantEmail || "N/A",
+        Subject: email.subject || "N/A",
+        Message: email.body || "N/A",
+        "Sent On": new Date(email.sentOn).toLocaleString() || "N/A",
       }));
 
-      fileName = 'Email_History_Export_' + new Date().toISOString().split('T')[0] + '.xlsx';
+      fileName =
+        "Email_History_Export_" +
+        new Date().toISOString().split("T")[0] +
+        ".xlsx";
     }
 
     if (dataToExport.length > 0) {
@@ -394,14 +412,14 @@ const CareerControl = () => {
   const getAllSentEmails = () => {
     const sentEmails = [];
 
-    careeries.forEach(career => {
+    careeries.forEach((career) => {
       if (career.responseEmails && career.responseEmails.length > 0) {
-        career.responseEmails.forEach(email => {
+        career.responseEmails.forEach((email) => {
           sentEmails.push({
             applicantId: career._id,
             applicantName: career.name,
             applicantEmail: career.email,
-            ...email
+            ...email,
           });
         });
       }
@@ -414,34 +432,41 @@ const CareerControl = () => {
   // Get recipient names for display in email dialog
   const getRecipientNamesForDisplay = () => {
     const selectedNames = careeries
-      .filter(app => selectedApplicants.includes(app._id))
-      .map(app => app.name || 'Unnamed');
+      .filter((app) => selectedApplicants.includes(app._id))
+      .map((app) => app.name || "Unnamed");
 
     // Display first 3 names and then show "+X more" if there are more
     if (selectedNames.length <= 3) {
-      return selectedNames.join(', ');
+      return selectedNames.join(", ");
     } else {
-      return `${selectedNames.slice(0, 3).join(', ')} + ${selectedNames.length - 3} more`;
+      return `${selectedNames.slice(0, 3).join(", ")} + ${
+        selectedNames.length - 3
+      } more`;
     }
   };
 
   // Application filtering with multiple filters
-  const filteredApplications = careeries.filter(career => {
+  const filteredApplications = careeries.filter((career) => {
     if (!career) return false;
 
-    const nameMatch = career.name ?
-      career.name.toLowerCase().includes(nameSearchTerm.toLowerCase()) :
-      nameSearchTerm === '';
+    const nameMatch = career.name
+      ? career.name.toLowerCase().includes(nameSearchTerm.toLowerCase())
+      : nameSearchTerm === "";
 
-    const emailMatch = career.email ?
-      career.email.toLowerCase().includes(emailSearchTerm.toLowerCase()) :
-      emailSearchTerm === '';
+    const emailMatch = career.email
+      ? career.email.toLowerCase().includes(emailSearchTerm.toLowerCase())
+      : emailSearchTerm === "";
 
-    const positionMatch = positionSearchTerm === '' ||
-      (career.job_position && career.job_position.toLowerCase() === positionSearchTerm.toLowerCase());
+    const positionMatch =
+      positionSearchTerm === "" ||
+      (career.job_position &&
+        career.job_position.toLowerCase() === positionSearchTerm.toLowerCase());
 
-    const qualificationMatch = qualificationSearchTerm === '' ||
-      (career.qualification && career.qualification.toLowerCase() === qualificationSearchTerm.toLowerCase());
+    const qualificationMatch =
+      qualificationSearchTerm === "" ||
+      (career.qualification &&
+        career.qualification.toLowerCase() ===
+          qualificationSearchTerm.toLowerCase());
 
     // Add date range filtering
     let dateMatch = true;
@@ -468,7 +493,13 @@ const CareerControl = () => {
       }
     }
 
-    return nameMatch && emailMatch && positionMatch && qualificationMatch && dateMatch;
+    return (
+      nameMatch &&
+      emailMatch &&
+      positionMatch &&
+      qualificationMatch &&
+      dateMatch
+    );
   });
 
   // Get all sent emails
@@ -476,16 +507,20 @@ const CareerControl = () => {
   const hasSentEmails = sentEmails.length > 0;
 
   // Email filtering with multiple filters
-  const filteredSentEmails = sentEmails.filter(email => {
+  const filteredSentEmails = sentEmails.filter((email) => {
     if (!email) return false;
 
-    const nameMatch = email.applicantName ?
-      email.applicantName.toLowerCase().includes(emailNameSearchTerm.toLowerCase()) :
-      emailNameSearchTerm === '';
+    const nameMatch = email.applicantName
+      ? email.applicantName
+          .toLowerCase()
+          .includes(emailNameSearchTerm.toLowerCase())
+      : emailNameSearchTerm === "";
 
-    const emailAddressMatch = email.applicantEmail ?
-      email.applicantEmail.toLowerCase().includes(emailAddressSearchTerm.toLowerCase()) :
-      emailAddressSearchTerm === '';
+    const emailAddressMatch = email.applicantEmail
+      ? email.applicantEmail
+          .toLowerCase()
+          .includes(emailAddressSearchTerm.toLowerCase())
+      : emailAddressSearchTerm === "";
 
     // Add date range filtering for emails
     let dateMatch = true;
@@ -494,7 +529,9 @@ const CareerControl = () => {
 
       if (sentDate) {
         // Set to start of day for from date
-        const fromDate = emailDateRangeFrom ? new Date(emailDateRangeFrom) : null;
+        const fromDate = emailDateRangeFrom
+          ? new Date(emailDateRangeFrom)
+          : null;
         if (fromDate) {
           fromDate.setHours(0, 0, 0, 0);
           if (sentDate < fromDate) dateMatch = false;
@@ -519,7 +556,12 @@ const CareerControl = () => {
     return (
       <LeftNavigationBar
         Content={
-          <Box display="flex" justifyContent="center" alignItems="center" minHeight="80vh">
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            minHeight="80vh"
+          >
             <CircularProgress size={60} thickness={4} />
           </Box>
         }
@@ -531,7 +573,7 @@ const CareerControl = () => {
     <LeftNavigationBar
       Content={
         <Box sx={{ p: 3 }}>
-           <Button
+          <Button
             variant="outlined"
             color="primary"
             onClick={handleBack}
@@ -597,7 +639,12 @@ const CareerControl = () => {
                   </Tabs>
                 </Box>
               </Grid>
-              <Grid item xs={12} md={6} sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
+              <Grid
+                item
+                xs={12}
+                md={6}
+                sx={{ display: "flex", justifyContent: "flex-end", gap: 2 }}
+              >
                 {tabIndex === 0 ? (
                   <>
                     <Button
@@ -612,9 +659,12 @@ const CareerControl = () => {
                       variant="outlined"
                       color="primary"
                       startIcon={<FileDownloadIcon />}
-                      onClick={() => exportToExcel('applications')}
+                      onClick={() => exportToExcel("applications")}
                     >
-                      Export {selectedApplicants.length > 0 ? `(${selectedApplicants.length})` : ''}
+                      Export{" "}
+                      {selectedApplicants.length > 0
+                        ? `(${selectedApplicants.length})`
+                        : ""}
                     </Button>
                     <Button
                       variant="contained"
@@ -623,7 +673,10 @@ const CareerControl = () => {
                       onClick={handleOpenEmailDialog}
                       disabled={selectedApplicants.length === 0}
                     >
-                      Send Email {selectedApplicants.length > 0 ? `(${selectedApplicants.length})` : ''}
+                      Send Email{" "}
+                      {selectedApplicants.length > 0
+                        ? `(${selectedApplicants.length})`
+                        : ""}
                     </Button>
                   </>
                 ) : (
@@ -640,9 +693,12 @@ const CareerControl = () => {
                       variant="outlined"
                       color="primary"
                       startIcon={<FileDownloadIcon />}
-                      onClick={() => exportToExcel('emails')}
+                      onClick={() => exportToExcel("emails")}
                     >
-                      Export {selectedEmails.length > 0 ? `(${selectedEmails.length})` : ''}
+                      Export{" "}
+                      {selectedEmails.length > 0
+                        ? `(${selectedEmails.length})`
+                        : ""}
                     </Button>
                   </>
                 )}
@@ -656,7 +712,11 @@ const CareerControl = () => {
                   // Application Filters
                   <Grid container spacing={2} alignItems="center">
                     <Grid item xs={12}>
-                      <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 1 }}>
+                      <Typography
+                        variant="subtitle1"
+                        fontWeight={600}
+                        sx={{ mb: 1 }}
+                      >
                         Application Filters
                       </Typography>
                     </Grid>
@@ -673,7 +733,7 @@ const CareerControl = () => {
                             <InputAdornment position="start">
                               <SearchIcon color="action" fontSize="small" />
                             </InputAdornment>
-                          )
+                          ),
                         }}
                         onChange={(e) => setNameSearchTerm(e.target.value)}
                         value={nameSearchTerm}
@@ -690,7 +750,7 @@ const CareerControl = () => {
                             <InputAdornment position="start">
                               <SearchIcon color="action" fontSize="small" />
                             </InputAdornment>
-                          )
+                          ),
                         }}
                         onChange={(e) => setEmailSearchTerm(e.target.value)}
                         value={emailSearchTerm}
@@ -698,11 +758,15 @@ const CareerControl = () => {
                     </Grid>
                     <Grid item xs={12} sm={6} md={3}>
                       <FormControl fullWidth size="small">
-                        <InputLabel id="position-filter-label">Job Position</InputLabel>
+                        <InputLabel id="position-filter-label">
+                          Job Position
+                        </InputLabel>
                         <Select
                           labelId="position-filter-label"
                           value={positionSearchTerm}
-                          onChange={(e) => setPositionSearchTerm(e.target.value)}
+                          onChange={(e) =>
+                            setPositionSearchTerm(e.target.value)
+                          }
                           input={<OutlinedInput label="Job Position" />}
                         >
                           <MenuItem value="">
@@ -718,11 +782,15 @@ const CareerControl = () => {
                     </Grid>
                     <Grid item xs={12} sm={6} md={3}>
                       <FormControl fullWidth size="small">
-                        <InputLabel id="qualification-filter-label">Qualification</InputLabel>
+                        <InputLabel id="qualification-filter-label">
+                          Qualification
+                        </InputLabel>
                         <Select
                           labelId="qualification-filter-label"
                           value={qualificationSearchTerm}
-                          onChange={(e) => setQualificationSearchTerm(e.target.value)}
+                          onChange={(e) =>
+                            setQualificationSearchTerm(e.target.value)
+                          }
                           input={<OutlinedInput label="Qualification" />}
                         >
                           <MenuItem value="">
@@ -768,7 +836,15 @@ const CareerControl = () => {
                     </Grid>
 
                     {/* Filter actions */}
-                    <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'flex-end', mt: 1 }}>
+                    <Grid
+                      item
+                      xs={12}
+                      sx={{
+                        display: "flex",
+                        justifyContent: "flex-end",
+                        mt: 1,
+                      }}
+                    >
                       <Button
                         variant="outlined"
                         startIcon={<ClearIcon />}
@@ -784,7 +860,11 @@ const CareerControl = () => {
                   // Email Filters
                   <Grid container spacing={2} alignItems="center">
                     <Grid item xs={12}>
-                      <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 1 }}>
+                      <Typography
+                        variant="subtitle1"
+                        fontWeight={600}
+                        sx={{ mb: 1 }}
+                      >
                         Email History Filters
                       </Typography>
                     </Grid>
@@ -800,7 +880,7 @@ const CareerControl = () => {
                             <InputAdornment position="start">
                               <SearchIcon color="action" fontSize="small" />
                             </InputAdornment>
-                          )
+                          ),
                         }}
                         onChange={(e) => setEmailNameSearchTerm(e.target.value)}
                         value={emailNameSearchTerm}
@@ -817,9 +897,11 @@ const CareerControl = () => {
                             <InputAdornment position="start">
                               <SearchIcon color="action" fontSize="small" />
                             </InputAdornment>
-                          )
+                          ),
                         }}
-                        onChange={(e) => setEmailAddressSearchTerm(e.target.value)}
+                        onChange={(e) =>
+                          setEmailAddressSearchTerm(e.target.value)
+                        }
                         value={emailAddressSearchTerm}
                       />
                     </Grid>
@@ -833,7 +915,9 @@ const CareerControl = () => {
                             label="From Date"
                             type="date"
                             InputLabelProps={{ shrink: true }}
-                            onChange={(e) => setEmailDateRangeFrom(e.target.value)}
+                            onChange={(e) =>
+                              setEmailDateRangeFrom(e.target.value)
+                            }
                             value={emailDateRangeFrom || ""}
                           />
                         </Grid>
@@ -845,7 +929,9 @@ const CareerControl = () => {
                             label="To Date"
                             type="date"
                             InputLabelProps={{ shrink: true }}
-                            onChange={(e) => setEmailDateRangeTo(e.target.value)}
+                            onChange={(e) =>
+                              setEmailDateRangeTo(e.target.value)
+                            }
                             value={emailDateRangeTo || ""}
                           />
                         </Grid>
@@ -853,7 +939,15 @@ const CareerControl = () => {
                     </Grid>
 
                     {/* Filter actions */}
-                    <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'flex-end', mt: 1 }}>
+                    <Grid
+                      item
+                      xs={12}
+                      sx={{
+                        display: "flex",
+                        justifyContent: "flex-end",
+                        mt: 1,
+                      }}
+                    >
                       <Button
                         variant="outlined"
                         startIcon={<ClearIcon />}
@@ -872,71 +966,155 @@ const CareerControl = () => {
 
           {/* Applicants Tab Content */}
           {tabIndex === 0 && (
-            <Paper elevation={3} sx={{ borderRadius: 2, overflow: 'hidden' }}>
+            <Paper elevation={3} sx={{ borderRadius: 2, overflow: "hidden" }}>
               <TableContainer>
                 <Table>
                   <TableHead>
-                    <TableRow sx={{ backgroundColor: theme.palette.primary.main }}>
-                      <TableCell padding="checkbox" sx={{ color: 'white' }}>
+                    <TableRow
+                      sx={{ backgroundColor: theme.palette.primary.main }}
+                    >
+                      <TableCell padding="checkbox" sx={{ color: "white" }}>
                         <Checkbox
-                          indeterminate={selectedApplicants.length > 0 && selectedApplicants.length < filteredApplications.length}
+                          indeterminate={
+                            selectedApplicants.length > 0 &&
+                            selectedApplicants.length <
+                              filteredApplications.length
+                          }
                           checked={selectAll}
                           onChange={handleSelectAll}
-                          sx={{ color: 'white', '&.Mui-checked': { color: 'white' } }}
+                          sx={{
+                            color: "white",
+                            "&.Mui-checked": { color: "white" },
+                          }}
                         />
                       </TableCell>
-                      <TableCell sx={{ color: 'white', fontWeight: 600, textAlign: "center" }}>Name</TableCell>
-                      <TableCell sx={{ color: 'white', fontWeight: 600, textAlign: "center" }}>Email</TableCell>
-                      <TableCell sx={{ color: 'white', fontWeight: 600, textAlign: "center" }}>Phone</TableCell>
-                      <TableCell sx={{ color: 'white', fontWeight: 600, textAlign: "center" }}>Qualification</TableCell>
-                      <TableCell sx={{ color: 'white', fontWeight: 600, textAlign: "center" }}>Job Position</TableCell>
-                      <TableCell sx={{ color: 'white', fontWeight: 600, textAlign: "center" }}>Created At</TableCell>
-                      <TableCell sx={{ color: 'white', fontWeight: 600, textAlign: "center" }}>Resume</TableCell>
-                      <TableCell sx={{ color: 'white', fontWeight: 600, textAlign: "center" }}>Actions</TableCell>
+                      <TableCell
+                        sx={{
+                          color: "white",
+                          fontWeight: 600,
+                          textAlign: "center",
+                        }}
+                      >
+                        Name
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          color: "white",
+                          fontWeight: 600,
+                          textAlign: "center",
+                        }}
+                      >
+                        Email
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          color: "white",
+                          fontWeight: 600,
+                          textAlign: "center",
+                        }}
+                      >
+                        Phone
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          color: "white",
+                          fontWeight: 600,
+                          textAlign: "center",
+                        }}
+                      >
+                        Qualification
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          color: "white",
+                          fontWeight: 600,
+                          textAlign: "center",
+                        }}
+                      >
+                        Job Position
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          color: "white",
+                          fontWeight: 600,
+                          textAlign: "center",
+                        }}
+                      >
+                        Created At
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          color: "white",
+                          fontWeight: 600,
+                          textAlign: "center",
+                        }}
+                      >
+                        Resume
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          color: "white",
+                          fontWeight: 600,
+                          textAlign: "center",
+                        }}
+                      >
+                        Actions
+                      </TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     {filteredApplications.length > 0 ? (
                       filteredApplications
-                        .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                        .slice(
+                          page * rowsPerPage,
+                          page * rowsPerPage + rowsPerPage
+                        )
                         .map((career) => (
-                          <TableRow key={career._id} hover selected={selectedApplicants.includes(career._id)}>
+                          <TableRow
+                            key={career._id}
+                            hover
+                            selected={selectedApplicants.includes(career._id)}
+                          >
                             <TableCell padding="checkbox">
                               <Checkbox
-                                checked={selectedApplicants.includes(career._id)}
-                                onChange={() => handleCheckboxChange(career._id)}
+                                checked={selectedApplicants.includes(
+                                  career._id
+                                )}
+                                onChange={() =>
+                                  handleCheckboxChange(career._id)
+                                }
                               />
                             </TableCell>
                             <TableCell sx={{ textAlign: "center" }}>
                               <Typography fontWeight={500}>
-                                {career.name || 'N/A'}
-                              </Typography>
-                            </TableCell >
-                            <TableCell sx={{ textAlign: "center" }}>
-                              <Typography fontWeight={500}>
-                                {career.email || 'N/A'}
-                              </Typography>
-                            </TableCell >
-                            <TableCell sx={{ textAlign: "center" }}>
-                              <Typography fontWeight={500}>
-                                {career.phone || 'N/A'}
+                                {career.name || "N/A"}
                               </Typography>
                             </TableCell>
                             <TableCell sx={{ textAlign: "center" }}>
                               <Typography fontWeight={500}>
-                                {career.qualification || 'N/A'}
+                                {career.email || "N/A"}
                               </Typography>
                             </TableCell>
                             <TableCell sx={{ textAlign: "center" }}>
                               <Typography fontWeight={500}>
-                                {career.job_position || 'N/A'}
+                                {career.phone || "N/A"}
+                              </Typography>
+                            </TableCell>
+                            <TableCell sx={{ textAlign: "center" }}>
+                              <Typography fontWeight={500}>
+                                {career.qualification || "N/A"}
+                              </Typography>
+                            </TableCell>
+                            <TableCell sx={{ textAlign: "center" }}>
+                              <Typography fontWeight={500}>
+                                {career.job_position || "N/A"}
                               </Typography>
                             </TableCell>
                             <TableCell sx={{ textAlign: "center" }}>
                               <Typography fontWeight={500}>
                                 {career.createdOn
                                   ? new Date(career.createdOn).toLocaleString()
-                                  : 'N/A'}
+                                  : "N/A"}
                               </Typography>
                             </TableCell>
                             <TableCell sx={{ textAlign: "center" }}>
@@ -944,18 +1122,23 @@ const CareerControl = () => {
                                 variant="contained"
                                 color="primary"
                                 size="small"
-                                onClick={() => handleDownloadResume(career.resume, career.name)}
+                                onClick={() =>
+                                  handleDownloadResume(
+                                    career.resume,
+                                    career.name
+                                  )
+                                }
                               >
                                 Download
                               </Button>
                             </TableCell>
                             <TableCell sx={{ textAlign: "center" }}>
-                              <Box >
+                              <Box>
                                 <Tooltip title="Delete">
                                   <IconButton
                                     onClick={() => handleDelete(career._id)}
                                     color="error"
-                                    size={isMobile ? 'small' : 'medium'}
+                                    size={isMobile ? "small" : "medium"}
                                   >
                                     <DeleteIcon />
                                   </IconButton>
@@ -970,9 +1153,13 @@ const CareerControl = () => {
                           <Typography variant="h6" color="text.secondary">
                             No applications found
                           </Typography>
-                          {(nameSearchTerm || emailSearchTerm || positionSearchTerm || qualificationSearchTerm) && (
+                          {(nameSearchTerm ||
+                            emailSearchTerm ||
+                            positionSearchTerm ||
+                            qualificationSearchTerm) && (
                             <Typography variant="body2" color="text.secondary">
-                              No results match your filter criteria. Try adjusting your filters.
+                              No results match your filter criteria. Try
+                              adjusting your filters.
                             </Typography>
                           )}
                         </TableCell>
@@ -994,105 +1181,186 @@ const CareerControl = () => {
                 />
               )}
             </Paper>
-          )
-          }
+          )}
 
           {/* Email History Tab Content */}
-          {
-            tabIndex === 1 && (
-              <Paper elevation={3} sx={{ borderRadius: 2, overflow: 'hidden' }}>
-                {hasSentEmails ? (
-                  <>
-                    <TableContainer>
-                      <Table>
-                        <TableHead>
-                          <TableRow sx={{ backgroundColor: theme.palette.primary.main }}>
-                            <TableCell padding="checkbox" sx={{ color: 'white' }}>
-                              <Checkbox
-                                indeterminate={selectedEmails.length > 0 && selectedEmails.length < filteredSentEmails.length}
-                                checked={selectAllEmails}
-                                onChange={handleSelectAllEmails}
-                                sx={{ color: 'white', '&.Mui-checked': { color: 'white' } }}
-                              />
+          {tabIndex === 1 && (
+            <Paper elevation={3} sx={{ borderRadius: 2, overflow: "hidden" }}>
+              {hasSentEmails ? (
+                <>
+                  <TableContainer>
+                    <Table>
+                      <TableHead>
+                        <TableRow
+                          sx={{ backgroundColor: theme.palette.primary.main }}
+                        >
+                          <TableCell padding="checkbox" sx={{ color: "white" }}>
+                            <Checkbox
+                              indeterminate={
+                                selectedEmails.length > 0 &&
+                                selectedEmails.length <
+                                  filteredSentEmails.length
+                              }
+                              checked={selectAllEmails}
+                              onChange={handleSelectAllEmails}
+                              sx={{
+                                color: "white",
+                                "&.Mui-checked": { color: "white" },
+                              }}
+                            />
+                          </TableCell>
+                          <TableCell
+                            sx={{
+                              color: "white",
+                              fontWeight: 600,
+                              textAlign: "center",
+                            }}
+                          >
+                            Name
+                          </TableCell>
+                          <TableCell
+                            sx={{
+                              color: "white",
+                              fontWeight: 600,
+                              textAlign: "center",
+                            }}
+                          >
+                            From
+                          </TableCell>
+                          <TableCell
+                            sx={{
+                              color: "white",
+                              fontWeight: 600,
+                              textAlign: "center",
+                            }}
+                          >
+                            To
+                          </TableCell>
+                          <TableCell
+                            sx={{
+                              color: "white",
+                              fontWeight: 600,
+                              textAlign: "center",
+                            }}
+                          >
+                            Subject
+                          </TableCell>
+                          <TableCell
+                            sx={{
+                              color: "white",
+                              fontWeight: 600,
+                              textAlign: "center",
+                            }}
+                          >
+                            Message
+                          </TableCell>
+                          <TableCell
+                            sx={{
+                              color: "white",
+                              fontWeight: 600,
+                              textAlign: "center",
+                            }}
+                          >
+                            Sent On
+                          </TableCell>
+                          <TableCell
+                            sx={{
+                              color: "white",
+                              fontWeight: 600,
+                              textAlign: "center",
+                            }}
+                          >
+                            Status
+                          </TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {filteredSentEmails.length > 0 ? (
+                          filteredSentEmails
+                            .slice(
+                              emailPage * emailRowsPerPage,
+                              emailPage * emailRowsPerPage + emailRowsPerPage
+                            )
+                            .map((email, index) => (
+                              <TableRow key={index} hover>
+                                <TableCell padding="checkbox">
+                                  <Checkbox
+                                    checked={selectedEmails.includes(index)}
+                                    onChange={() =>
+                                      handleEmailCheckboxChange(index)
+                                    }
+                                  />
+                                </TableCell>
+                                <TableCell sx={{ textAlign: "center" }}>
+                                  {email.applicantName}
+                                </TableCell>
+                                <TableCell sx={{ textAlign: "center" }}>
+                                  {email?.from ?? "N/A"}
+                                </TableCell>
+                                <TableCell sx={{ textAlign: "center" }}>
+                                  {email.applicantEmail}
+                                </TableCell>
+                                <TableCell sx={{ textAlign: "center" }}>
+                                  {email.subject}
+                                </TableCell>
+                                <TableCell sx={{ textAlign: "center" }}>
+                                  {email.body?.length > 50
+                                    ? `${email.body.substring(0, 50)}...`
+                                    : email.body}
+                                </TableCell>
+                                <TableCell sx={{ textAlign: "center" }}>
+                                  {new Date(email.sentOn).toLocaleString()}
+                                </TableCell>
+                              </TableRow>
+                            ))
+                        ) : (
+                          <TableRow>
+                            <TableCell
+                              colSpan={6}
+                              align="center"
+                              sx={{ py: 4 }}
+                            >
+                              <Typography variant="h6" color="text.secondary">
+                                No email history found
+                              </Typography>
                             </TableCell>
-                            <TableCell sx={{ color: 'white', fontWeight: 600, textAlign: "center" }}>Name</TableCell>
-                            <TableCell sx={{ color: 'white', fontWeight: 600, textAlign: "center" }}>From</TableCell>
-                            <TableCell sx={{ color: 'white', fontWeight: 600, textAlign: "center" }}>To</TableCell>
-                            <TableCell sx={{ color: 'white', fontWeight: 600, textAlign: "center" }}>Subject</TableCell>
-                            <TableCell sx={{ color: 'white', fontWeight: 600, textAlign: "center" }}>Message</TableCell>
-                            <TableCell sx={{ color: 'white', fontWeight: 600, textAlign: "center" }}>Sent On</TableCell>
-                            <TableCell sx={{ color: 'white', fontWeight: 600, textAlign: "center" }}>Status</TableCell>
                           </TableRow>
-                        </TableHead>
-                        <TableBody>
-                          {filteredSentEmails.length > 0 ? (
-                            filteredSentEmails
-                              .slice(emailPage * emailRowsPerPage, emailPage * emailRowsPerPage + emailRowsPerPage)
-                              .map((email, index) => (
-                                <TableRow key={index} hover>
-                                  <TableCell padding="checkbox">
-                                    <Checkbox
-                                      checked={selectedEmails.includes(index)}
-                                      onChange={() => handleEmailCheckboxChange(index)}
-                                    />
-                                  </TableCell>
-                                  <TableCell sx={{ textAlign: "center" }}>{email.applicantName}</TableCell>
-                                  <TableCell sx={{ textAlign: "center" }}>
-                                    {email?.from ?? "N/A"}
-                                  </TableCell>
-                                  <TableCell sx={{ textAlign: "center" }}>{email.applicantEmail}</TableCell>
-                                  <TableCell sx={{ textAlign: "center" }}>{email.subject}</TableCell>
-                                  <TableCell sx={{ textAlign: "center" }}>
-                                    {email.body?.length > 50
-                                      ? `${email.body.substring(0, 50)}...`
-                                      : email.body}
-                                  </TableCell>
-                                  <TableCell sx={{ textAlign: "center" }}>{new Date(email.sentOn).toLocaleString()}</TableCell>
-                                </TableRow>
-                              ))
-                          ) : (
-                            <TableRow>
-                              <TableCell colSpan={6} align="center" sx={{ py: 4 }}>
-                                <Typography variant="h6" color="text.secondary">
-                                  No email history found
-                                </Typography>
-                              </TableCell>
-                            </TableRow>
-                          )}
-                        </TableBody>
-                      </Table>
-                    </TableContainer>
+                        )}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
 
-                    {filteredSentEmails.length > 0 && (
-                      <TablePagination
-                        rowsPerPageOptions={[5, 10, 25]}
-                        component="div"
-                        count={filteredSentEmails.length}
-                        rowsPerPage={emailRowsPerPage}
-                        page={emailPage}
-                        onPageChange={handleChangeEmailPage}
-                        onRowsPerPageChange={handleChangeEmailRowsPerPage}
-                      />
-                    )}
-                  </>
-                ) : (
-                  <Box sx={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    height: '200px',
-                    backgroundColor: '#f5f5f5',
-                    borderRadius: '4px',
-                    mt: 2
-                  }}>
-                    <Typography variant="h6" color="text.secondary">
-                      No email responses have been sent yet
-                    </Typography>
-                  </Box>
-                )}
-              </Paper>
-            )
-          }
+                  {filteredSentEmails.length > 0 && (
+                    <TablePagination
+                      rowsPerPageOptions={[5, 10, 25]}
+                      component="div"
+                      count={filteredSentEmails.length}
+                      rowsPerPage={emailRowsPerPage}
+                      page={emailPage}
+                      onPageChange={handleChangeEmailPage}
+                      onRowsPerPageChange={handleChangeEmailRowsPerPage}
+                    />
+                  )}
+                </>
+              ) : (
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    height: "200px",
+                    backgroundColor: "#f5f5f5",
+                    borderRadius: "4px",
+                    mt: 2,
+                  }}
+                >
+                  <Typography variant="h6" color="text.secondary">
+                    No email responses have been sent yet
+                  </Typography>
+                </Box>
+              )}
+            </Paper>
+          )}
 
           {/* Delete Confirmation Dialog */}
           <Dialog open={openDialog} onClose={handleCloseDialog}>
@@ -1113,22 +1381,29 @@ const CareerControl = () => {
           </Dialog>
 
           {/* Email Dialog */}
-          <Dialog open={openEmailDialog} onClose={handleCloseEmailDialog} PaperProps={{
-            sx: {
-              borderRadius: 2,
-              minWidth: isMobile ? '90%' : 500
-            }
-          }}>
-            <DialogTitle sx={{
-              backgroundColor: theme.palette.primary.main,
-              color: 'white',
-              fontWeight: 600
-            }}>
+          <Dialog
+            open={openEmailDialog}
+            onClose={handleCloseEmailDialog}
+            PaperProps={{
+              sx: {
+                borderRadius: 2,
+                minWidth: isMobile ? "90%" : 500,
+              },
+            }}
+          >
+            <DialogTitle
+              sx={{
+                backgroundColor: theme.palette.primary.main,
+                color: "white",
+                fontWeight: 600,
+              }}
+            >
               Send Email
             </DialogTitle>
             <DialogContent sx={{ py: 3 }}>
               <Typography variant="body1" sx={{ mb: 2 }}>
-                You are about to send emails to {selectedApplicants.length} selected applicant(s).
+                You are about to send emails to {selectedApplicants.length}{" "}
+                selected applicant(s).
               </Typography>
               {/* Display recipient names */}
               <Typography
@@ -1138,10 +1413,11 @@ const CareerControl = () => {
                   p: 1.5,
                   backgroundColor: theme.palette.grey[100],
                   borderRadius: 1,
-                  fontWeight: 500
+                  fontWeight: 500,
                 }}
               >
-                Recipients: {getRecipientNamesForDisplay()} {/* Implement this function to get names */}
+                Recipients: {getRecipientNamesForDisplay()}{" "}
+                {/* Implement this function to get names */}
               </Typography>
               <TextField
                 fullWidth
@@ -1165,16 +1441,24 @@ const CareerControl = () => {
               />
             </DialogContent>
             <DialogActions sx={{ px: 3, pb: 2 }}>
-              <Button onClick={handleCloseEmailDialog} variant="outlined">Cancel</Button>
+              <Button onClick={handleCloseEmailDialog} variant="outlined">
+                Cancel
+              </Button>
 
               <Button
                 onClick={handleSendEmail}
                 variant="contained"
                 color="primary"
-                startIcon={loadingEmail ? <CircularProgress size={20} color="inherit" /> : <EmailIcon />}
+                startIcon={
+                  loadingEmail ? (
+                    <CircularProgress size={20} color="inherit" />
+                  ) : (
+                    <EmailIcon />
+                  )
+                }
                 disabled={loadingEmail || !emailSubject || !emailMessage} // Disable button while loading
               >
-                {loadingEmail ? 'Sending...' : 'Send'}
+                {loadingEmail ? "Sending..." : "Send"}
               </Button>
             </DialogActions>
           </Dialog>
@@ -1184,13 +1468,18 @@ const CareerControl = () => {
             open={snackbar.open}
             autoHideDuration={6000}
             onClose={handleCloseSnackbar}
-            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
           >
-            <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }} variant="filled">
+            <Alert
+              onClose={handleCloseSnackbar}
+              severity={snackbar.severity}
+              sx={{ width: "100%" }}
+              variant="filled"
+            >
               {snackbar.message}
-            </Alert >
+            </Alert>
           </Snackbar>
-        </Box >
+        </Box>
       }
     />
   );

@@ -10,6 +10,8 @@ import {
   Autocomplete,
   Snackbar,
   Alert,
+  Tooltip,
+  useTheme,
 } from "@mui/material";
 import { DropzoneArea } from "material-ui-dropzone";
 import { useDispatch, useSelector } from "react-redux";
@@ -25,34 +27,35 @@ import * as Yup from "yup";
 import { getAllBussinessServices } from "../../../redux/slices/services/bussinessServices/BussinessSerives";
 import { clearUpdateStatus } from "../../../redux/slices/services/about/about";
 import { useCookies } from "react-cookie";
+import { HelpOutline } from "@mui/icons-material";
 
 const ExecutionHighlightsAddForm = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-    const [cookies] = useCookies(["token"]);
-  
+  const [cookies] = useCookies(["token"]);
+  const theme = useTheme();
   const [stack, setStack] = useState("");
   const [count, setCount] = useState("");
   const [images, setImages] = useState([]);
   const [selectedService, setSelectedService] = useState(null);
   const [ExecutionHighlightState, setExecutionHighlightState] = useState(null);
-    const [selectedBusinessService, setSelectedBusinessService] = useState(null);
-    
-    const businessServiceData = useSelector(
-      (state) => state.businessService.businessServiceData
-    );
-    const [filteredServices, setFilteredServices] = useState([]);
-    const [submitSuccess, setSubmitSuccess] = useState(false);
-    const  { loading, error, isSuccess } = useSelector(
-      (state) => state.executionHighlights.executionHighlights
-    );
-  
+  const [selectedBusinessService, setSelectedBusinessService] = useState(null);
+
+  const businessServiceData = useSelector(
+    (state) => state.businessService.businessServiceData
+  );
+  const [filteredServices, setFilteredServices] = useState([]);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
+  const { loading, error, isSuccess } = useSelector(
+    (state) => state.executionHighlights.executionHighlights
+  );
+
   const [touchedFields, setTouchedFields] = useState({
     stack: false,
     count: false,
     image: false,
     service: false,
-    business_service:false
+    business_service: false,
   });
   const serviceData = useSelector((state) => state.service.serviceData);
   const [errors, setErrors] = useState({
@@ -60,13 +63,12 @@ const ExecutionHighlightsAddForm = () => {
     count: "",
     image: "",
     service: "",
-    business_service:"",
+    business_service: "",
   });
 
   useEffect(() => {
     dispatch(fetchServices());
     dispatch(getAllBussinessServices());
-
   }, [dispatch]);
   useEffect(() => {
     if (businessServiceData.length > 0 && selectedBusinessService) {
@@ -75,8 +77,7 @@ const ExecutionHighlightsAddForm = () => {
       );
       setSelectedBusinessService(matchedService || null);
     }
-  }, [businessServiceData,dispatch]);
-
+  }, [businessServiceData, dispatch]);
 
   const handleServiceChange = (_, newValue) => {
     setSelectedService(newValue);
@@ -85,7 +86,7 @@ const ExecutionHighlightsAddForm = () => {
     setSelectedBusinessService(newValue);
     setTouchedFields((prev) => ({ ...prev, service: true }));
     setErrors((prev) => ({ ...prev, service: "" }));
-  
+
     // Filter services based on selected business service
     if (newValue) {
       const filtered = serviceData.filter(
@@ -172,18 +173,17 @@ const ExecutionHighlightsAddForm = () => {
       formData.append("business_service", selectedBusinessService._id);
     }
 
-
     try {
-         const result = await dispatch(
-          addExecutionHighlights({ token: cookies.token, formData })
-         ).unwrap();
-         if (result) {
-           setSubmitSuccess(true);
-         }
-       } catch (err) {
-         console.error("Failed to create service:", err);
-       }
-     };
+      const result = await dispatch(
+        addExecutionHighlights({ token: cookies.token, formData })
+      ).unwrap();
+      if (result) {
+        setSubmitSuccess(true);
+      }
+    } catch (err) {
+      console.error("Failed to create service:", err);
+    }
+  };
 
   useEffect(() => {
     if (submitSuccess) {
@@ -198,35 +198,39 @@ const ExecutionHighlightsAddForm = () => {
     <LeftNavigationBar
       Content={
         <Container component="main" maxWidth="md">
-                    <Snackbar
-                      open={submitSuccess}
-                      autoHideDuration={2000}
-                      onClose={() => setSubmitSuccess(false)}
-                    >
-                      <Alert severity="success">
-                        {typeof isSuccess === "object"
-                          ? JSON.stringify(isSuccess)
-                          : isSuccess || "Service highlight created successfully"}
-                      </Alert>
-                    </Snackbar>
-          
-          
-          <Paper elevation={3} sx={{ padding: 4, marginTop: 4 }}>
+          <Snackbar
+            open={submitSuccess}
+            autoHideDuration={2000}
+            onClose={() => setSubmitSuccess(false)}
+          >
+            <Alert severity="success">
+              {typeof isSuccess === "object"
+                ? JSON.stringify(isSuccess)
+                : isSuccess || "Service highlight created successfully"}
+            </Alert>
+          </Snackbar>
+
+          <Box
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            gap={1}
+            mt={2}
+            mb={1}
+          >
             <Typography
               variant="h4"
               sx={{
                 position: "relative",
                 padding: 0,
                 margin: 0,
-                fontFamily: 'Merriweather, serif',
-                fontWeight: 700, textAlign: 'center',
+                fontFamily: "Merriweather, serif",
                 fontWeight: 300,
                 fontSize: { xs: "32px", sm: "40px" },
                 color: "#747474",
                 textAlign: "center",
                 textTransform: "uppercase",
                 paddingBottom: "5px",
-                mb: 5,
                 "&::before": {
                   content: '""',
                   width: "28px",
@@ -251,56 +255,75 @@ const ExecutionHighlightsAddForm = () => {
                 },
               }}
             >
-              Execution Highlights Add Form
+              Execution Highlights
+              <br /> Add Form
             </Typography>
-            <form onSubmit={handleSubmit}>
-            <FormControl fullWidth>
-                                  <Autocomplete
-                                    id="Business Services"
-                                    options={businessServiceData || []}
-                                    getOptionLabel={(option) => option?.name || ""}
-                                    value={selectedBusinessService}
-                                    onChange={handleBussinessServiceChange}
-                                    isOptionEqualToValue={(option, value) =>
-                                      option._id === value._id
-                                    } // ✅ Fix: Proper comparison
-                                    renderInput={(params) => (
-                                      <TextField
-                                        {...params}
-                                        variant="outlined"
-                                        label="Business Services"
-                                        fullWidth
-                                        error={Boolean(errors.service)}
-                                        helperText={touchedFields.service && errors.service}
-                                      />
-                                    )}
-                                  />
-                                </FormControl><br /> <br />
-                                <FormControl fullWidth>
-              <Autocomplete
-                id="service"
-                options={filteredServices || []} // Use filteredServices here
-                getOptionLabel={(option) => option?.title || ""}
-                value={selectedService}
-                onChange={handleServiceChange}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    variant="outlined"
-                    label="Service"
-                    fullWidth
-                    required
-                    error={touchedFields.service && Boolean(errors.service)}
-                    helperText={touchedFields.service && errors.service}
-                    onBlur={() =>
-                      setTouchedFields((prev) => ({ ...prev, service: true }))
-                    }
-                  />
-                )}
-              />
-            </FormControl>
-            
 
+            <Tooltip
+              title="This is where you can add the execution count for the service."
+              arrow
+            >
+              <HelpOutline
+                sx={{ color: "#747474", fontSize: "24px", cursor: "pointer" }}
+              />
+            </Tooltip>
+          </Box>
+          <Paper elevation={0} sx={{ padding: 1 }}>
+            <form
+              onSubmit={handleSubmit}
+              style={{
+                border: "2px dotted #D3D3D3",
+                padding: "20px",
+                borderRadius: "8px",
+              }}
+            >
+              <FormControl fullWidth>
+                <Autocomplete
+                  id="Business Services"
+                  options={businessServiceData || []}
+                  getOptionLabel={(option) => option?.name || ""}
+                  value={selectedBusinessService}
+                  onChange={handleBussinessServiceChange}
+                  isOptionEqualToValue={(option, value) =>
+                    option._id === value._id
+                  } // ✅ Fix: Proper comparison
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      variant="outlined"
+                      label="Business Services"
+                      fullWidth
+                      error={Boolean(errors.service)}
+                      helperText={touchedFields.service && errors.service}
+                    />
+                  )}
+                />
+              </FormControl>
+              <br /> <br />
+              <FormControl fullWidth>
+                <Autocomplete
+                  id="service"
+                  options={filteredServices || []} // Use filteredServices here
+                  getOptionLabel={(option) => option?.title || ""}
+                  value={selectedService}
+                  onChange={handleServiceChange}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      variant="outlined"
+                      label="Service"
+                      fullWidth
+                      required
+                      error={touchedFields.service && Boolean(errors.service)}
+                      helperText={touchedFields.service && errors.service}
+                      onBlur={() =>
+                        setTouchedFields((prev) => ({ ...prev, service: true }))
+                      }
+                    />
+                  )}
+                />
+              </FormControl>{" "}
+              <br /> <br />
               <DropzoneArea
                 onChange={handleImageChange}
                 acceptedFiles={["image/*"]}
@@ -348,10 +371,19 @@ const ExecutionHighlightsAddForm = () => {
               <Button
                 type="submit"
                 variant="contained"
-                style={{ backgroundColor: "#4CAF50", color: "white" }}
-                fullWidth
+                sx={{
+                  backgroundColor: theme.palette.primary.main,
+                  color: theme.palette.primary.contrastText,
+                  display: "block",
+                  marginLeft: "auto",
+                  marginRight: "auto",
+                  mt: 3, // optional: top margin
+                  "&:hover": {
+                    backgroundColor: theme.palette.primary.dark,
+                  },
+                }}
               >
-                Submit
+                Submit Highlights Data
               </Button>
             </form>
           </Paper>

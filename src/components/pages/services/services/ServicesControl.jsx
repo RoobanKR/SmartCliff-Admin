@@ -30,6 +30,7 @@ import {
   Edit as EditIcon,
   Add as AddIcon,
   Search as SearchIcon,
+  HelpOutline,
 } from "@mui/icons-material";
 import LeftNavigationBar from "../../../navbars/LeftNavigationBar";
 import { useCookies } from "react-cookie";
@@ -114,11 +115,15 @@ const ServicesControl = () => {
     setPage(0);
   };
 
-  const filteredServices = serviceData.filter((service) =>
-    service &&
-    ((service.title && service.title.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (service.slug && service.slug.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (service.description && service.description.toLowerCase().includes(searchTerm.toLowerCase())))
+  const filteredServices = serviceData.filter(
+    (service) =>
+      service &&
+      ((service.title &&
+        service.title.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (service.slug &&
+          service.slug.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (service.description &&
+          service.description.toLowerCase().includes(searchTerm.toLowerCase())))
   );
 
   // Reset to first page when search term changes
@@ -130,7 +135,12 @@ const ServicesControl = () => {
     return (
       <LeftNavigationBar
         Content={
-          <Box display="flex" justifyContent="center" alignItems="center" minHeight="80vh">
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            minHeight="80vh"
+          >
             <CircularProgress />
           </Box>
         }
@@ -142,24 +152,25 @@ const ServicesControl = () => {
     <LeftNavigationBar
       Content={
         <Box sx={{ p: isMobile ? 1 : 3 }}>
-          {/* Header Section */}
-          <Box sx={{ mb: 4 }}>
+          <Box
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            mb={2}
+          >
             <Typography
               variant="h4"
               sx={{
                 position: "relative",
                 padding: 0,
                 margin: 0,
-                fontFamily: 'Merriweather, serif',
-                fontWeight: 700, textAlign: 'center',
+                fontFamily: "Merriweather, serif",
                 fontWeight: 300,
                 fontSize: { xs: "32px", sm: "40px" },
                 color: "#747474",
                 textAlign: "center",
                 textTransform: "uppercase",
                 paddingBottom: "5px",
-                mb: 3,
-                mt: -4,
                 "&::before": {
                   content: '""',
                   width: "28px",
@@ -184,9 +195,21 @@ const ServicesControl = () => {
                 },
               }}
             >
-              Services Management
+              Service
+              <br /> Control Pannel
             </Typography>
 
+            <Tooltip
+              title="This is where you can add the execution count for the service."
+              arrow
+            >
+              <HelpOutline
+                sx={{ color: "#747474", fontSize: "24px", cursor: "pointer" }}
+              />
+            </Tooltip>
+          </Box>
+          {/* Header Section */}
+          <Box sx={{ mb: 4 }}>
             <Grid container spacing={2} alignItems="center">
               <Grid item xs={12} md={6}>
                 <TextField
@@ -195,22 +218,29 @@ const ServicesControl = () => {
                   size="small"
                   placeholder="Search services..."
                   InputProps={{
-                    startAdornment: <SearchIcon color="action" sx={{ mr: 1 }} />,
+                    startAdornment: (
+                      <SearchIcon color="action" sx={{ mr: 1 }} />
+                    ),
                   }}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   value={searchTerm}
                 />
               </Grid>
-              <Grid item xs={12} md={6} sx={{ textAlign: { xs: 'left', md: 'right' } }}>
+              <Grid
+                item
+                xs={12}
+                md={6}
+                sx={{ textAlign: { xs: "left", md: "right" } }}
+              >
                 <Button
                   variant="contained"
                   startIcon={<AddIcon />}
                   onClick={handleAddService}
                   sx={{
                     backgroundColor: theme.palette.primary.main,
-                    color: 'white',
-                    '&:hover': {
-                      backgroundColor: theme.palette.primary.dark
+                    color: "white",
+                    "&:hover": {
+                      backgroundColor: theme.palette.primary.dark,
                     },
                   }}
                 >
@@ -221,22 +251,37 @@ const ServicesControl = () => {
           </Box>
 
           {/* Table Section */}
-          <Paper elevation={3} sx={{ borderRadius: 2, overflow: 'hidden' }}>
+          <Paper elevation={3} sx={{ borderRadius: 2, overflow: "hidden" }}>
             <TableContainer>
               <Table>
                 <TableHead>
-                  <TableRow sx={{ backgroundColor: theme.palette.primary.main }}>
-                    <TableCell sx={{ color: 'white', fontWeight: 600 }}>Service Name</TableCell>
-                    <TableCell sx={{ color: 'white', fontWeight: 600 }}>Description</TableCell>
-                    <TableCell sx={{ color: 'white', fontWeight: 600 }}>Image</TableCell>
-                    <TableCell sx={{ color: 'white', fontWeight: 600 }}>Slug</TableCell>
-                    <TableCell sx={{ color: 'white', fontWeight: 600 }}>Actions</TableCell>
+                  <TableRow
+                    sx={{ backgroundColor: theme.palette.primary.main }}
+                  >
+                    <TableCell sx={{ color: "white", fontWeight: 600 }}>
+                      Service Name
+                    </TableCell>
+                    <TableCell sx={{ color: "white", fontWeight: 600 }}>
+                      Description
+                    </TableCell>
+                    <TableCell sx={{ color: "white", fontWeight: 600 }}>
+                      Image
+                    </TableCell>
+                    <TableCell sx={{ color: "white", fontWeight: 600 }}>
+                      Slug
+                    </TableCell>
+                    <TableCell sx={{ color: "white", fontWeight: 600 }}>
+                      Actions
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {filteredServices.length > 0 ? (
                     filteredServices
-                      .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                      .slice(
+                        page * rowsPerPage,
+                        page * rowsPerPage + rowsPerPage
+                      )
                       .map((service) => (
                         <TableRow key={service._id} hover>
                           <TableCell>{service.title}</TableCell>
@@ -250,22 +295,24 @@ const ServicesControl = () => {
                           </TableCell>
                           <TableCell>{service.slug}</TableCell>
                           <TableCell>
-                            <Box sx={{ display: 'flex', gap: 1 }}>
+                            <Box sx={{ display: "flex", gap: 1 }}>
                               <Tooltip title="Edit">
-                                <IconButton
+                                <Button
+                                  variant="outlined"
                                   onClick={() => handleEdit(service._id)}
                                   color="primary"
                                 >
                                   <EditIcon />
-                                </IconButton>
+                                </Button>
                               </Tooltip>
                               <Tooltip title="Delete">
-                                <IconButton
+                                <Button
                                   onClick={() => handleDelete(service._id)}
                                   color="error"
+                                  variant="outlined"
                                 >
                                   <DeleteIcon />
-                                </IconButton>
+                                </Button>
                               </Tooltip>
                             </Box>
                           </TableCell>
@@ -299,14 +346,12 @@ const ServicesControl = () => {
           </Paper>
 
           {/* Delete Confirmation Dialog */}
-          <Dialog
-            open={confirmDialogOpen}
-            onClose={handleCloseDialog}
-          >
+          <Dialog open={confirmDialogOpen} onClose={handleCloseDialog}>
             <DialogTitle>Confirm Deletion</DialogTitle>
             <DialogContent>
               <Typography>
-                Are you sure you want to delete this service? This action cannot be undone.
+                Are you sure you want to delete this service? This action cannot
+                be undone.
               </Typography>
             </DialogContent>
             <DialogActions>

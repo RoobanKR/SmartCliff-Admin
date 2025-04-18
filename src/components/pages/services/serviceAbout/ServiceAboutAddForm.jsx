@@ -11,8 +11,11 @@ import {
   FormControl,
   Autocomplete,
   Grid,
+  useTheme,
+  Tooltip,
+  Box,
 } from "@mui/material";
-import { Add, Delete } from "@mui/icons-material";
+import { Add, Delete, HelpOutline } from "@mui/icons-material";
 import { DropzoneArea } from "material-ui-dropzone";
 import axios from "axios";
 import LeftNavigationBar from "../../../navbars/LeftNavigationBar";
@@ -30,6 +33,7 @@ const ServiceAboutAddForm = () => {
   const dispatch = useDispatch();
   const [cookies] = useCookies(["token"]);
   const navigate = useNavigate();
+  const theme = useTheme();
 
   const { loading, error, successMessage } = useSelector(
     (state) => state.serviceAbout
@@ -62,7 +66,7 @@ const ServiceAboutAddForm = () => {
   const [images, setImages] = useState([]);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [filteredServices, setFilteredServices] = useState([]);
-  
+
   useEffect(() => {
     dispatch(getAllBussinessServices());
     dispatch(fetchServices());
@@ -95,7 +99,7 @@ const ServiceAboutAddForm = () => {
       setFilteredServices([]);
     }
   };
-  
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -188,10 +192,13 @@ const ServiceAboutAddForm = () => {
                 : successMessage || "Service created successfully"}
             </Alert>
           </Snackbar>
-
-          <Paper
-            elevation={3}
-            sx={{ padding: 3, maxWidth: 800, margin: "auto" }}
+          <Box
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            gap={1}
+            mt={2}
+            mb={1}
           >
             <Typography
               variant="h4"
@@ -199,15 +206,13 @@ const ServiceAboutAddForm = () => {
                 position: "relative",
                 padding: 0,
                 margin: 0,
-                fontFamily: 'Merriweather, serif',
-                fontWeight: 700, textAlign: 'center',
+                fontFamily: "Merriweather, serif",
                 fontWeight: 300,
                 fontSize: { xs: "32px", sm: "40px" },
                 color: "#747474",
                 textAlign: "center",
                 textTransform: "uppercase",
                 paddingBottom: "5px",
-                mb: 5,
                 "&::before": {
                   content: '""',
                   width: "28px",
@@ -232,11 +237,34 @@ const ServiceAboutAddForm = () => {
                 },
               }}
             >
-              Create Service About
+              Service About Details
+              <br /> Add Form
             </Typography>
-            <form onSubmit={handleSubmit} encType="multipart/form-data">
+
+            <Tooltip
+              title="This is where you can add the execution count for the service."
+              arrow
+            >
+              <HelpOutline
+                sx={{ color: "#747474", fontSize: "24px", cursor: "pointer" }}
+              />
+            </Tooltip>
+          </Box>
+          <Paper
+            elevation={0}
+            sx={{ padding: 3, maxWidth: 800, margin: "auto" }}
+          >
+            <form
+              onSubmit={handleSubmit}
+              encType="multipart/form-data"
+              style={{
+                border: "2px dotted #D3D3D3",
+                padding: "20px",
+                borderRadius: "8px",
+              }}
+            >
               <Grid container spacing={2}>
-                <Grid item xs={12}>
+                <Grid item xs={6}>
                   <FormControl fullWidth>
                     <Autocomplete
                       id="Business Services"
@@ -260,8 +288,8 @@ const ServiceAboutAddForm = () => {
                     />
                   </FormControl>
                 </Grid>
-                
-                <Grid item xs={12}>
+
+                <Grid item xs={6}>
                   <FormControl fullWidth>
                     <Autocomplete
                       id="service"
@@ -276,18 +304,23 @@ const ServiceAboutAddForm = () => {
                           label="Service"
                           fullWidth
                           required
-                          error={touchedFields.service && Boolean(errors.service)}
+                          error={
+                            touchedFields.service && Boolean(errors.service)
+                          }
                           helperText={touchedFields.service && errors.service}
                           onBlur={() =>
-                            setTouchedFields((prev) => ({ ...prev, service: true }))
+                            setTouchedFields((prev) => ({
+                              ...prev,
+                              service: true,
+                            }))
                           }
                         />
                       )}
                     />
                   </FormControl>
                 </Grid>
-                
-                <Grid item xs={12}>
+
+                <Grid item xs={6}>
                   <TextField
                     fullWidth
                     label="Heading"
@@ -297,8 +330,8 @@ const ServiceAboutAddForm = () => {
                     required
                   />
                 </Grid>
-                
-                <Grid item xs={12}>
+
+                <Grid item xs={6}>
                   <TextField
                     fullWidth
                     label="Sub Heading"
@@ -307,12 +340,12 @@ const ServiceAboutAddForm = () => {
                     onChange={handleChange}
                   />
                 </Grid>
-                
+
                 <Grid item xs={12}>
                   <Typography variant="h6" gutterBottom>
                     Features
                   </Typography>
-                  
+
                   {features.map((feature, index) => (
                     <Paper
                       key={index}
@@ -334,7 +367,7 @@ const ServiceAboutAddForm = () => {
                             <Delete />
                           </IconButton>
                         </Grid>
-                        
+
                         <Grid item xs={12}>
                           <TextField
                             fullWidth
@@ -345,7 +378,7 @@ const ServiceAboutAddForm = () => {
                             required
                           />
                         </Grid>
-                        
+
                         <Grid item xs={12}>
                           <TextField
                             fullWidth
@@ -358,7 +391,7 @@ const ServiceAboutAddForm = () => {
                             rows={2}
                           />
                         </Grid>
-                        
+
                         <Grid item xs={12}>
                           <Typography variant="subtitle2" gutterBottom>
                             Feature Icon
@@ -367,16 +400,18 @@ const ServiceAboutAddForm = () => {
                             acceptedFiles={["image/*"]}
                             filesLimit={1}
                             dropzoneText="Drag and drop an icon here or click"
-                            onChange={(files) => handleFeatureIconChange(index, files)}
+                            onChange={(files) =>
+                              handleFeatureIconChange(index, files)
+                            }
                             maxFileSize={5000000}
                           />
                         </Grid>
                       </Grid>
                     </Paper>
                   ))}
-                  
-                  <Button 
-                    startIcon={<Add />} 
+
+                  <Button
+                    startIcon={<Add />}
                     onClick={addFeature}
                     variant="outlined"
                     sx={{ mt: 1, mb: 3 }}
@@ -384,7 +419,7 @@ const ServiceAboutAddForm = () => {
                     Add Feature
                   </Button>
                 </Grid>
-                
+
                 <Grid item xs={12}>
                   <Typography variant="h6" gutterBottom>
                     Service Images
@@ -397,17 +432,24 @@ const ServiceAboutAddForm = () => {
                     maxFileSize={5000000}
                   />
                 </Grid>
-                
+
                 <Grid item xs={12}>
                   <Button
                     type="submit"
                     variant="contained"
-                    color="primary"
-                    fullWidth
-                    sx={{ mt: 3 }}
-                    disabled={loading}
+                    sx={{
+                      backgroundColor: theme.palette.primary.main,
+                      color: theme.palette.primary.contrastText,
+                      display: "block",
+                      marginLeft: "auto",
+                      marginRight: "auto",
+                      mt: 3, // optional: top margin
+                      "&:hover": {
+                        backgroundColor: theme.palette.primary.dark,
+                      },
+                    }}
                   >
-                    {loading ? "Submitting..." : "Submit"}
+                    Submit Data
                   </Button>
                 </Grid>
               </Grid>

@@ -12,8 +12,10 @@ import {
   Autocomplete,
   Grid,
   Box,
+  useTheme,
+  Tooltip,
 } from "@mui/material";
-import { Add, Delete } from "@mui/icons-material";
+import { Add, Delete, HelpOutline } from "@mui/icons-material";
 import { DropzoneArea } from "material-ui-dropzone";
 import axios from "axios";
 import LeftNavigationBar from "../../../navbars/LeftNavigationBar";
@@ -32,6 +34,7 @@ const ServicProcessAddForm = () => {
   const dispatch = useDispatch();
   const [cookies] = useCookies(["token"]);
   const navigate = useNavigate();
+  const theme = useTheme();
 
   // Get state from Redux
   const { loading, error, successMessage } = useSelector(
@@ -43,9 +46,9 @@ const ServicProcessAddForm = () => {
   });
   const [selectedBusinessService, setSelectedBusinessService] = useState(null);
   const serviceData = useSelector((state) => state.service.serviceData);
-  
+
   const [selectedService, setSelectedService] = useState(null);
-  
+
   const businessServiceData = useSelector(
     (state) => state.businessService.businessServiceData
   );
@@ -58,9 +61,7 @@ const ServicProcessAddForm = () => {
     service: "",
   });
 
-  const [process, setProcess] = useState([
-    { heading: "", icon: null },
-  ]);
+  const [process, setProcess] = useState([{ heading: "", icon: null }]);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [filteredServices, setFilteredServices] = useState([]);
 
@@ -88,7 +89,7 @@ const ServicProcessAddForm = () => {
     setSelectedBusinessService(newValue);
     setTouchedFields((prev) => ({ ...prev, bussiness_service: true }));
     setErrors((prev) => ({ ...prev, bussiness_service: "" }));
-  
+
     // Filter services based on selected business service
     if (newValue) {
       const filtered = serviceData.filter(
@@ -99,7 +100,7 @@ const ServicProcessAddForm = () => {
       setFilteredServices([]);
     }
   };
-  
+
   // Handle Input Change
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -135,27 +136,27 @@ const ServicProcessAddForm = () => {
   // Handle Form Submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     const data = new FormData();
     if (selectedBusinessService) {
       data.append("business_service", selectedBusinessService._id);
     }
-  
+
     if (selectedService) {
       data.append("service", selectedService._id);
     }
-  
+
     // Convert process into JSON
     const formattedProcess = process.map((p) => ({
       heading: p.heading,
     }));
     data.append("process", JSON.stringify(formattedProcess));
-  
+
     // Append process icons using indexed keys
     process.forEach((p, index) => {
       if (p.icon) data.append(`icon_${index}`, p.icon);
     });
-  
+
     try {
       const result = await dispatch(
         createServiceProcess({ token: cookies.token, formData: data })
@@ -167,7 +168,7 @@ const ServicProcessAddForm = () => {
       console.error("Failed to create service process:", err);
     }
   };
-  
+
   useEffect(() => {
     if (submitSuccess) {
       setTimeout(() => {
@@ -192,10 +193,13 @@ const ServicProcessAddForm = () => {
                 : successMessage || "Service process created successfully"}
             </Alert>
           </Snackbar>
-
-          <Paper
-            elevation={3}
-            sx={{ padding: 3, maxWidth: 800, margin: "auto" }}
+          <Box
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            gap={1}
+            mt={2}
+            mb={1}
           >
             <Typography
               variant="h4"
@@ -203,15 +207,13 @@ const ServicProcessAddForm = () => {
                 position: "relative",
                 padding: 0,
                 margin: 0,
-                fontFamily: 'Merriweather, serif',
-                fontWeight: 700, textAlign: 'center',
+                fontFamily: "Merriweather, serif",
                 fontWeight: 300,
                 fontSize: { xs: "32px", sm: "40px" },
                 color: "#747474",
                 textAlign: "center",
                 textTransform: "uppercase",
                 paddingBottom: "5px",
-                mb: 5,
                 "&::before": {
                   content: '""',
                   width: "28px",
@@ -236,11 +238,34 @@ const ServicProcessAddForm = () => {
                 },
               }}
             >
-              Create Service Process
+              Service Process Details
+              <br /> Add Form
             </Typography>
-            <form onSubmit={handleSubmit} encType="multipart/form-data">
+
+            <Tooltip
+              title="This is where you can add the execution count for the service."
+              arrow
+            >
+              <HelpOutline
+                sx={{ color: "#747474", fontSize: "24px", cursor: "pointer" }}
+              />
+            </Tooltip>
+          </Box>
+          <Paper
+            elevation={0}
+            sx={{ padding: 2, maxWidth: 800, margin: "auto" }}
+          >
+            <form
+              onSubmit={handleSubmit}
+              encType="multipart/form-data"
+              style={{
+                border: "2px dotted #D3D3D3",
+                padding: "20px",
+                borderRadius: "8px",
+              }}
+            >
               <Grid container spacing={3}>
-                <Grid item xs={12}>
+                <Grid item xs={6}>
                   <FormControl fullWidth>
                     <Autocomplete
                       id="business-services"
@@ -259,15 +284,16 @@ const ServicProcessAddForm = () => {
                           fullWidth
                           error={Boolean(errors.bussiness_service)}
                           helperText={
-                            touchedFields.bussiness_service && errors.bussiness_service
+                            touchedFields.bussiness_service &&
+                            errors.bussiness_service
                           }
                         />
                       )}
                     />
                   </FormControl>
                 </Grid>
-                
-                <Grid item xs={12}>
+
+                <Grid item xs={6}>
                   <FormControl fullWidth>
                     <Autocomplete
                       id="service"
@@ -285,10 +311,15 @@ const ServicProcessAddForm = () => {
                           label="Service"
                           fullWidth
                           required
-                          error={touchedFields.service && Boolean(errors.service)}
+                          error={
+                            touchedFields.service && Boolean(errors.service)
+                          }
                           helperText={touchedFields.service && errors.service}
                           onBlur={() =>
-                            setTouchedFields((prev) => ({ ...prev, service: true }))
+                            setTouchedFields((prev) => ({
+                              ...prev,
+                              service: true,
+                            }))
                           }
                         />
                       )}
@@ -300,7 +331,7 @@ const ServicProcessAddForm = () => {
                   <Typography variant="h6" gutterBottom>
                     Process Steps
                   </Typography>
-                  
+
                   {process.map((processItem, index) => (
                     <Paper
                       key={index}
@@ -315,14 +346,14 @@ const ServicProcessAddForm = () => {
                       >
                         <Delete />
                       </IconButton>
-                      
+
                       <Grid container spacing={2}>
                         <Grid item xs={12}>
                           <Typography variant="subtitle1">
                             Process Step #{index + 1}
                           </Typography>
                         </Grid>
-                        
+
                         <Grid item xs={12}>
                           <TextField
                             fullWidth
@@ -333,7 +364,7 @@ const ServicProcessAddForm = () => {
                             required
                           />
                         </Grid>
-                        
+
                         <Grid item xs={12}>
                           <Typography variant="subtitle2" gutterBottom>
                             Process Icon
@@ -342,7 +373,9 @@ const ServicProcessAddForm = () => {
                             acceptedFiles={["image/*"]}
                             filesLimit={1}
                             dropzoneText="Drag and drop an icon here or click"
-                            onChange={(files) => handleFeatureIconChange(index, files)}
+                            onChange={(files) =>
+                              handleFeatureIconChange(index, files)
+                            }
                             showPreviewsInDropzone={true}
                             showFileNamesInPreview={true}
                             maxFileSize={5000000}
@@ -351,9 +384,9 @@ const ServicProcessAddForm = () => {
                       </Grid>
                     </Paper>
                   ))}
-                  
-                  <Button 
-                    startIcon={<Add />} 
+
+                  <Button
+                    startIcon={<Add />}
                     onClick={addFeature}
                     variant="outlined"
                     sx={{ mb: 3 }}
@@ -366,17 +399,24 @@ const ServicProcessAddForm = () => {
                   <Button
                     type="submit"
                     variant="contained"
-                    color="primary"
-                    fullWidth
-                    sx={{ mt: 2 }}
-                    disabled={loading}
+                    sx={{
+                      backgroundColor: theme.palette.primary.main,
+                      color: theme.palette.primary.contrastText,
+                      display: "block",
+                      marginLeft: "auto",
+                      marginRight: "auto",
+                      mt: 3, // optional: top margin
+                      "&:hover": {
+                        backgroundColor: theme.palette.primary.dark,
+                      },
+                    }}
                   >
-                    {loading ? "Creating..." : "Create Process"}
+                    Submit Process Data
                   </Button>
                 </Grid>
               </Grid>
             </form>
-            
+
             {error && (
               <Alert severity="error" sx={{ mt: 2 }}>
                 {error}

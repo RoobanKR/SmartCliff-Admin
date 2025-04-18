@@ -96,7 +96,6 @@ const ContactControl = () => {
   const [emailSubjectSearchTerm, setEmailSubjectSearchTerm] = useState("");
   const [emailDateRangeFrom, setEmailDateRangeFrom] = useState(null);
   const [emailDateRangeTo, setEmailDateRangeTo] = useState(null);
-  // Loading state
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate(); 
 

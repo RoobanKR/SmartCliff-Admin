@@ -53,7 +53,10 @@ import {
   Reviews,
   Numbers,
   HighQualityRounded,
+  BrowseGallery,
+  JoinRightSharp,
 } from "@mui/icons-material";
+import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import { useNavigate } from "react-router-dom";
 import Avatar from "@mui/material/Avatar";
 import { Collapse, Menu, MenuItem, Tooltip } from "@mui/material";
@@ -73,6 +76,7 @@ import CodeIcon from "@mui/icons-material/Code";
 import {
   BusinessCenterSharp,
   CheckCircle,
+  FormatQuoteRounded,
   LocalPostOfficeOutlined,
   PriorityHighTwoTone,
 } from "@material-ui/icons";
@@ -90,6 +94,7 @@ import {
   faAddressCard,
   faHome,
   faHistory,
+  faJoint,
 } from "@fortawesome/free-solid-svg-icons"; // Import your desired icons
 
 const drawerWidth = 300;
@@ -246,6 +251,11 @@ export default function LeftNavigationBar({ Content }) {
           text: "Testimonial",
           link: "Review",
           icon: <Reviews style={orangeIconStyle} />,
+        },
+        {
+          text: "Why Choose Us",
+          link: "home/wcu",
+          icon: <EmojiEventsIcon style={orangeIconStyle} />,
         },
       ],
     },
@@ -423,7 +433,7 @@ export default function LeftNavigationBar({ Content }) {
         },
         {
           text: "How It Work",
-          // link: "business/wcy-hire",
+          link: "business/how-it-works",
           icon: <BusinessRounded style={orangeIconStyle} />,
         },
         {
@@ -439,6 +449,18 @@ export default function LeftNavigationBar({ Content }) {
       ],
     },
     {
+      text: "Career",
+      icon: <FontAwesomeIcon icon={faBusinessTime} style={orangeIconStyle} />,
+      dropdown: "Career",
+      submodules: [
+        {
+          text: "Career",
+          link: "career",
+          icon: <JoinRightSharp style={orangeIconStyle} />,
+        },
+      ],
+    },
+    {
       text: "Common",
       icon: <FontAwesomeIcon icon={faComment} style={orangeIconStyle} />,
       dropdown: "Common",
@@ -447,6 +469,16 @@ export default function LeftNavigationBar({ Content }) {
           text: "FAQ",
           link: "FAQ",
           icon: <FontAwesomeIcon icon={faQuestion} style={orangeIconStyle} />,
+        },
+        {
+          text: "Footer",
+          link: "footer",
+          icon: <FormatQuoteRounded style={orangeIconStyle} />,
+        },
+        {
+          text: "Gallery",
+          link: "gallery",
+          icon: <BrowseGallery style={orangeIconStyle} />,
         },
       ],
     },
