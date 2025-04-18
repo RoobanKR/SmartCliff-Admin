@@ -29,6 +29,7 @@ import { getAllColleges } from '../../../redux/slices/mca/college/college';
 import { createSkillVertical } from '../../../redux/slices/mca/skillVertical/skillVertical';
 import { useNavigate } from 'react-router-dom';
 import LeftNavigationBar from '../../../navbars/LeftNavigationBar';
+import { HelpOutline } from '@material-ui/icons';
 
 const SkillVerticalAddForm = () => {
   const dispatch = useDispatch();
@@ -324,53 +325,96 @@ const SkillVerticalAddForm = () => {
     setSnackbar({ ...snackbar, open: false });
   };
 
+
+  const handleBack = () => {
+    navigate(-1); // Navigate to the previous page
+  };
+
   return (
     <LeftNavigationBar
       Content={
-        <Container maxWidth="lg">
-          <Box sx={{ mt: 4, mb: 4 }}>
-<Typography
-              variant="h4"
-              sx={{
-                position: "relative",
-                padding: 0,
-                margin: 0,
-                fontFamily: 'Merriweather, serif',
-                fontWeight: 700, textAlign: 'center',
-                fontWeight: 300,
-                fontSize: { xs: "32px", sm: "40px" },
-                color: "#747474",
-                textAlign: "center",
-                textTransform: "uppercase",
-                paddingBottom: "5px",
-                mb: 5,
-                "&::before": {
-                  content: '""',
-                  width: "28px",
-                  height: "5px",
-                  display: "block",
-                  position: "absolute",
-                  bottom: "3px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
-                "&::after": {
-                  content: '""',
-                  width: "100px",
-                  height: "1px",
-                  display: "block",
-                  position: "relative",
-                  marginTop: "5px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
-              }}
-            >              Create Skill Vertical
-            </Typography>
+        <Container component="main" maxWidth="md">
+          <Box >
+            <Box
+              display="flex"
+              alignItems="center"
+              justifyContent="space-between"
+              gap={1}
+              mt={2}
+              mb={2}
+            >
+              <Button
+                variant="outlined"
+                color="primary"
+                onClick={handleBack}
+              >
+                Back
+              </Button>
+              <Box sx={{
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'center',
+                position: 'relative',
+                flex: 1
+              }}>
+                <Typography
+                  variant="h4"
+                  sx={{
+                    position: "relative",
+                    padding: 0,
+                    margin: 0,
+                    fontFamily: "Merriweather, serif",
+                    fontWeight: 300,
+                    fontSize: { xs: "32px", sm: "40px" },
+                    color: "#747474",
+                    textAlign: "center",
+                    textTransform: "uppercase",
+                    paddingBottom: "5px",
+                    "&::before": {
+                      content: '""',
+                      width: "28px",
+                      height: "5px",
+                      display: "block",
+                      position: "absolute",
+                      bottom: "3px",
+                      left: "50%",
+                      transform: "translateX(-50%)",
+                      backgroundColor: "#747474",
+                    },
+                    "&::after": {
+                      content: '""',
+                      width: "100px",
+                      height: "1px",
+                      display: "block",
+                      position: "relative",
+                      marginTop: "5px",
+                      left: "50%",
+                      transform: "translateX(-50%)",
+                      backgroundColor: "#747474",
+                    },
+                  }}
+                >
+                  Skill Vertical Add Form
+                </Typography>
 
-            <form onSubmit={handleSubmit}>
+                <Tooltip
+                  title="This is where you can add the execution count for the service."
+                  arrow
+                >
+                  <HelpOutline
+                    sx={{ color: "#747474", fontSize: "24px", cursor: "pointer" }}
+                  />
+                </Tooltip>
+              </Box>
+            </Box>
+            <form
+              style={{
+                border: "2px dotted #D3D3D3",
+                padding: "20px",
+                borderRadius: "8px",
+              }}
+              onSubmit={handleSubmit}>
               <Card>
                 <CardContent>
                   <Grid container spacing={3}>
@@ -691,23 +735,27 @@ const SkillVerticalAddForm = () => {
                           </Typography>
                           <Box>
                             {/* Edit icon positioned to the left of the delete icon */}
-                            <IconButton
+                            <Button
                               onClick={() => editVertical(index)}
                               color="primary"
                               size="small"
                               sx={{ mr: 1 }}
+                              variant="outlined"
+
                               aria-label="edit skill vertical"
                             >
                               <EditIcon />
-                            </IconButton>
-                            <IconButton
+                            </Button>
+                            <Button
                               onClick={() => removeVertical(index)}
                               color="error"
                               size="small"
+                              variant="outlined"
+
                               aria-label="delete skill vertical"
                             >
                               <DeleteIcon />
-                            </IconButton>
+                            </Button>
                           </Box>
                         </Box>
 
@@ -747,18 +795,24 @@ const SkillVerticalAddForm = () => {
                   </Box>
                 )}
 
-                <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    color="primary"
-                    size="large"
-                    disabled={loading || formData.skillVerticals.length === 0 ||
-                      !selectedService || !selectedBusinessService || !selectedProgram}
-                  >
-                    {loading ? <CircularProgress size={24} /> : 'Submit'}
-                  </Button>
-                </Box>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  style={{
+                    display: "block",
+                    margin: "24px auto 0", // centers the button horizontally
+                    backgroundColor: " #1976d2", // green
+                    color: "#fff",
+                    padding: "5px 10px",
+                    borderRadius: "4px",
+                    textTransform: "uppercase",
+                    cursor: "pointer",
+                  }}
+                  disabled={loading || formData.skillVerticals.length === 0 ||
+                    !selectedService || !selectedBusinessService || !selectedProgram}
+                >
+                  {loading ? <CircularProgress size={24} /> : 'Submit SkillVertical'}
+                </Button>
               </Box>
             </form>
           </Box>

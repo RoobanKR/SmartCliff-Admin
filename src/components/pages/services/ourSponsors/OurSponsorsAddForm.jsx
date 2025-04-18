@@ -167,7 +167,7 @@ const OurSponsorsAddForm = () => {
       const response = await dispatch(createOurSponsors(formData)).unwrap();
       setSnackbar({ open: true, message: response.message[0].value, severity: 'success' });
       setTimeout(() => {
-        navigate('/degreeprogram/our-sponsors-control');
+        navigate('/degreeprogram/our-sponsor-control');
       }, 1500);
     } catch (error) {
       console.error("Error submitting form:", error);

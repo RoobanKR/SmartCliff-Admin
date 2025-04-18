@@ -28,7 +28,7 @@ import {
   AccordionSummary,
   AccordionDetails,
   Divider,
-  DialogActions
+  DialogActions,
 } from "@mui/material";
 import {
   Delete as DeleteIcon,
@@ -37,10 +37,13 @@ import {
   Search as SearchIcon,
   ExpandMore as ExpandMoreIcon,
   School as SchoolIcon,
-  List as ListIcon
+  List as ListIcon,
 } from "@mui/icons-material";
 import LeftNavigationBar from "../../../navbars/LeftNavigationBar";
-import { getAllSemesters, deleteSemester } from "../../../redux/slices/mca/semester/semester";
+import {
+  getAllSemesters,
+  deleteSemester,
+} from "../../../redux/slices/mca/semester/semester";
 import { useNavigate } from "react-router-dom";
 import { useCookies } from "react-cookie";
 import { resetSignIn, userVerify } from "../../../redux/slices/user/Signin";
@@ -53,11 +56,11 @@ const SemesterControl = () => {
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [cookies] = useCookies(["token"]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   useEffect(() => {
     if (!cookies.token) {
@@ -111,7 +114,7 @@ const SemesterControl = () => {
   };
 
   const handleAddSemester = () => {
-    navigate('/Semester-add');
+    navigate("/Semester-add");
   };
 
   const handleChangePage = (event, newPage) => {
@@ -123,15 +126,31 @@ const SemesterControl = () => {
     setPage(0);
   };
 
-  const filteredSemesters = semesters.filter(semester =>
-    semester && (
-      (semester.description && semester.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (semester.semester && semester.semester.some(item =>
-        item.heading && item.heading.toLowerCase().includes(searchTerm.toLowerCase()))) ||
-      (semester.semester && semester.semester.some(item =>
-        item.submain && item.submain.some(sub =>
-          sub.inner_heading && sub.inner_heading.toLowerCase().includes(searchTerm.toLowerCase()))))
-    )
+  const filteredSemesters = semesters.filter(
+    (semester) =>
+      semester &&
+      ((semester.description &&
+        semester.description
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase())) ||
+        (semester.semester &&
+          semester.semester.some(
+            (item) =>
+              item.heading &&
+              item.heading.toLowerCase().includes(searchTerm.toLowerCase())
+          )) ||
+        (semester.semester &&
+          semester.semester.some(
+            (item) =>
+              item.submain &&
+              item.submain.some(
+                (sub) =>
+                  sub.inner_heading &&
+                  sub.inner_heading
+                    .toLowerCase()
+                    .includes(searchTerm.toLowerCase())
+              )
+          )))
   );
 
   useEffect(() => {
@@ -142,7 +161,12 @@ const SemesterControl = () => {
     return (
       <LeftNavigationBar
         Content={
-          <Box display="flex" justifyContent="center" alignItems="center" minHeight="80vh">
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            minHeight="80vh"
+          >
             <CircularProgress size={60} thickness={4} />
           </Box>
         }
@@ -162,8 +186,9 @@ const SemesterControl = () => {
                 position: "relative",
                 padding: 0,
                 margin: 0,
-                fontFamily: 'Merriweather, serif',
-                fontWeight: 700, textAlign: 'center',
+                fontFamily: "Merriweather, serif",
+                fontWeight: 700,
+                textAlign: "center",
                 fontWeight: 300,
                 fontSize: { xs: "32px", sm: "40px" },
                 color: "#747474",
@@ -196,7 +221,7 @@ const SemesterControl = () => {
                 },
               }}
             >
-              Semester Management
+              Semester Panel
             </Typography>
 
             <Grid container spacing={2} alignItems="center">
@@ -207,29 +232,36 @@ const SemesterControl = () => {
                   size="small"
                   placeholder="Search semesters..."
                   InputProps={{
-                    startAdornment: <SearchIcon color="action" sx={{ mr: 1 }} />,
+                    startAdornment: (
+                      <SearchIcon color="action" sx={{ mr: 1 }} />
+                    ),
                   }}
                   sx={{
-                    backgroundColor: 'background.paper',
+                    backgroundColor: "background.paper",
                     borderRadius: 1,
                   }}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   value={searchTerm}
                 />
               </Grid>
-              <Grid item xs={12} md={6} sx={{ textAlign: { xs: 'left', md: 'right' } }}>
+              <Grid
+                item
+                xs={12}
+                md={6}
+                sx={{ textAlign: { xs: "left", md: "right" } }}
+              >
                 <Button
                   variant="contained"
                   startIcon={<AddIcon />}
                   onClick={handleAddSemester}
                   sx={{
                     backgroundColor: theme.palette.primary.main,
-                    color: 'white',
-                    '&:hover': {
-                      backgroundColor: theme.palette.primary.dark
+                    color: "white",
+                    "&:hover": {
+                      backgroundColor: theme.palette.primary.dark,
                     },
-                    whiteSpace: 'nowrap',
-                    width: { xs: '100%', md: 'auto' }
+                    whiteSpace: "nowrap",
+                    width: { xs: "100%", md: "auto" },
                   }}
                 >
                   Add New Semester
@@ -239,99 +271,151 @@ const SemesterControl = () => {
           </Box>
 
           {/* Table Section */}
-          <Paper elevation={3} sx={{ borderRadius: 2, overflow: 'hidden' }}>
+          <Paper elevation={3} sx={{ borderRadius: 2, overflow: "hidden" }}>
             <TableContainer>
               <Table>
                 <TableHead>
-                  <TableRow sx={{ backgroundColor: theme.palette.primary.main }}>
-                    <TableCell sx={{ color: 'white', fontWeight: 600 }}>Description</TableCell>
+                  <TableRow
+                    sx={{ backgroundColor: theme.palette.primary.main }}
+                  >
+                    <TableCell sx={{ color: "white", fontWeight: 600 }}>
+                      Description
+                    </TableCell>
                     {!isMobile && (
-                      <TableCell sx={{ color: 'white', fontWeight: 600 }}>Semester Details</TableCell>
+                      <TableCell sx={{ color: "white", fontWeight: 600 }}>
+                        Semester Details
+                      </TableCell>
                     )}
-                    <TableCell sx={{ color: 'white', fontWeight: 600 }}>Actions</TableCell>
+                    <TableCell sx={{ color: "white", fontWeight: 600 }}>
+                      Actions
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {filteredSemesters.length > 0 ? (
                     filteredSemesters
-                      .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                      .map((semester) => (
-                        semester && (
-                          <TableRow
-                            key={semester._id}
-                            hover
-                            sx={{
-                              '&:nth-of-type(odd)': {
-                                backgroundColor: theme.palette.action.hover
-                              },
-                              '&:last-child td, &:last-child th': { border: 0 }
-                            }}
-                          >
-                            <TableCell>
-                              <Typography fontWeight={500}>
-                                {semester.description || 'N/A'}
-                              </Typography>
-                            </TableCell>
-                            {!isMobile && (
+                      .slice(
+                        page * rowsPerPage,
+                        page * rowsPerPage + rowsPerPage
+                      )
+                      .map(
+                        (semester) =>
+                          semester && (
+                            <TableRow
+                              key={semester._id}
+                              hover
+                              sx={{
+                                "&:nth-of-type(odd)": {
+                                  backgroundColor: theme.palette.action.hover,
+                                },
+                                "&:last-child td, &:last-child th": {
+                                  border: 0,
+                                },
+                              }}
+                            >
                               <TableCell>
-                                {semester.semester.map((item, index) => (
-                                  <Accordion key={index} sx={{ mb: 1, boxShadow: 'none' }}>
-                                    <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                        <SchoolIcon color="primary" />
-                                        <Typography variant="subtitle1">
-                                          {item.heading} - {item.semester}
-                                        </Typography>
-                                      </Box>
-                                    </AccordionSummary>
-                                    <AccordionDetails>
-                                      {item.submain.map((sub, subIndex) => (
-                                        <React.Fragment key={subIndex}>
-                                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                                            <ListIcon color="secondary" fontSize="small" />
-                                            <Typography variant="body2">
-                                              {sub.inner_heading}
-                                            </Typography>
-                                          </Box>
-                                          {subIndex < item.submain.length - 1 && <Divider sx={{ my: 1 }} />}
-                                        </React.Fragment>
-                                      ))}
-                                    </AccordionDetails>
-                                  </Accordion>
-                                ))}
+                                <Typography fontWeight={500}>
+                                  {semester.description || "N/A"}
+                                </Typography>
                               </TableCell>
-                            )}
-                            <TableCell>
-                              <Box sx={{ display: 'flex', gap: 1 }}>
-
-                                <Tooltip title="Edit">
-                                  <IconButton
-                                    onClick={() => handleEdit(semester._id)}
-                                    color="primary"
-                                    size={isMobile ? 'small' : 'medium'}
-                                  >
-                                    <EditIcon />
-                                  </IconButton>
-                                </Tooltip>
-                                <Tooltip title="Delete">
-                                  <IconButton
-                                    onClick={() => handleDelete(semester._id)}
-                                    color="error"
-                                    size={isMobile ? 'small' : 'medium'}
-                                  >
-                                    <DeleteIcon />
-                                  </IconButton>
-                                </Tooltip>
-                              </Box>
-                            </TableCell>
-                          </TableRow>
-                        )
-                      ))
+                              {!isMobile && (
+                                <TableCell>
+                                  {semester.semester.map((item, index) => (
+                                    <Accordion
+                                      key={index}
+                                      sx={{ mb: 1, boxShadow: "none" }}
+                                    >
+                                      <AccordionSummary
+                                        expandIcon={<ExpandMoreIcon />}
+                                      >
+                                        <Box
+                                          sx={{
+                                            display: "flex",
+                                            alignItems: "center",
+                                            gap: 1,
+                                          }}
+                                        >
+                                          <SchoolIcon color="primary" />
+                                          <Typography variant="subtitle1">
+                                            {item.heading} - {item.semester}
+                                          </Typography>
+                                        </Box>
+                                      </AccordionSummary>
+                                      <AccordionDetails>
+                                        {item.submain.map((sub, subIndex) => (
+                                          <React.Fragment key={subIndex}>
+                                            <Box
+                                              sx={{
+                                                display: "flex",
+                                                alignItems: "center",
+                                                gap: 1,
+                                                mb: 1,
+                                              }}
+                                            >
+                                              <ListIcon
+                                                color="secondary"
+                                                fontSize="small"
+                                              />
+                                              <Typography variant="body2">
+                                                {sub.inner_heading}
+                                              </Typography>
+                                            </Box>
+                                            {subIndex <
+                                              item.submain.length - 1 && (
+                                              <Divider sx={{ my: 1 }} />
+                                            )}
+                                          </React.Fragment>
+                                        ))}
+                                      </AccordionDetails>
+                                    </Accordion>
+                                  ))}
+                                </TableCell>
+                              )}
+                              <TableCell>
+                                <Box sx={{ display: "flex", gap: 1 }}>
+                                  <Tooltip title="Edit">
+                                    <Button
+                                      onClick={() => handleEdit(semester._id)}
+                                      color="primary"
+                                      size={isMobile ? "small" : "medium"}
+                                      variant="outlined"
+                                    >
+                                      <EditIcon />
+                                    </Button>
+                                  </Tooltip>
+                                  <Tooltip title="Delete">
+                                    <Button
+                                      onClick={() => handleDelete(semester._id)}
+                                      color="error"
+                                      size={isMobile ? "small" : "medium"}
+                                      variant="outlined"
+                                    >
+                                      <DeleteIcon />
+                                    </Button>
+                                  </Tooltip>
+                                </Box>
+                              </TableCell>
+                            </TableRow>
+                          )
+                      )
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={isMobile ? 2 : 3} align="center" sx={{ py: 4 }}>
-                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                          <SchoolIcon color="disabled" sx={{ fontSize: 60, mb: 1 }} />
+                      <TableCell
+                        colSpan={isMobile ? 2 : 3}
+                        align="center"
+                        sx={{ py: 4 }}
+                      >
+                        <Box
+                          sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                          }}
+                        >
+                          <SchoolIcon
+                            color="disabled"
+                            sx={{ fontSize: 60, mb: 1 }}
+                          />
                           <Typography variant="h6" color="text.secondary">
                             No semesters found
                           </Typography>
@@ -359,10 +443,10 @@ const SemesterControl = () => {
                 onRowsPerPageChange={handleChangeRowsPerPage}
                 sx={{
                   borderTop: `1px solid ${theme.palette.divider}`,
-                  '& .MuiTablePagination-toolbar': {
+                  "& .MuiTablePagination-toolbar": {
                     paddingLeft: 2,
-                    paddingRight: 1
-                  }
+                    paddingRight: 1,
+                  },
                 }}
               />
             )}
@@ -374,20 +458,23 @@ const SemesterControl = () => {
             PaperProps={{
               sx: {
                 borderRadius: 2,
-                minWidth: isMobile ? '90%' : 400
-              }
+                minWidth: isMobile ? "90%" : 400,
+              },
             }}
           >
-            <DialogTitle sx={{
-              backgroundColor: theme.palette.error.light,
-              color: 'white',
-              fontWeight: 600
-            }}>
+            <DialogTitle
+              sx={{
+                backgroundColor: theme.palette.error.light,
+                color: "white",
+                fontWeight: 600,
+              }}
+            >
               Confirm Deletion
             </DialogTitle>
             <DialogContent sx={{ py: 3 }}>
               <Typography variant="body1">
-                Are you sure you want to delete this semester? This action cannot be undone.
+                Are you sure you want to delete this semester? This action
+                cannot be undone.
               </Typography>
             </DialogContent>
             <DialogActions sx={{ px: 3, pb: 2 }}>
@@ -396,7 +483,7 @@ const SemesterControl = () => {
                 variant="outlined"
                 sx={{
                   borderColor: theme.palette.grey[400],
-                  color: theme.palette.text.primary
+                  color: theme.palette.text.primary,
                 }}
               >
                 Cancel
@@ -407,9 +494,9 @@ const SemesterControl = () => {
                 color="error"
                 sx={{
                   backgroundColor: theme.palette.error.main,
-                  '&:hover': {
-                    backgroundColor: theme.palette.error.dark
-                  }
+                  "&:hover": {
+                    backgroundColor: theme.palette.error.dark,
+                  },
                 }}
               >
                 Delete

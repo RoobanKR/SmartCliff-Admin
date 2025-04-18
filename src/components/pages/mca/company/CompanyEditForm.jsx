@@ -4,14 +4,28 @@ import Paper from "@material-ui/core/Paper";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import { DropzoneArea } from "material-ui-dropzone";
-import { Autocomplete, FormControl, Typography, Snackbar } from "@mui/material";
+import {
+  Autocomplete,
+  FormControl,
+  Typography,
+  Snackbar,
+  Tooltip,
+  Box,
+  Container,
+  IconButton,
+} from "@mui/material";
 import MuiAlert from "@mui/material/Alert";
+import ClearIcon from "@mui/icons-material/Clear";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import LeftNavigationBar from "../../../navbars/LeftNavigationBar";
 import { fetchServices } from "../../../redux/slices/services/services/Services";
 import { getAllBussinessServices } from "../../../redux/slices/services/bussinessServices/BussinessSerives";
-import { getCompanyById, updateCompany } from "../../../redux/slices/mca/company/company";
+import {
+  getCompanyById,
+  updateCompany,
+} from "../../../redux/slices/mca/company/company";
+import { HelpOutline } from "@material-ui/icons";
 
 const Alert = React.forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
@@ -35,15 +49,23 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: theme.palette.success.main,
     color: theme.palette.success.contrastText,
   },
-  existingImages: {
-    display: 'flex',
-    flexDirection: 'column',
-    marginTop: theme.spacing(2),
+  logoContainer: {
+    position: "relative",
+    marginBottom: theme.spacing(2),
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
   },
-  image: {
-    width: '100%',
-    height: 'auto',
-    marginBottom: theme.spacing(1),
+  logoImage: {
+    maxWidth: "200px",
+    maxHeight: "200px",
+    marginTop: theme.spacing(2),
+    borderRadius: theme.spacing(1),
+  },
+  removeLogoButton: {
+    position: "absolute",
+    top: 0,
+    right: 0,
   },
 }));
 
@@ -55,13 +77,17 @@ const CompanyEditForm = () => {
   const company = useSelector((state) => state.companies.selectedCompany);
 
   const serviceData = useSelector((state) => state.service.serviceData);
-  const businessServiceData = useSelector((state) => state.businessService.businessServiceData);
+  const businessServiceData = useSelector(
+    (state) => state.businessService.businessServiceData
+  );
 
   const [companyName, setCompanyName] = useState("");
   const [description, setDescription] = useState("");
   const [website, setWebsite] = useState("");
   const [year, setYear] = useState("");
   const [logo, setLogo] = useState(null);
+  const [existingLogoUrl, setExistingLogoUrl] = useState("");
+  const [logoPreview, setLogoPreview] = useState(null);
   const [selectedService, setSelectedService] = useState(null);
   const [selectedBusinessService, setSelectedBusinessService] = useState(null);
   const [filteredServices, setFilteredServices] = useState([]);
@@ -88,13 +114,23 @@ const CompanyEditForm = () => {
       setYear(company.year || "");
       setSelectedBusinessService(company.business_service || null);
       setSelectedService(company.service || null);
+
+      // Handle logo URL
+      if (company.logo) {
+        // If logo is a relative path, prepend the base URL
+        const fullLogoUrl = company.logo.startsWith("http")
+          ? company.logo
+          : `${process.env.REACT_APP_BASE_URL}/${company.logo}`;
+        setExistingLogoUrl(fullLogoUrl);
+      }
     }
   }, [company]);
 
   useEffect(() => {
     if (selectedBusinessService) {
       const filtered = serviceData.filter(
-        (service) => service.business_services?._id === selectedBusinessService._id
+        (service) =>
+          service.business_services?._id === selectedBusinessService._id
       );
       setFilteredServices(filtered);
     } else {
@@ -111,7 +147,22 @@ const CompanyEditForm = () => {
   };
 
   const handleLogoChange = (files) => {
-    setLogo(files[0]); // Assuming only one logo is uploaded
+    if (files[0]) {
+      setLogo(files[0]);
+
+      // Create preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setLogoPreview(reader.result);
+      };
+      reader.readAsDataURL(files[0]);
+    }
+  };
+
+  const handleRemoveLogo = () => {
+    setExistingLogoUrl("");
+    setLogo(null);
+    setLogoPreview(null);
   };
 
   const handleSubmit = async (event) => {
@@ -122,9 +173,18 @@ const CompanyEditForm = () => {
     formData.append("description", description);
     formData.append("website", website);
     formData.append("year", year);
-    if (logo) formData.append("logo", logo);
+
+    // Handle logo upload or removal
+    if (logo) {
+      formData.append("logo", logo);
+    } else if (!existingLogoUrl) {
+      // If no logo is present, send a flag to remove the existing logo
+      formData.append("removeLogo", "true");
+    }
+
     if (selectedService) formData.append("service", selectedService._id);
-    if (selectedBusinessService) formData.append("business_service", selectedBusinessService._id);
+    if (selectedBusinessService)
+      formData.append("business_service", selectedBusinessService._id);
 
     try {
       await dispatch(updateCompany({ id: companyId, formData }));
@@ -142,53 +202,97 @@ const CompanyEditForm = () => {
     }
   };
 
+  const handleBack = () => {
+    navigate(-1); // Navigate to the previous page
+  };
+
   return (
     <LeftNavigationBar
       Content={
-        <>
-          <Paper className={classes.paper} elevation={3}>
-            <Typography
-              variant="h4"
-              sx={{
-                position: "relative",
-                padding: 0,
-                margin: 0,
-                fontFamily: 'Merriweather, serif',
-                fontWeight: 700, textAlign: 'center',
-                fontWeight: 300,
-                fontSize: { xs: "32px", sm: "40px" },
-                color: "#747474",
-                textAlign: "center",
-                textTransform: "uppercase",
-                paddingBottom: "5px",
-                mb: 5,
-                "&::before": {
-                  content: '""',
-                  width: "28px",
-                  height: "5px",
-                  display: "block",
-                  position: "absolute",
-                  bottom: "3px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
-                "&::after": {
-                  content: '""',
-                  width: "100px",
-                  height: "1px",
-                  display: "block",
-                  position: "relative",
-                  marginTop: "5px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
-              }}
+        <Container component="main" maxWidth="md">
+          <Paper elevation={0}>
+            <Box
+              display="flex"
+              alignItems="center"
+              justifyContent="space-between"
+              gap={1}
+              mt={2}
+              mb={2}
             >
-              Edit Company
-            </Typography>
-            <form className={classes.form} onSubmit={handleSubmit}>
+              <Button variant="outlined" color="primary" onClick={handleBack}>
+                Back
+              </Button>
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  position: "relative",
+                  flex: 1,
+                }}
+              >
+                <Typography
+                  variant="h4"
+                  sx={{
+                    position: "relative",
+                    padding: 0,
+                    margin: 0,
+                    fontFamily: "Merriweather, serif",
+                    fontWeight: 300,
+                    fontSize: { xs: "32px", sm: "40px" },
+                    color: "#747474",
+                    textAlign: "center",
+                    textTransform: "uppercase",
+                    paddingBottom: "5px",
+                    "&::before": {
+                      content: '""',
+                      width: "28px",
+                      height: "5px",
+                      display: "block",
+                      position: "absolute",
+                      bottom: "3px",
+                      left: "50%",
+                      transform: "translateX(-50%)",
+                      backgroundColor: "#747474",
+                    },
+                    "&::after": {
+                      content: '""',
+                      width: "100px",
+                      height: "1px",
+                      display: "block",
+                      position: "relative",
+                      marginTop: "5px",
+                      left: "50%",
+                      transform: "translateX(-50%)",
+                      backgroundColor: "#747474",
+                    },
+                  }}
+                >
+                  Company Edit Form
+                </Typography>
+                <Tooltip
+                  title="This is where you can add the execution count for the service."
+                  arrow
+                >
+                  <HelpOutline
+                    sx={{
+                      color: "#747474",
+                      fontSize: "24px",
+                      cursor: "pointer",
+                    }}
+                  />
+                </Tooltip>
+              </Box>
+            </Box>
+            <form
+              style={{
+                border: "2px dotted #D3D3D3",
+                padding: "20px",
+                borderRadius: "8px",
+              }}
+              onSubmit={handleSubmit}
+            >
               <TextField
                 variant="outlined"
                 margin="normal"
@@ -232,6 +336,7 @@ const CompanyEditForm = () => {
                 name="year"
                 value={year}
                 onChange={(e) => setYear(e.target.value)}
+                style={{ marginBottom: "20px" }}
               />
               <FormControl fullWidth>
                 <Autocomplete
@@ -240,8 +345,14 @@ const CompanyEditForm = () => {
                   getOptionLabel={(option) => option?.name || ""}
                   value={selectedBusinessService}
                   onChange={handleBusinessServiceChange}
+                  style={{ marginBottom: "20px" }}
                   renderInput={(params) => (
-                    <TextField {...params} variant="outlined" label="Business Services" fullWidth />
+                    <TextField
+                      {...params}
+                      variant="outlined"
+                      label="Business Services"
+                      fullWidth
+                    />
                   )}
                 />
               </FormControl>
@@ -252,35 +363,61 @@ const CompanyEditForm = () => {
                   getOptionLabel={(option) => option?.title || ""}
                   value={selectedService}
                   onChange={handleServiceChange}
+                  style={{ marginBottom: "20px" }}
                   renderInput={(params) => (
-                    <TextField {...params} variant="outlined" label="Service" fullWidth />
+                    <TextField
+                      {...params}
+                      variant="outlined"
+                      label="Service"
+                      fullWidth
+                    />
                   )}
                 />
               </FormControl>
+
+              {/* Logo Preview Section */}
+              {(existingLogoUrl || logoPreview) && (
+                <div className={classes.logoContainer}>
+                  <Typography variant="subtitle1">Current Logo:</Typography>
+                  <img
+                    src={logoPreview || existingLogoUrl}
+                    alt="Company Logo"
+                    className={classes.logoImage}
+                  />
+                  <IconButton
+                    className={classes.removeLogoButton}
+                    onClick={handleRemoveLogo}
+                    color="secondary"
+                  >
+                    <ClearIcon />
+                  </IconButton>
+                </div>
+              )}
+
               <DropzoneArea
                 onChange={handleLogoChange}
                 acceptedFiles={["image/*"]}
                 filesLimit={1}
-                dropzoneText="Drag and drop logo here or click"
+                showPreviews={false}
+                showPreviewsInDropzone={true}
+                dropzoneText="Drag and drop a new logo image here or click (Optional)"
               />
-              {company && company.logo && (
-                <div className={classes.existingImages}>
-                  <Typography variant="subtitle1">Existing Logo:</Typography>
-                  <img
-                    src={`${company.logo}`}
-                    alt="Existing Logo"
-                    className={classes.image}
-                  />
-                </div>
-              )}
+
               <Button
                 type="submit"
                 variant="contained"
-                style={{ backgroundColor: "#4CAF50", color: "white" }}
-                fullWidth
-                className={classes.submit}
+                style={{
+                  display: "block",
+                  margin: "24px auto 0", // centers the button horizontally
+                  backgroundColor: " #ff6d00", // green
+                  color: "#fff",
+                  padding: "5px 10px",
+                  borderRadius: "4px",
+                  textTransform: "uppercase",
+                  cursor: "pointer",
+                }}
               >
-                Update
+                Update Company
               </Button>
             </form>
           </Paper>
@@ -299,7 +436,7 @@ const CompanyEditForm = () => {
               {snackbarMessage}
             </Alert>
           </Snackbar>
-        </>
+        </Container>
       }
     />
   );

@@ -547,15 +547,15 @@ function App() {
         />
 
         <Route
-          path="degreeprogram/our-sponsors-add"
+          path="degreeprogram/our-sponsor-add"
           element={<OurSponsorsAddForm />}
         />
         <Route
-          path="degreeprogram/our-sponsors-control"
+          path="degreeprogram/our-sponsor-control"
           element={<OurSponsorsControlPage />}
         />
         <Route
-          path="degreeprogram/our-sponsors-edit/:id"
+          path="degreeprogram/our-sponsor-edit/:id"
           element={<OurSponsorsEditForm />}
         />
 

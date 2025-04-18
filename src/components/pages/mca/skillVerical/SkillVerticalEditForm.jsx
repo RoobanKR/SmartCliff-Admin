@@ -31,6 +31,7 @@ import { getAllColleges } from '../../../redux/slices/mca/college/college';
 import { useNavigate, useParams } from 'react-router-dom';
 import LeftNavigationBar from '../../../navbars/LeftNavigationBar';
 import { getSkillVerticalById, updateSkillVertical } from '../../../redux/slices/mca/skillVertical/skillVertical';
+import { HelpOutline } from '@mui/icons-material';
 
 const SkillVerticalEditForm = () => {
   const dispatch = useDispatch();
@@ -46,10 +47,13 @@ const SkillVerticalEditForm = () => {
   const [selectedBusinessService, setSelectedBusinessService] = useState(null);
   const [selectedProgram, setSelectedProgram] = useState(null);
 
+
+
   const serviceData = useSelector((state) => state.service.serviceData);
   const businessServiceData = useSelector(
     (state) => state.businessService.businessServiceData
   );
+
   const degreeProgramData = useSelector(
     (state) => state.degreeProgram.degreeProgramData
   );
@@ -361,53 +365,97 @@ const SkillVerticalEditForm = () => {
     setSnackbar({ ...snackbar, open: false });
   };
 
+
+  const handleBack = () => {
+    navigate(-1); // Navigate to the previous page
+  };
+
   return (
     <LeftNavigationBar
       Content={
-        <Container maxWidth="lg">
-          <Box sx={{ mt: 4, mb: 4 }}>
-<Typography
-              variant="h4"
-              sx={{
-                position: "relative",
-                padding: 0,
-                margin: 0,
-                fontFamily: 'Merriweather, serif',
-                fontWeight: 700, textAlign: 'center',
-                fontWeight: 300,
-                fontSize: { xs: "32px", sm: "40px" },
-                color: "#747474",
-                textAlign: "center",
-                textTransform: "uppercase",
-                paddingBottom: "5px",
-                mb: 5,
-                "&::before": {
-                  content: '""',
-                  width: "28px",
-                  height: "5px",
-                  display: "block",
-                  position: "absolute",
-                  bottom: "3px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
-                "&::after": {
-                  content: '""',
-                  width: "100px",
-                  height: "1px",
-                  display: "block",
-                  position: "relative",
-                  marginTop: "5px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
-              }}
-            >              Update Skill Vertical
-            </Typography>
+        <Container component="main" maxWidth="md">
+          <Box >
+            <Box
+              display="flex"
+              alignItems="center"
+              justifyContent="space-between"
+              gap={1}
+              mt={2}
+              mb={2}
+            >
+              <Button
+                variant="outlined"
+                color="primary"
+                onClick={handleBack}
+              >
+                Back
+              </Button>
+              <Box sx={{
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'center',
+                position: 'relative',
+                flex: 1
+              }}>
+                <Typography
+                  variant="h4"
+                  sx={{
+                    position: "relative",
+                    padding: 0,
+                    margin: 0,
+                    fontFamily: "Merriweather, serif",
+                    fontWeight: 300,
+                    fontSize: { xs: "32px", sm: "40px" },
+                    color: "#747474",
+                    textAlign: "center",
+                    textTransform: "uppercase",
+                    paddingBottom: "5px",
+                    "&::before": {
+                      content: '""',
+                      width: "28px",
+                      height: "5px",
+                      display: "block",
+                      position: "absolute",
+                      bottom: "3px",
+                      left: "50%",
+                      transform: "translateX(-50%)",
+                      backgroundColor: "#747474",
+                    },
+                    "&::after": {
+                      content: '""',
+                      width: "100px",
+                      height: "1px",
+                      display: "block",
+                      position: "relative",
+                      marginTop: "5px",
+                      left: "50%",
+                      transform: "translateX(-50%)",
+                      backgroundColor: "#747474",
+                    },
+                  }}
+                >
+                  Skill Vertical Edit Form
+                </Typography>
 
-            <form onSubmit={handleSubmit}>
+                <Tooltip
+                  title="This is where you can edit degree program details and images."
+                  arrow
+                >
+                  <HelpOutline
+                    sx={{ color: "#747474", fontSize: "24px", cursor: "pointer" }}
+                  />
+                </Tooltip>
+              </Box>
+            </Box>
+
+            <form
+              style={{
+                border: "2px dotted #D3D3D3",
+                padding: "20px",
+                borderRadius: "8px",
+              }}
+              onSubmit={handleSubmit}>
               <Card>
                 <CardContent>
                   <Grid container spacing={3}>
@@ -430,7 +478,7 @@ const SkillVerticalEditForm = () => {
                           value={selectedBusinessService}
                           onChange={handleBussinessServiceChange}
                           isOptionEqualToValue={(option, value) =>
-                            option._id === value._id
+                            option?._id === value?._id
                           }
                           renderInput={(params) => (
                             <TextField
@@ -453,6 +501,9 @@ const SkillVerticalEditForm = () => {
                           getOptionLabel={(option) => option?.title || ""}
                           value={selectedService}
                           onChange={handleServiceChange}
+                          isOptionEqualToValue={(option, value) =>
+                            option?._id === value?._id
+                          }
                           renderInput={(params) => (
                             <TextField
                               {...params}
@@ -727,23 +778,26 @@ const SkillVerticalEditForm = () => {
                           </Typography>
                           <Box>
                             {/* Edit icon positioned to the left of the delete icon */}
-                            <IconButton
+                            <Button
                               onClick={() => editVertical(index)}
                               color="primary"
                               size="small"
                               sx={{ mr: 1 }}
+                              variant="outlined"
+
                               aria-label="edit skill vertical"
                             >
                               <EditIcon />
-                            </IconButton>
-                            <IconButton
+                            </Button>
+                            <Button
                               onClick={() => removeVertical(index)}
                               color="error"
                               size="small"
+                              variant="outlined"
                               aria-label="delete skill vertical"
                             >
                               <DeleteIcon />
-                            </IconButton>
+                            </Button>
                           </Box>
                         </Box>
 
@@ -787,12 +841,20 @@ const SkillVerticalEditForm = () => {
                   <Button
                     type="submit"
                     variant="contained"
-                    color="primary"
-                    size="large"
+                    style={{
+                      display: "block",
+                      margin: "24px auto 0", // centers the button horizontally
+                      backgroundColor: "#ff6d00", // orange
+                      color: "#fff",
+                      padding: "5px 10px",
+                      borderRadius: "4px",
+                      textTransform: "uppercase",
+                      cursor: "pointer",
+                    }}
                     disabled={loading || formData.skillVerticals.length === 0 ||
                       !selectedService || !selectedBusinessService || !selectedProgram}
                   >
-                    {loading ? <CircularProgress size={24} /> : 'Submit'}
+                    {loading ? <CircularProgress size={24} /> : 'Update Skill Vertical'}
                   </Button>
                 </Box>
               </Box>

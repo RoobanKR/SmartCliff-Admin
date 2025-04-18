@@ -184,7 +184,7 @@ const OurSponsorsEditForm = () => {
         severity: 'success'
       });
       setTimeout(() => {
-        navigate('/degree/our-sponsors-control'); // Replace with your desired route
+        navigate('/degree/our-sponsor-control'); // Replace with your desired route
       }, 1500);
     } catch (error) {
       console.error("Error submitting form:", error);

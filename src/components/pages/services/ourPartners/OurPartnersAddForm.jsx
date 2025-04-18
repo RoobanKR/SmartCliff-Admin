@@ -4,7 +4,7 @@ import Paper from "@material-ui/core/Paper";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import { DropzoneArea } from "material-ui-dropzone";
-import { Autocomplete, FormControl, Typography, Snackbar, Alert } from "@mui/material";
+import { Autocomplete, FormControl, Typography, Snackbar, Alert, Tooltip, Container, Box } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchServices } from "../../../redux/slices/services/services/Services";
 import { getAllBussinessServices } from "../../../redux/slices/services/bussinessServices/BussinessSerives";
@@ -13,7 +13,8 @@ import { fetchDegreeProgramData } from "../../../redux/slices/mca/degreeProgram/
 import { useNavigate } from "react-router-dom";
 import { getAllCompanies } from "../../../redux/slices/mca/company/company";
 import LeftNavigationBar from "../../../navbars/LeftNavigationBar";
-
+import { HelpOutline } from "@material-ui/icons";
+ 
 const useStyles = makeStyles((theme) => ({
   paper: {
     maxWidth: 600,
@@ -33,15 +34,15 @@ const useStyles = makeStyles((theme) => ({
     color: theme.palette.success.contrastText,
   },
 }));
-
+ 
 const OurPartnersAddForm = () => {
   const classes = useStyles();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
+ 
   const [companyName, setCompanyName] = useState("");
   const [type, setType] = useState("");
-
+ 
   const [websiteLink, setWebsiteLink] = useState("");
   const [selectedImages, setSelectedImages] = useState([]);
   const [selectedService, setSelectedService] = useState(null);
@@ -49,7 +50,7 @@ const OurPartnersAddForm = () => {
   const [selectedProgram, setSelectedProgram] = useState(null);
   const [selectedCompany, setSelectedCompany] = useState(null);
   const companyData = useSelector((state) => state.companies.companies);
-
+ 
   const serviceData = useSelector((state) => state.service.serviceData);
   const businessServiceData = useSelector(
     (state) => state.businessService.businessServiceData
@@ -57,23 +58,23 @@ const OurPartnersAddForm = () => {
   const degreeProgramData = useSelector(
     (state) => state.degreeProgram.degreeProgramData
   );
-
+ 
   const [filteredServices, setFilteredServices] = useState([]);
   const [filteredDegreePrograms, setFilteredDegreePrograms] = useState([]);
-
+ 
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
-
+ 
   useEffect(() => {
     const fetchData = async () => {
       dispatch(fetchServices());
       dispatch(getAllBussinessServices());
       dispatch(fetchDegreeProgramData());
       dispatch(getAllCompanies());
-
+ 
     };
     fetchData();
   }, [dispatch]);
-
+ 
   useEffect(() => {
     if (selectedBusinessService) {
       const filtered = serviceData.filter(
@@ -84,7 +85,7 @@ const OurPartnersAddForm = () => {
       setFilteredServices([]);
     }
   }, [selectedBusinessService, serviceData]);
-
+ 
   useEffect(() => {
     if (selectedService) {
       const filteredPrograms = degreeProgramData.filter(
@@ -95,33 +96,33 @@ const OurPartnersAddForm = () => {
       setFilteredDegreePrograms(degreeProgramData);
     }
   }, [selectedService, degreeProgramData]);
-
+ 
   const handleServiceChange = (_, newValue) => {
     setSelectedService(newValue);
   };
-
+ 
   const handleBussinessServiceChange = (_, newValue) => {
     setSelectedBusinessService(newValue);
   };
-
+ 
   const handleProgramChange = (_, newValue) => {
     setSelectedProgram(newValue);
   };
-
+ 
   const handleImageChange = (files) => {
     setSelectedImages(files);
   };
   const handleCompanyChange = (_, newValue) => {
     setSelectedCompany(newValue);
   };
-
+ 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+ 
     const formData = new FormData();
     formData.append("companyName", companyName);
     formData.append("type", type);
-
+ 
     formData.append("websiteLink", websiteLink);
     if (selectedBusinessService) {
       formData.append("business_service", selectedBusinessService._id);
@@ -135,11 +136,11 @@ const OurPartnersAddForm = () => {
     if (selectedCompany && selectedCompany._id) {
       formData.append("company", selectedCompany._id);
     }
-
+ 
     selectedImages.forEach((image) => {
       formData.append("image", image);
     });
-
+ 
     try {
       const response = await dispatch(createOurPartners(formData)).unwrap();
       setSnackbar({ open: true, message: response.message[0].value, severity: 'success' });
@@ -152,198 +153,251 @@ const OurPartnersAddForm = () => {
       setSnackbar({ open: true, message: errorMessage, severity: 'error' });
     }
   };
-
+ 
   const handleCloseSnackbar = () => {
     setSnackbar({ ...snackbar, open: false });
   };
-
+ 
+  const handleBack = () => {
+    navigate(-1); // Navigate to the previous page
+  };
+ 
   return (<LeftNavigationBar
     Content={
-
-      <Paper className={classes.paper} elevation={3}>
-<Typography
-              variant="h4"
-              sx={{
-                position: "relative",
-                padding: 0,
-                margin: 0,
-                fontFamily: 'Merriweather, serif',
-                fontWeight: 700, textAlign: 'center',
-                fontWeight: 300,
-                fontSize: { xs: "32px", sm: "40px" },
-                color: "#747474",
-                textAlign: "center",
-                textTransform: "uppercase",
-                paddingBottom: "5px",
-                mb: 5,
-                "&::before": {
-                  content: '""',
-                  width: "28px",
-                  height: "5px",
-                  display: "block",
-                  position: "absolute",
-                  bottom: "3px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
-                "&::after": {
-                  content: '""',
-                  width: "100px",
-                  height: "1px",
-                  display: "block",
+      <Container component="main" maxWidth="md">
+        <Paper elevation={0}>
+          <Box
+            display="flex"
+            alignItems="center"
+            justifyContent="space-between"
+            gap={1}
+            mt={2}
+            mb={2}
+          >
+            <Button
+              variant="outlined"
+              color="primary"
+              onClick={handleBack}
+            >
+              Back
+            </Button>
+            <Box sx={{
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+              position: 'relative',
+              flex: 1
+            }}>
+              <Typography
+                variant="h4"
+                sx={{
                   position: "relative",
-                  marginTop: "5px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
+                  padding: 0,
+                  margin: 0,
+                  fontFamily: "Merriweather, serif",
+                  fontWeight: 300,
+                  fontSize: { xs: "32px", sm: "40px" },
+                  color: "#747474",
+                  textAlign: "center",
+                  textTransform: "uppercase",
+                  paddingBottom: "5px",
+                  "&::before": {
+                    content: '""',
+                    width: "28px",
+                    height: "5px",
+                    display: "block",
+                    position: "absolute",
+                    bottom: "3px",
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    backgroundColor: "#747474",
+                  },
+                  "&::after": {
+                    content: '""',
+                    width: "100px",
+                    height: "1px",
+                    display: "block",
+                    position: "relative",
+                    marginTop: "5px",
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    backgroundColor: "#747474",
+                  },
+                }}
+              >
+                Our Partner Add Form
+              </Typography>
+ 
+              <Tooltip
+                title="This is where you can add the execution count for the service."
+                arrow
+              >
+                <HelpOutline
+                  sx={{ color: "#747474", fontSize: "24px", cursor: "pointer" }}
+                />
+              </Tooltip>
+            </Box>
+          </Box>
+          <form
+            style={{
+              border: "2px dotted #D3D3D3",
+              padding: "20px",
+              borderRadius: "8px",
+            }}
+            onSubmit={handleSubmit}>
+            <FormControl fullWidth>
+              <Autocomplete
+                id="Business Services"
+                options={businessServiceData || []}
+                getOptionLabel={(option) => option?.name || ""}
+                value={selectedBusinessService}
+                onChange={handleBussinessServiceChange}
+                isOptionEqualToValue={(option, value) =>
+                  option._id === value._id
+                }
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    variant="outlined"
+                    label="Business Services"
+                    fullWidth
+                  />
+                )}
+              />
+            </FormControl>
+            <br /> <br />
+            <FormControl fullWidth>
+              <Autocomplete
+                id="service"
+                options={filteredServices || []}
+                getOptionLabel={(option) => option?.title || ""}
+                value={selectedService}
+                onChange={handleServiceChange}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    variant="outlined"
+                    label="Service"
+                    fullWidth
+                    required
+                  />
+                )}
+              />
+            </FormControl>
+            <br /><br />
+            <FormControl fullWidth>
+              <Autocomplete
+                id="degree_program"
+                options={filteredDegreePrograms || []}
+                getOptionLabel={(option) =>
+                  option ? option.program_name : ""
+                }
+                value={selectedProgram}
+                onChange={handleProgramChange}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    variant="outlined"
+                    label="Program"
+                    fullWidth
+                  />
+                )}
+              />
+            </FormControl>
+            <br /><br />
+            <FormControl fullWidth>
+              <Autocomplete
+                id="Company"
+                options={companyData || []}
+                getOptionLabel={(option) => option?.companyName || ""}
+                value={selectedCompany}
+                onChange={handleCompanyChange}
+                isOptionEqualToValue={(option, value) =>
+                  option._id === value._id
+                }
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    variant="outlined"
+                    label="Company"
+                    fullWidth
+                  />
+                )}
+              />
+            </FormControl>
+ 
+ 
+            <TextField
+              variant="outlined"
+              margin="normal"
+              required
+              fullWidth
+              label="Company Name"
+              value={companyName}
+              onChange={(e) => setCompanyName(e.target.value)}
+            />
+            <TextField
+              variant="outlined"
+              margin="normal"
+              required
+              fullWidth
+              label="Type"
+              value={type}
+              onChange={(e) => setType(e.target.value)}
+            />
+ 
+            <TextField
+              variant="outlined"
+              margin="normal"
+              required
+              fullWidth
+              label="Website Link"
+              value={websiteLink}
+              onChange={(e) => setWebsiteLink(e.target.value)}
+            />
+            <DropzoneArea
+              acceptedFiles={["image/*"]}
+              filesLimit={1}
+              dropzoneText="Drag and drop an image here or click"
+              onChange={handleImageChange}
+            />
+            <Button
+              type="submit"
+              variant="contained"
+              style={{
+                display: "block",
+                margin: "24px auto 0", // centers the button horizontally
+                backgroundColor: " #1976d2", // green
+                color: "#fff",
+                padding: "5px 10px",
+                borderRadius: "4px",
+                textTransform: "uppercase",
+                cursor: "pointer",
               }}
-            >          Add Our Partners
-        </Typography>
-        <form className={classes.form} onSubmit={handleSubmit}>
-          <FormControl fullWidth>
-            <Autocomplete
-              id="Business Services"
-              options={businessServiceData || []}
-              getOptionLabel={(option) => option?.name || ""}
-              value={selectedBusinessService}
-              onChange={handleBussinessServiceChange}
-              isOptionEqualToValue={(option, value) =>
-                option._id === value._id
-              }
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  variant="outlined"
-                  label="Business Services"
-                  fullWidth
-                />
-              )}
-            />
-          </FormControl>
-          <br /> <br />
-          <FormControl fullWidth>
-            <Autocomplete
-              id="service"
-              options={filteredServices || []}
-              getOptionLabel={(option) => option?.title || ""}
-              value={selectedService}
-              onChange={handleServiceChange}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  variant="outlined"
-                  label="Service"
-                  fullWidth
-                  required
-                />
-              )}
-            />
-          </FormControl>
-          <br /><br />
-          <FormControl fullWidth>
-            <Autocomplete
-              id="degree_program"
-              options={filteredDegreePrograms || []}
-              getOptionLabel={(option) =>
-                option ? option.program_name : ""
-              }
-              value={selectedProgram}
-              onChange={handleProgramChange}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  variant="outlined"
-                  label="Program"
-                  fullWidth
-                />
-              )}
-            />
-          </FormControl>
-          <br /><br />
-          <FormControl fullWidth>
-            <Autocomplete
-              id="Company"
-              options={companyData || []}
-              getOptionLabel={(option) => option?.companyName || ""}
-              value={selectedCompany}
-              onChange={handleCompanyChange}
-              isOptionEqualToValue={(option, value) =>
-                option._id === value._id
-              }
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  variant="outlined"
-                  label="Company"
-                  fullWidth
-                />
-              )}
-            />
-          </FormControl>
-
-
-          <TextField
-            variant="outlined"
-            margin="normal"
-            required
-            fullWidth
-            label="Company Name"
-            value={companyName}
-            onChange={(e) => setCompanyName(e.target.value)}
-          />
-          <TextField
-            variant="outlined"
-            margin="normal"
-            required
-            fullWidth
-            label="Type"
-            value={type}
-            onChange={(e) => setType(e.target.value)}
-          />
-
-          <TextField
-            variant="outlined"
-            margin="normal"
-            required
-            fullWidth
-            label="Website Link"
-            value={websiteLink}
-            onChange={(e) => setWebsiteLink(e.target.value)}
-          />
-          <DropzoneArea
-            acceptedFiles={["image/*"]}
-            filesLimit={1}
-            dropzoneText="Drag and drop an image here or click"
-            onChange={handleImageChange}
-          />
-          <Button
-            type="submit"
-            variant="contained"
-            className={classes.submit}
-            fullWidth
-          >
-            Submit
-          </ Button>
-        </form>
-        <Snackbar
-          open={snackbar.open}
-          autoHideDuration={6000}
-          onClose={handleCloseSnackbar}
-          anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-        >
-          <Alert
+            >
+              Submit Our Partner
+            </ Button>
+          </form>
+          <Snackbar
+            open={snackbar.open}
+            autoHideDuration={6000}
             onClose={handleCloseSnackbar}
-            severity={snackbar.severity}
-            variant="filled"
+            anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
           >
-            {snackbar.message}
-          </Alert>
-        </Snackbar>
-      </Paper>
+            <Alert
+              onClose={handleCloseSnackbar}
+              severity={snackbar.severity}
+              variant="filled"
+            >
+              {snackbar.message}
+            </Alert>
+          </Snackbar>
+        </Paper>
+      </Container>
     } />
   );
 };
-
+ 
 export default OurPartnersAddForm;
+ 

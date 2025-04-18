@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import React, { useEffect, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import {
   Paper,
   Table,
@@ -25,8 +25,8 @@ import {
   useTheme,
   useMediaQuery,
   Grid,
-  Badge
-} from '@mui/material';
+  Badge,
+} from "@mui/material";
 import {
   Delete as DeleteIcon,
   Edit as EditIcon,
@@ -34,27 +34,31 @@ import {
   Search as SearchIcon,
   CloudUpload as UploadIcon,
   Visibility as ViewIcon,
-  Image as ImageIcon
-} from '@mui/icons-material';
-import LeftNavigationBar from '../../../navbars/LeftNavigationBar';
-import { useCookies } from 'react-cookie';
-import { resetSignIn, userVerify } from '../../../redux/slices/user/Signin';
-import { useNavigate } from 'react-router-dom';
-import { deleteDegreeProgram, fetchDegreeProgramData } from '../../../redux/slices/mca/degreeProgram/degreeProgram';
+  Image as ImageIcon,
+} from "@mui/icons-material";
+import LeftNavigationBar from "../../../navbars/LeftNavigationBar";
+import { useCookies } from "react-cookie";
+import { resetSignIn, userVerify } from "../../../redux/slices/user/Signin";
+import { useNavigate } from "react-router-dom";
+import {
+  deleteDegreeProgram,
+  fetchDegreeProgramData,
+} from "../../../redux/slices/mca/degreeProgram/degreeProgram";
 
 const DegreeProgramControl = () => {
   const dispatch = useDispatch();
-  const degreeProgramData = useSelector((state) => state.degreeProgram.degreeProgramData) || [];
+  const degreeProgramData =
+    useSelector((state) => state.degreeProgram.degreeProgramData) || [];
   const navigate = useNavigate();
   const [deleteId, setDeleteId] = useState(null);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [cookies] = useCookies(["token"]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   useEffect(() => {
     if (!cookies.token) {
@@ -92,7 +96,9 @@ const DegreeProgramControl = () => {
   };
 
   const handleConfirmDelete = () => {
-    dispatch(deleteDegreeProgram({ token: cookies.token, degreeProgramId: deleteId }))
+    dispatch(
+      deleteDegreeProgram({ token: cookies.token, degreeProgramId: deleteId })
+    )
       .then(() => {
         dispatch(fetchDegreeProgramData());
         setConfirmDialogOpen(false);
@@ -108,7 +114,7 @@ const DegreeProgramControl = () => {
   };
 
   const handleAddDegreeProgram = () => {
-    navigate('/Degree_Program-add');
+    navigate("/Degree_Program-add");
   };
 
   const handleChangePage = (event, newPage) => {
@@ -120,11 +126,13 @@ const DegreeProgramControl = () => {
     setPage(0);
   };
 
-  const filteredDegreePrograms = degreeProgramData.filter(program =>
-    program && (
-      (program.title && program.title.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (program.description && program.description.toLowerCase().includes(searchTerm.toLowerCase()))
-    )
+  const filteredDegreePrograms = degreeProgramData.filter(
+    (program) =>
+      program &&
+      ((program.title &&
+        program.title.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (program.description &&
+          program.description.toLowerCase().includes(searchTerm.toLowerCase())))
   );
 
   useEffect(() => {
@@ -135,7 +143,12 @@ const DegreeProgramControl = () => {
     return (
       <LeftNavigationBar
         Content={
-          <Box display="flex" justifyContent="center" alignItems="center" minHeight="80vh">
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            minHeight="80vh"
+          >
             <CircularProgress size={60} thickness={4} />
           </Box>
         }
@@ -155,8 +168,9 @@ const DegreeProgramControl = () => {
                 position: "relative",
                 padding: 0,
                 margin: 0,
-                fontFamily: 'Merriweather, serif',
-                fontWeight: 700, textAlign: 'center',
+                fontFamily: "Merriweather, serif",
+                fontWeight: 700,
+                textAlign: "center",
                 fontWeight: 300,
                 fontSize: { xs: "32px", sm: "40px" },
                 color: "#747474",
@@ -189,7 +203,7 @@ const DegreeProgramControl = () => {
                 },
               }}
             >
-              Degree Program Management
+              Degree Program Panel
             </Typography>
 
             <Grid container spacing={2} alignItems="center">
@@ -200,29 +214,36 @@ const DegreeProgramControl = () => {
                   size="small"
                   placeholder="Search programs..."
                   InputProps={{
-                    startAdornment: <SearchIcon color="action" sx={{ mr: 1 }} />,
+                    startAdornment: (
+                      <SearchIcon color="action" sx={{ mr: 1 }} />
+                    ),
                   }}
                   sx={{
-                    backgroundColor: 'background.paper',
+                    backgroundColor: "background.paper",
                     borderRadius: 1,
                   }}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   value={searchTerm}
                 />
               </Grid>
-              <Grid item xs={12} md={6} sx={{ textAlign: { xs: 'left', md: 'right' } }}>
+              <Grid
+                item
+                xs={12}
+                md={6}
+                sx={{ textAlign: { xs: "left", md: "right" } }}
+              >
                 <Button
                   variant="contained"
                   startIcon={<AddIcon />}
                   onClick={handleAddDegreeProgram}
                   sx={{
                     backgroundColor: theme.palette.primary.main,
-                    color: 'white',
-                    '&:hover': {
-                      backgroundColor: theme.palette.primary.dark
+                    color: "white",
+                    "&:hover": {
+                      backgroundColor: theme.palette.primary.dark,
                     },
-                    whiteSpace: 'nowrap',
-                    width: { xs: '100%', md: 'auto' }
+                    whiteSpace: "nowrap",
+                    width: { xs: "100%", md: "auto" },
                   }}
                 >
                   Add New Program
@@ -232,110 +253,144 @@ const DegreeProgramControl = () => {
           </Box>
 
           {/* Table Section */}
-          <Paper elevation={3} sx={{ borderRadius: 2, overflow: 'hidden' }}>
+          <Paper elevation={3} sx={{ borderRadius: 2, overflow: "hidden" }}>
             <TableContainer>
               <Table>
                 <TableHead>
-                  <TableRow sx={{ backgroundColor: theme.palette.primary.main }}>
-                    <TableCell sx={{ color: 'white', fontWeight: 600 }}>Title</TableCell>
+                  <TableRow
+                    sx={{ backgroundColor: theme.palette.primary.main }}
+                  >
+                    <TableCell sx={{ color: "white", fontWeight: 600 }}>
+                      Title
+                    </TableCell>
                     {!isMobile && (
-                      <TableCell sx={{ color: 'white', fontWeight: 600 }}>Description</TableCell>
+                      <TableCell sx={{ color: "white", fontWeight: 600 }}>
+                        Description
+                      </TableCell>
                     )}
-                    <TableCell sx={{ color: 'white', fontWeight: 600 }}>Images</TableCell>
-                    <TableCell sx={{ color: 'white', fontWeight: 600 }}>Actions</TableCell>
+                    <TableCell sx={{ color: "white", fontWeight: 600 }}>
+                      Images
+                    </TableCell>
+                    <TableCell sx={{ color: "white", fontWeight: 600 }}>
+                      Actions
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {filteredDegreePrograms.length > 0 ? (
                     filteredDegreePrograms
-                      .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                      .map((program) => (
-                        program && (
-                          <TableRow
-                            key={program._id}
-                            hover
-                            sx={{
-                              '&:nth-of-type(odd)': {
-                                backgroundColor: theme.palette.action.hover
-                              },
-                              '&:last-child td, &:last-child th': { border: 0 }
-                            }}
-                          >
-                            <TableCell>
-                              <Typography fontWeight={500}>
-                                {program.title || 'N/A'}
-                              </Typography>
-                            </TableCell>
-                            {!isMobile && (
+                      .slice(
+                        page * rowsPerPage,
+                        page * rowsPerPage + rowsPerPage
+                      )
+                      .map(
+                        (program) =>
+                          program && (
+                            <TableRow
+                              key={program._id}
+                              hover
+                              sx={{
+                                "&:nth-of-type(odd)": {
+                                  backgroundColor: theme.palette.action.hover,
+                                },
+                                "&:last-child td, &:last-child th": {
+                                  border: 0,
+                                },
+                              }}
+                            >
                               <TableCell>
-                                <Typography
-                                  variant="body2"
-                                  sx={{
-                                    display: '-webkit-box',
-                                    WebkitLineClamp: 2,
-                                    WebkitBoxOrient: 'vertical',
-                                    overflow: 'hidden',
-                                    textOverflow: 'ellipsis'
-                                  }}
-                                >
-                                  {program.description || 'No description'}
+                                <Typography fontWeight={500}>
+                                  {program.title || "N/A"}
                                 </Typography>
                               </TableCell>
-                            )}
-                            <TableCell>
-                              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                <Badge
-                                  badgeContent={program.images?.length || 0}
-                                  color="primary"
-                                  sx={{ mr: 1 }}
-                                >
-                                  <Avatar
+                              {!isMobile && (
+                                <TableCell>
+                                  <Typography
+                                    variant="body2"
                                     sx={{
-                                      width: 50,
-                                      height: 50,
-                                      backgroundColor: theme.palette.grey[300]
+                                      display: "-webkit-box",
+                                      WebkitLineClamp: 2,
+                                      WebkitBoxOrient: "vertical",
+                                      overflow: "hidden",
+                                      textOverflow: "ellipsis",
                                     }}
                                   >
-                                    <ImageIcon />
-                                  </Avatar>
-                                </Badge>
-                                {!isMobile && (
-                                  <Typography variant="caption">
-                                    {program.images?.length || 0} images
+                                    {program.description || "No description"}
                                   </Typography>
-                                )}
-                              </Box>
-                            </TableCell>
-                            <TableCell>
-                              <Box sx={{ display: 'flex', gap: 1 }}>
-                                <Tooltip title="Edit">
-                                  <IconButton
-                                    onClick={() => handleEdit(program._id)}
+                                </TableCell>
+                              )}
+                              <TableCell>
+                                <Box
+                                  sx={{ display: "flex", alignItems: "center" }}
+                                >
+                                  <Badge
+                                    badgeContent={program.images?.length || 0}
                                     color="primary"
-                                    size={isMobile ? 'small' : 'medium'}
+                                    sx={{ mr: 1 }}
                                   >
-                                    <EditIcon />
-                                  </IconButton>
-                                </Tooltip>
-                                <Tooltip title="Delete">
-                                  <IconButton
-                                    onClick={() => handleDelete(program._id)}
-                                    color="error"
-                                    size={isMobile ? 'small' : 'medium'}
-                                  >
-                                    <DeleteIcon />
-                                  </IconButton>
-                                </Tooltip>
-                              </Box>
-                            </TableCell>
-                          </TableRow>
-                        )
-                      ))
+                                    <Avatar
+                                      sx={{
+                                        width: 50,
+                                        height: 50,
+                                        backgroundColor:
+                                          theme.palette.grey[300],
+                                      }}
+                                    >
+                                      <ImageIcon />
+                                    </Avatar>
+                                  </Badge>
+                                  {!isMobile && (
+                                    <Typography variant="caption">
+                                      {program.images?.length || 0} images
+                                    </Typography>
+                                  )}
+                                </Box>
+                              </TableCell>
+                              <TableCell>
+                                <Box sx={{ display: "flex", gap: 1 }}>
+                                  <Tooltip title="Edit">
+                                    <Button
+                                      onClick={() => handleEdit(program._id)}
+                                      color="primary"
+                                      size={isMobile ? "small" : "medium"}
+                                      variant="outlined"
+                                    >
+                                      <EditIcon />
+                                    </Button>
+                                  </Tooltip>
+                                  <Tooltip title="Delete">
+                                    <Button
+                                      onClick={() => handleDelete(program._id)}
+                                      color="error"
+                                      size={isMobile ? "small" : "medium"}
+                                      variant="outlined"
+                                    >
+                                      <DeleteIcon />
+                                    </Button>
+                                  </Tooltip>
+                                </Box>
+                              </TableCell>
+                            </TableRow>
+                          )
+                      )
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={isMobile ? 3 : 4} align="center" sx={{ py: 4 }}>
-                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                          <UploadIcon color="disabled" sx={{ fontSize: 60, mb: 1 }} />
+                      <TableCell
+                        colSpan={isMobile ? 3 : 4}
+                        align="center"
+                        sx={{ py: 4 }}
+                      >
+                        <Box
+                          sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                          }}
+                        >
+                          <UploadIcon
+                            color="disabled"
+                            sx={{ fontSize: 60, mb: 1 }}
+                          />
                           <Typography variant="h6" color="text.secondary">
                             No degree programs found
                           </Typography>
@@ -363,10 +418,10 @@ const DegreeProgramControl = () => {
                 onRowsPerPageChange={handleChangeRowsPerPage}
                 sx={{
                   borderTop: `1px solid ${theme.palette.divider}`,
-                  '& .MuiTablePagination-toolbar': {
+                  "& .MuiTablePagination-toolbar": {
                     paddingLeft: 2,
-                    paddingRight: 1
-                  }
+                    paddingRight: 1,
+                  },
                 }}
               />
             )}
@@ -378,20 +433,23 @@ const DegreeProgramControl = () => {
             PaperProps={{
               sx: {
                 borderRadius: 2,
-                minWidth: isMobile ? '90%' : 400
-              }
+                minWidth: isMobile ? "90%" : 400,
+              },
             }}
           >
-            <DialogTitle sx={{
-              backgroundColor: theme.palette.error.light,
-              color: 'white',
-              fontWeight: 600
-            }}>
+            <DialogTitle
+              sx={{
+                backgroundColor: theme.palette.error.light,
+                color: "white",
+                fontWeight: 600,
+              }}
+            >
               Confirm Deletion
             </DialogTitle>
             <DialogContent sx={{ py: 3 }}>
               <Typography variant="body1">
-                Are you sure you want to delete this degree program? This action cannot be undone.
+                Are you sure you want to delete this degree program? This action
+                cannot be undone.
               </Typography>
             </DialogContent>
             <DialogActions sx={{ px: 3, pb: 2 }}>
@@ -400,7 +458,7 @@ const DegreeProgramControl = () => {
                 variant="outlined"
                 sx={{
                   borderColor: theme.palette.grey[400],
-                  color: theme.palette.text.primary
+                  color: theme.palette.text.primary,
                 }}
               >
                 Cancel
@@ -411,9 +469,9 @@ const DegreeProgramControl = () => {
                 color="error"
                 sx={{
                   backgroundColor: theme.palette.error.main,
-                  '&:hover': {
-                    backgroundColor: theme.palette.error.dark
-                  }
+                  "&:hover": {
+                    backgroundColor: theme.palette.error.dark,
+                  },
                 }}
               >
                 Delete

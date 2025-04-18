@@ -12,6 +12,9 @@ import {
   Typography,
   Switch,
   IconButton,
+  Grid,
+  TextField,
+  Button,
 } from "@mui/material";
 import { Edit, Delete } from "@mui/icons-material";
 import { 
@@ -20,6 +23,8 @@ import {
   deleteJobPosition 
 } from "../../redux/slices/joinus/joinus";
 import LeftNavigationBar from "../../navbars/LeftNavigationBar";
+import AddIcon from "@mui/icons-material/Add";
+import SearchIcon from "@mui/icons-material/Search";
 
 const JobPositionControl = () => {
   const dispatch = useDispatch();
@@ -69,7 +74,6 @@ const JobPositionControl = () => {
                 textTransform: "uppercase",
                 paddingBottom: "5px",
                 mb: 3,
-                mt: -4,
                 "&::before": {
                   content: '""',
                   width: "28px",
@@ -96,6 +100,35 @@ const JobPositionControl = () => {
             >
         Job Position Control
       </Typography>
+                <Grid container spacing={2} alignItems="center" sx={{ mb: 2 }}>
+                  <Grid item xs={12} md={6}>
+                    <TextField
+                      fullWidth
+                      variant="outlined"
+                      size="small"
+                      placeholder="Search Job"
+                      InputProps={{
+                        startAdornment: <SearchIcon color="action" sx={{ mr: 1 }} />,
+                      }}
+                    />
+                  </Grid>
+                  <Grid
+                    item
+                    xs={12}
+                    md={6}
+                    sx={{ textAlign: { xs: "left", md: "right" } }}
+                  >
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={() => navigate("/about/aboutus-add")}
+                      startIcon={<AddIcon />}
+                    >
+                      Add About Us
+                    </Button>
+                  </Grid>
+                </Grid>
+      
       <Table>
         <TableHead>
           <TableRow>

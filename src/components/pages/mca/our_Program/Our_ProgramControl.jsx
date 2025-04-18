@@ -187,7 +187,7 @@ const OurProgramControl = () => {
                 },
               }}
             >
-              Our Programs Management
+              Our Programs Panel
             </Typography>
 
             <Grid container spacing={2} alignItems="center">
@@ -308,24 +308,26 @@ const OurProgramControl = () => {
                             </TableCell>
                             <TableCell>
                               <Box sx={{ display: 'flex', gap: 1 }}>
-                              
+
                                 <Tooltip title="Edit">
-                                  <IconButton
+                                  <Button
                                     onClick={() => handleEdit(program._id)}
                                     color="primary"
                                     size={isMobile ? 'small' : 'medium'}
+                                    variant="outlined"
                                   >
                                     <EditIcon />
-                                  </IconButton>
+                                  </Button>
                                 </Tooltip>
                                 <Tooltip title="Delete">
-                                  <IconButton
+                                  <Button
                                     onClick={() => handleDelete(program._id)}
                                     color="error"
                                     size={isMobile ? 'small' : 'medium'}
+                                    variant="outlined"
                                   >
                                     <DeleteIcon />
-                                  </IconButton>
+                                  </Button>
                                 </Tooltip>
                               </Box>
                             </TableCell>

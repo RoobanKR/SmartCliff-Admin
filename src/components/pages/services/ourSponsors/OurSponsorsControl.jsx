@@ -57,7 +57,7 @@ const OurSponsorsControlPage = () => {
   }, [dispatch]);
 
   const handleEdit = (id) => {
-    navigate(`/degreeprogram/our-sponsors-edit/${id}`);
+    navigate(`/degreeprogram/our-sponsor-edit/${id}`);
   };
 
   const handleDeleteClick = (id) => {
@@ -98,7 +98,7 @@ const OurSponsorsControlPage = () => {
   };
 
   const handleAddSponsor = () => {
-    navigate('/degreeprogram/our-sponsors-add');
+    navigate('/degreeprogram/our-sponsor-add');
   };
 
   const handleChangePage = (event, newPage) => {

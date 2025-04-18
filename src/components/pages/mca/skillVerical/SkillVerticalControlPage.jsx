@@ -1,7 +1,7 @@
 "use client";
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import {
   Box,
   Button,
@@ -28,8 +28,8 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogActions
-} from '@mui/material';
+  DialogActions,
+} from "@mui/material";
 import {
   Add as AddIcon,
   Edit as EditIcon,
@@ -38,23 +38,32 @@ import {
   Visibility as ViewIcon,
   School as SchoolIcon,
   Business as BusinessIcon,
-  Apartment as CollegeIcon
-} from '@mui/icons-material';
-import LeftNavigationBar from '../../../navbars/LeftNavigationBar';
-import { deleteSkillVertical, getAllSkillVerticals } from '../../../redux/slices/mca/skillVertical/skillVertical';
+  Apartment as CollegeIcon,
+} from "@mui/icons-material";
+import LeftNavigationBar from "../../../navbars/LeftNavigationBar";
+import {
+  deleteSkillVertical,
+  getAllSkillVerticals,
+} from "../../../redux/slices/mca/skillVertical/skillVertical";
 
 const SkillVerticalControlPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { skillVerticals, loading, error } = useSelector((state) => state.skillVertical);
-  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
-  const [searchTerm, setSearchTerm] = useState('');
+  const { skillVerticals, loading, error } = useSelector(
+    (state) => state.skillVertical
+  );
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
+  const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [skillVerticalIdToDelete, setSkillVerticalIdToDelete] = useState(null);
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   useEffect(() => {
     dispatch(getAllSkillVerticals());
@@ -72,20 +81,22 @@ const SkillVerticalControlPage = () => {
   const handleConfirmDelete = async () => {
     if (skillVerticalIdToDelete) {
       try {
-        const resultAction = await dispatch(deleteSkillVertical(skillVerticalIdToDelete));
+        const resultAction = await dispatch(
+          deleteSkillVertical(skillVerticalIdToDelete)
+        );
         if (deleteSkillVertical.fulfilled.match(resultAction)) {
           setSnackbar({
             open: true,
             message: resultAction.payload.message,
-            severity: 'success',
+            severity: "success",
           });
           dispatch(getAllSkillVerticals());
         }
       } catch (error) {
         setSnackbar({
           open: true,
-          message: 'Failed to delete skill vertical',
-          severity: 'error',
+          message: "Failed to delete skill vertical",
+          severity: "error",
         });
       } finally {
         setConfirmDialogOpen(false);
@@ -112,21 +123,41 @@ const SkillVerticalControlPage = () => {
     setPage(0);
   };
 
-  const filteredVerticals = skillVerticals.filter(vertical =>
-    vertical && (
-      (vertical.programName && vertical.programName.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (vertical.service?.title && vertical.service.title.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (vertical.business_service?.name && vertical.business_service.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (vertical.college?.collegeName && vertical.college.collegeName.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (vertical.degree_program?.program_name && vertical.degree_program.program_name.toLowerCase().includes(searchTerm.toLowerCase()))
-    )
+  const filteredVerticals = skillVerticals.filter(
+    (vertical) =>
+      vertical &&
+      ((vertical.programName &&
+        vertical.programName
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase())) ||
+        (vertical.service?.title &&
+          vertical.service.title
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase())) ||
+        (vertical.business_service?.name &&
+          vertical.business_service.name
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase())) ||
+        (vertical.college?.collegeName &&
+          vertical.college.collegeName
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase())) ||
+        (vertical.degree_program?.program_name &&
+          vertical.degree_program.program_name
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase())))
   );
 
   if (loading) {
     return (
       <LeftNavigationBar
         Content={
-          <Box display="flex" justifyContent="center" alignItems="center" minHeight="80vh">
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            minHeight="80vh"
+          >
             <CircularProgress size={60} />
           </Box>
         }
@@ -137,15 +168,16 @@ const SkillVerticalControlPage = () => {
   return (
     <LeftNavigationBar
       Content={
-        <Box sx={{ p: isMobile ? 2 : 3, maxWidth: 1600, mx: 'auto' }}>
+        <Box sx={{ p: isMobile ? 2 : 3, maxWidth: 1600, mx: "auto" }}>
           <Typography
             variant="h4"
             sx={{
               position: "relative",
               padding: 0,
               margin: 0,
-              fontFamily: 'Merriweather, serif',
-              fontWeight: 700, textAlign: 'center',
+              fontFamily: "Merriweather, serif",
+              fontWeight: 700,
+              textAlign: "center",
               fontWeight: 300,
               fontSize: { xs: "32px", sm: "40px" },
               color: "#747474",
@@ -178,7 +210,7 @@ const SkillVerticalControlPage = () => {
               },
             }}
           >
-            Skill Vertical Management
+            Skill Vertical Panel
           </Typography>
 
           <Grid container spacing={2} alignItems="center" sx={{ mb: 3 }}>
@@ -192,26 +224,31 @@ const SkillVerticalControlPage = () => {
                   startAdornment: <SearchIcon color="action" sx={{ mr: 1 }} />,
                 }}
                 sx={{
-                  backgroundColor: 'background.paper',
+                  backgroundColor: "background.paper",
                   borderRadius: 1,
                 }}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 value={searchTerm}
               />
             </Grid>
-            <Grid item xs={12} md={6} sx={{ textAlign: { xs: 'left', md: 'right' } }}>
+            <Grid
+              item
+              xs={12}
+              md={6}
+              sx={{ textAlign: { xs: "left", md: "right" } }}
+            >
               <Button
                 variant="contained"
                 startIcon={<AddIcon />}
-                onClick={() => navigate('/degreeprogram/skill-vertical-add')}
+                onClick={() => navigate("/degreeprogram/skill-vertical-add")}
                 sx={{
                   backgroundColor: theme.palette.primary.main,
-                  color: 'white',
-                  '&:hover': {
-                    backgroundColor: theme.palette.primary.dark
+                  color: "white",
+                  "&:hover": {
+                    backgroundColor: theme.palette.primary.dark,
                   },
-                  whiteSpace: 'nowrap',
-                  width: { xs: '100%', md: 'auto' }
+                  whiteSpace: "nowrap",
+                  width: { xs: "100%", md: "auto" },
                 }}
               >
                 Add New Skill Vertical
@@ -219,36 +256,56 @@ const SkillVerticalControlPage = () => {
             </Grid>
           </Grid>
 
-          <Paper elevation={3} sx={{ borderRadius: 2, overflow: 'hidden' }}>
+          <Paper elevation={3} sx={{ borderRadius: 2, overflow: "hidden" }}>
             <TableContainer>
               <Table>
                 <TableHead>
-                  <TableRow sx={{ backgroundColor: theme.palette.primary.main }}>
-                    <TableCell sx={{ color: 'white', fontWeight: 600 }}>Program</TableCell>
+                  <TableRow
+                    sx={{ backgroundColor: theme.palette.primary.main }}
+                  >
+                    <TableCell sx={{ color: "white", fontWeight: 600 }}>
+                      Program
+                    </TableCell>
                     {!isMobile && (
                       <>
-                        <TableCell sx={{ color: 'white', fontWeight: 600 }}>Service</TableCell>
-                        <TableCell sx={{ color: 'white', fontWeight: 600 }}>Business Service</TableCell>
-                        <TableCell sx={{ color: 'white', fontWeight: 600 }}>College</TableCell>
-                        <TableCell sx={{ color: 'white', fontWeight: 600 }}>Degree Program</TableCell>
+                        <TableCell sx={{ color: "white", fontWeight: 600 }}>
+                          Service
+                        </TableCell>
+                        <TableCell sx={{ color: "white", fontWeight: 600 }}>
+                          Business Service
+                        </TableCell>
+                        <TableCell sx={{ color: "white", fontWeight: 600 }}>
+                          College
+                        </TableCell>
+                        <TableCell sx={{ color: "white", fontWeight: 600 }}>
+                          Degree Program
+                        </TableCell>
                       </>
                     )}
-                    <TableCell sx={{ color: 'white', fontWeight: 600 }} align="center">Actions</TableCell>
+                    <TableCell
+                      sx={{ color: "white", fontWeight: 600 }}
+                      align="center"
+                    >
+                      Actions
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {filteredVerticals.length > 0 ? (
                     filteredVerticals
-                      .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                      .slice(
+                        page * rowsPerPage,
+                        page * rowsPerPage + rowsPerPage
+                      )
                       .map((vertical) => (
                         <TableRow
                           key={vertical._id}
                           hover
                           sx={{
-                            '&:nth-of-type(odd)': {
-                              backgroundColor: theme.palette.action.hover
+                            "&:nth-of-type(odd)": {
+                              backgroundColor: theme.palette.action.hover,
                             },
-                            '&:last-child td, &:last-child th': { border: 0 }
+                            "&:last-child td, &:last-child th": { border: 0 },
                           }}
                         >
                           <TableCell>
@@ -260,7 +317,7 @@ const SkillVerticalControlPage = () => {
                             <>
                               <TableCell>
                                 <Chip
-                                  label={vertical.service?.title || 'N/A'}
+                                  label={vertical.service?.title || "N/A"}
                                   size="small"
                                   color="primary"
                                   icon={<BusinessIcon fontSize="small" />}
@@ -268,48 +325,74 @@ const SkillVerticalControlPage = () => {
                               </TableCell>
                               <TableCell>
                                 <Chip
-                                  label={vertical.business_service?.name || 'N/A'}
+                                  label={
+                                    vertical.business_service?.name || "N/A"
+                                  }
                                   size="small"
                                   color="secondary"
                                 />
                               </TableCell>
                               <TableCell>
-                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                  <CollegeIcon color="action" fontSize="small" />
+                                <Box
+                                  sx={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 1,
+                                  }}
+                                >
+                                  <CollegeIcon
+                                    color="action"
+                                    fontSize="small"
+                                  />
                                   <Typography variant="body2">
-                                    {vertical.college?.collegeName || 'N/A'}
+                                    {vertical.college?.collegeName || "N/A"}
                                   </Typography>
                                 </Box>
                               </TableCell>
                               <TableCell>
-                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <Box
+                                  sx={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 1,
+                                  }}
+                                >
                                   <SchoolIcon color="action" fontSize="small" />
                                   <Typography variant="body2">
-                                    {vertical.degree_program?.program_name || 'N/A'}
+                                    {vertical.degree_program?.program_name ||
+                                      "N/A"}
                                   </Typography>
                                 </Box>
                               </TableCell>
                             </>
                           )}
                           <TableCell align="center">
-                            <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1 }}>
+                            <Box
+                              sx={{
+                                display: "flex",
+                                justifyContent: "center",
+                                gap: 1,
+                              }}
+                            >
                               <Tooltip title="Edit">
-                                <IconButton
+                                <Button
                                   onClick={() => handleEdit(vertical._id)}
                                   color="primary"
-                                  size={isMobile ? 'small' : 'medium'}
+                                  size={isMobile ? "small" : "medium"}
+                                  variant="outlined"
                                 >
                                   <EditIcon />
-                                </IconButton>
+                                </Button>
                               </Tooltip>
                               <Tooltip title="Delete">
-                                <IconButton
+                                <Button
                                   onClick={() => handleDelete(vertical._id)}
                                   color="error"
-                                  size={isMobile ? 'small' : 'medium'}
+                                  size={isMobile ? "small" : "medium"}
+                                  variant="outlined"
                                 >
                                   <DeleteIcon />
-                                </IconButton>
+                                </Button>
                               </Tooltip>
                             </Box>
                           </TableCell>
@@ -317,9 +400,22 @@ const SkillVerticalControlPage = () => {
                       ))
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={isMobile ? 2 : 6} align="center" sx={{ py: 4 }}>
-                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                          <SchoolIcon color="disabled" sx={{ fontSize: 60, mb: 1 }} />
+                      <TableCell
+                        colSpan={isMobile ? 2 : 6}
+                        align="center"
+                        sx={{ py: 4 }}
+                      >
+                        <Box
+                          sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                          }}
+                        >
+                          <SchoolIcon
+                            color="disabled"
+                            sx={{ fontSize: 60, mb: 1 }}
+                          />
                           <Typography variant="h6" color="text.secondary">
                             No skill verticals found
                           </Typography>
@@ -347,10 +443,10 @@ const SkillVerticalControlPage = () => {
                 onRowsPerPageChange={handleChangeRowsPerPage}
                 sx={{
                   borderTop: `1px solid ${theme.palette.divider}`,
-                  '& .MuiTablePagination-toolbar': {
+                  "& .MuiTablePagination-toolbar": {
                     paddingLeft: 2,
-                    paddingRight: 1
-                  }
+                    paddingRight: 1,
+                  },
                 }}
               />
             )}
@@ -361,20 +457,23 @@ const SkillVerticalControlPage = () => {
             PaperProps={{
               sx: {
                 borderRadius: 2,
-                minWidth: isMobile ? '90%' : 400
-              }
+                minWidth: isMobile ? "90%" : 400,
+              },
             }}
           >
-            <DialogTitle sx={{
-              backgroundColor: theme.palette.error.light,
-              color: 'white',
-              fontWeight: 600
-            }}>
+            <DialogTitle
+              sx={{
+                backgroundColor: theme.palette.error.light,
+                color: "white",
+                fontWeight: 600,
+              }}
+            >
               Confirm Deletion
             </DialogTitle>
             <DialogContent sx={{ py: 3 }}>
               <Typography variant="body1">
-                Are you sure you want to delete this skill vertical? This action cannot be undone.
+                Are you sure you want to delete this skill vertical? This action
+                cannot be undone.
               </Typography>
             </DialogContent>
             <DialogActions sx={{ px: 3, pb: 2 }}>
@@ -383,7 +482,7 @@ const SkillVerticalControlPage = () => {
                 variant="outlined"
                 sx={{
                   borderColor: theme.palette.grey[400],
-                  color: theme.palette.text.primary
+                  color: theme.palette.text.primary,
                 }}
               >
                 Cancel
@@ -394,9 +493,9 @@ const SkillVerticalControlPage = () => {
                 color="error"
                 sx={{
                   backgroundColor: theme.palette.error.main,
-                  '&:hover': {
-                    backgroundColor: theme.palette.error.dark
-                  }
+                  "&:hover": {
+                    backgroundColor: theme.palette.error.dark,
+                  },
                 }}
               >
                 Delete

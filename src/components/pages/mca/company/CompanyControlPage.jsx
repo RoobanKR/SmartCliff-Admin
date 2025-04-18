@@ -188,7 +188,7 @@ const CompanyControl = () => {
                 },
               }}
             >
-              Company Management
+              Company Control Panel
             </Typography>
 
             <Grid container spacing={2} alignItems="center">
@@ -315,22 +315,24 @@ const CompanyControl = () => {
                             <TableCell>
                               <Box sx={{ display: 'flex', gap: 1 }}>
                                 <Tooltip title="Edit">
-                                  <IconButton
+                                  <Button
                                     onClick={() => handleEdit(company._id)}
                                     color="primary"
                                     size={isMobile ? 'small' : 'medium'}
+                                    variant="outlined"
                                   >
                                     <EditIcon />
-                                  </IconButton>
+                                  </Button>
                                 </Tooltip>
                                 <Tooltip title="Delete">
-                                  <IconButton
+                                  <Button
                                     onClick={() => handleDelete(company._id)}
                                     color="error"
                                     size={isMobile ? 'small' : 'medium'}
+                                    variant="outlined"
                                   >
                                     <DeleteIcon />
-                                  </IconButton>
+                                  </Button>
                                 </Tooltip>
                               </Box>
                             </TableCell>

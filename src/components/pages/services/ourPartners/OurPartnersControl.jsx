@@ -23,7 +23,6 @@ import {
   useMediaQuery,
   Grid,
   Tooltip,
-  IconButton,
   Link,
   Dialog,
   DialogTitle,
@@ -42,7 +41,7 @@ import {
 } from '@mui/icons-material';
 import LeftNavigationBar from '../../../navbars/LeftNavigationBar';
 import { deleteOurPartners, fetchAllOurPartners } from '../../../redux/slices/services/ourPartners/ourPartners';
-
+ 
 const OurPartnersControlPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -55,24 +54,24 @@ const OurPartnersControlPage = () => {
   const [selectedPartnerId, setSelectedPartnerId] = useState(null);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-
+ 
   useEffect(() => {
     dispatch(fetchAllOurPartners());
   }, [dispatch]);
-
+ 
   const handleEdit = (id) => {
     navigate(`/degreeprogram/our-partners-edit/${id}`);
   };
-
+ 
   const handleView = (id) => {
     navigate(`/degreeprogram/our-partners-view/${id}`);
   };
-
+ 
   const handleDeleteClick = (id) => {
     setSelectedPartnerId(id);
     setDeleteDialogOpen(true);
   };
-
+ 
   const handleDeleteConfirm = async () => {
     try {
       const resultAction = await dispatch(deleteOurPartners(selectedPartnerId));
@@ -95,29 +94,29 @@ const OurPartnersControlPage = () => {
       setSelectedPartnerId(null);
     }
   };
-
+ 
   const handleDeleteCancel = () => {
     setDeleteDialogOpen(false);
     setSelectedPartnerId(null);
   };
-
+ 
   const handleCloseSnackbar = () => {
     setSnackbar((prev) => ({ ...prev, open: false }));
   };
-
+ 
   const handleAddPartner = () => {
     navigate('/degreeprogram/our-partners-add');
   };
-
+ 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
-
+ 
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
-
+ 
   const filteredPartners = ourPartners.filter(partner =>
     partner && (
       (partner.company?.companyName && partner.company.companyName.toLowerCase().includes(searchTerm.toLowerCase())) ||
@@ -127,7 +126,7 @@ const OurPartnersControlPage = () => {
       (partner.degree_program?.program_name && partner.degree_program.program_name.toLowerCase().includes(searchTerm.toLowerCase()))
     )
   );
-
+ 
   if (loading) {
     return (
       <LeftNavigationBar
@@ -139,7 +138,7 @@ const OurPartnersControlPage = () => {
       />
     );
   }
-
+ 
   return (
     <LeftNavigationBar
       Content={
@@ -150,8 +149,8 @@ const OurPartnersControlPage = () => {
               position: "relative",
               padding: 0,
               margin: 0,
-              fontFamily: 'Merriweather, serif',
-              fontWeight: 700, textAlign: 'center',
+              fontWeight: 700,
+              textAlign: 'center',
               fontWeight: 300,
               fontSize: { xs: "32px", sm: "40px" },
               color: "#747474",
@@ -186,7 +185,7 @@ const OurPartnersControlPage = () => {
           >
             Partners Management
           </Typography>
-
+ 
           <Grid container spacing={2} alignItems="center" sx={{ mb: 3 }}>
             <Grid item xs={12} md={6}>
               <TextField
@@ -224,7 +223,7 @@ const OurPartnersControlPage = () => {
               </Button>
             </Grid>
           </Grid>
-
+ 
           <Paper elevation={3} sx={{ borderRadius: 2, overflow: 'hidden' }}>
             <TableContainer>
               <Table>
@@ -306,22 +305,24 @@ const OurPartnersControlPage = () => {
                           <TableCell align="center">
                             <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1 }}>
                               <Tooltip title="Edit">
-                                <IconButton
+                                <Button
                                   onClick={() => handleEdit(partner._id)}
                                   color="primary"
                                   size={isMobile ? 'small' : 'medium'}
+                                  variant="outlined"
                                 >
                                   <EditIcon />
-                                </IconButton>
+                                </Button>
                               </Tooltip>
                               <Tooltip title="Delete">
-                                <IconButton
+                                <Button
                                   onClick={() => handleDeleteClick(partner._id)}
                                   color="error"
                                   size={isMobile ? 'small' : 'medium'}
+                                  variant="outlined"
                                 >
                                   <DeleteIcon />
-                                </IconButton>
+                                </Button>
                               </Tooltip>
                             </Box>
                           </TableCell>
@@ -347,7 +348,7 @@ const OurPartnersControlPage = () => {
                 </TableBody>
               </Table>
             </TableContainer>
-
+ 
             {filteredPartners.length > 0 && (
               <TablePagination
                 rowsPerPageOptions={[5, 10, 25]}
@@ -367,7 +368,7 @@ const OurPartnersControlPage = () => {
               />
             )}
           </Paper>
-
+ 
           {/* Delete Confirmation Dialog */}
           <Dialog
             open={deleteDialogOpen}
@@ -417,7 +418,7 @@ const OurPartnersControlPage = () => {
               </Button>
             </DialogActions>
           </Dialog>
-
+ 
           {/* Snackbar for notifications */}
           <Snackbar
             open={snackbar.open}
@@ -439,5 +440,6 @@ const OurPartnersControlPage = () => {
     />
   );
 };
-
+ 
 export default OurPartnersControlPage;
+ 

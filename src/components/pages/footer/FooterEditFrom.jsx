@@ -8,13 +8,7 @@ import {
   DialogContent, DialogTitle, FormControl,
   InputLabel, MenuItem, Select, CircularProgress
 } from '@mui/material';
-import { 
-  Add as AddIcon, 
-  Delete as DeleteIcon, 
-  Edit as EditIcon,
-  Check as CheckIcon,
-  Cancel as CancelIcon
-} from '@mui/icons-material';
+import { Add as AddIcon, Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
 import LeftNavigationBar from '../../navbars/LeftNavigationBar';
 import { getFooterById, updateFooter } from '../../redux/slices/footer/footer';
 
@@ -28,14 +22,6 @@ const FooterEditForm = () => {
   const [logoFile, setLogoFile] = useState(null);
   const [logoPreview, setLogoPreview] = useState('');
   const [keepExistingLogo, setKeepExistingLogo] = useState(true);
-  const [editMode, setEditMode] = useState({
-    logo: false,
-    socials: false,
-    quickLinks: false,
-    support: false,
-    business: false,
-    contact: false
-  });
   
   // Form state
   const [formData, setFormData] = useState({
@@ -66,6 +52,10 @@ const FooterEditForm = () => {
   const [currentBusinessLink, setCurrentBusinessLink] = useState({ href: '', label: '' });
   const [currentBusinessIndex, setCurrentBusinessIndex] = useState(0);
   
+  // Edit mode states
+  const [editMode, setEditMode] = useState(false);
+  const [editIndex, setEditIndex] = useState(null);
+  
   // Fetch footer data on component mount
   useEffect(() => {
     dispatch(getFooterById(id));
@@ -95,14 +85,6 @@ const FooterEditForm = () => {
     }
   }, [selectedFooter]);
   
-  // Toggle edit mode for a section
-  const toggleEditMode = (section) => {
-    setEditMode(prev => ({
-      ...prev,
-      [section]: !prev[section]
-    }));
-  };
-    
   // Logo handlers
   const handleLogoChange = (event) => {
     const file = event.target.files[0];
@@ -114,8 +96,16 @@ const FooterEditForm = () => {
   };
   
   // Social media handlers
-  const handleOpenSocialDialog = () => {
-    setCurrentSocial({ platform: '', url: '', icon: '' });
+  const handleOpenSocialDialog = (social = null, index = null) => {
+    if (social) {
+      setCurrentSocial({ ...social });
+      setEditMode(true);
+      setEditIndex(index);
+    } else {
+      setCurrentSocial({ platform: '', url: '', icon: '' });
+      setEditMode(false);
+      setEditIndex(null);
+    }
     setOpenSocialDialog(true);
   };
   
@@ -124,14 +114,20 @@ const FooterEditForm = () => {
     setCurrentSocial(prev => ({ ...prev, [name]: value }));
   };
   
-  const handleAddSocial = () => {
-    setFormData(prev => ({
-      ...prev,
-      socials: [...prev.socials, currentSocial]
-    }));
+  const handleSaveSocial = () => {
+    setFormData(prev => {
+      const updated = { ...prev };
+      if (editMode && editIndex !== null) {
+        updated.socials = updated.socials.map((social, index) => 
+          index === editIndex ? { ...currentSocial } : social
+        );
+      } else {
+        updated.socials = [...updated.socials, currentSocial];
+      }
+      return updated;
+    });
     setOpenSocialDialog(false);
-  };
-  
+  };  
   const handleRemoveSocial = (index) => {
     setFormData(prev => ({
       ...prev,
@@ -140,8 +136,16 @@ const FooterEditForm = () => {
   };
   
   // Navigation links handlers
-  const handleOpenLinkDialog = (section, sectionIndex) => {
-    setCurrentLink({ href: '', label: '' });
+  const handleOpenLinkDialog = (section, sectionIndex, link = null, linkIndex = null) => {
+    if (link) {
+      setCurrentLink({ ...link });
+      setEditMode(true);
+      setEditIndex(linkIndex);
+    } else {
+      setCurrentLink({ href: '', label: '' });
+      setEditMode(false);
+      setEditIndex(null);
+    }
     setCurrentSection(section);
     setCurrentSectionIndex(sectionIndex);
     setOpenLinkDialog(true);
@@ -152,27 +156,60 @@ const FooterEditForm = () => {
     setCurrentLink(prev => ({ ...prev, [name]: value }));
   };
   
-  const handleAddLink = () => {
+  const handleSaveLink = () => {
     setFormData(prev => {
       const updated = { ...prev };
-      updated[currentSection][currentSectionIndex].links.push(currentLink);
+      if (editMode && editIndex !== null) {
+        // Create new arrays for each level
+        const newSection = [...updated[currentSection]];
+        const newLinks = [...newSection[currentSectionIndex].links];
+        // Update the specific link
+        newLinks[editIndex] = { ...currentLink };
+        // Create new section object with updated links
+        newSection[currentSectionIndex] = {
+          ...newSection[currentSectionIndex],
+          links: newLinks
+        };
+        // Update with the new section array
+        updated[currentSection] = newSection;
+      } else {
+        const newSection = [...updated[currentSection]];
+        newSection[currentSectionIndex] = {
+          ...newSection[currentSectionIndex],
+          links: [...newSection[currentSectionIndex].links, currentLink]
+        };
+        updated[currentSection] = newSection;
+      }
       return updated;
     });
     setOpenLinkDialog(false);
   };
   
+  // Fix for handleRemoveLink
   const handleRemoveLink = (section, sectionIndex, linkIndex) => {
     setFormData(prev => {
       const updated = { ...prev };
-      updated[section][sectionIndex].links = 
-        updated[section][sectionIndex].links.filter((_, i) => i !== linkIndex);
+      const newSection = [...updated[section]];
+      const newLinks = newSection[sectionIndex].links.filter((_, i) => i !== linkIndex);
+      newSection[sectionIndex] = {
+        ...newSection[sectionIndex],
+        links: newLinks
+      };
+      updated[section] = newSection;
       return updated;
     });
-  };
-  
+  };  
   // Business section handlers
-  const handleOpenBusinessDialog = () => {
-    setCurrentBusiness({ title: '', links: [] });
+  const handleOpenBusinessDialog = (business = null, index = null) => {
+    if (business) {
+      setCurrentBusiness({ ...business });
+      setEditMode(true);
+      setEditIndex(index);
+    } else {
+      setCurrentBusiness({ title: '', links: [] });
+      setEditMode(false);
+      setEditIndex(null);
+    }
     setOpenBusinessDialog(true);
   };
   
@@ -181,17 +218,38 @@ const FooterEditForm = () => {
     setCurrentBusiness(prev => ({ ...prev, [name]: value }));
   };
   
-  const handleAddBusiness = () => {
-    setFormData(prev => ({
-      ...prev,
-      business: {
-        ...prev.business,
-        sections: [...prev.business.sections, { title: currentBusiness.title, links: [] }]
-      }
-    }));
-    setOpenBusinessDialog(false);
-  };
-  
+
+const handleSaveBusiness = () => {
+  setFormData(prev => {
+    const updated = { ...prev };
+    if (editMode && editIndex !== null) {
+      // Create a new array for sections instead of modifying the existing one
+      const newSections = [...updated.business.sections];
+      // For editing, preserve the links
+      const existingLinks = updated.business.sections[editIndex].links;
+      // Create a new object for the section
+      newSections[editIndex] = { 
+        title: currentBusiness.title, 
+        links: [...existingLinks] // Create a copy of links array
+      };
+      // Update with the new array
+      updated.business = {
+        ...updated.business,
+        sections: newSections
+      };
+    } else {
+      updated.business = {
+        ...updated.business,
+        sections: [...updated.business.sections, { 
+          title: currentBusiness.title, 
+          links: [] 
+        }]
+      };
+    }
+    return updated;
+  });
+  setOpenBusinessDialog(false);
+};  
   const handleRemoveBusiness = (index) => {
     setFormData(prev => ({
       ...prev,
@@ -203,8 +261,16 @@ const FooterEditForm = () => {
   };
   
   // Business link handlers
-  const handleOpenBusinessLinkDialog = (businessIndex) => {
-    setCurrentBusinessLink({ href: '', label: '' });
+  const handleOpenBusinessLinkDialog = (businessIndex, link = null, linkIndex = null) => {
+    if (link) {
+      setCurrentBusinessLink({ ...link });
+      setEditMode(true);
+      setEditIndex(linkIndex);
+    } else {
+      setCurrentBusinessLink({ href: '', label: '' });
+      setEditMode(false);
+      setEditIndex(null);
+    }
     setCurrentBusinessIndex(businessIndex);
     setOpenBusinessLinkDialog(true);
   };
@@ -214,25 +280,50 @@ const FooterEditForm = () => {
     setCurrentBusinessLink(prev => ({ ...prev, [name]: value }));
   };
   
-  const handleAddBusinessLink = () => {
+  const handleSaveBusinessLink = () => {
     setFormData(prev => {
       const updated = { ...prev };
-      updated.business.sections[currentBusinessIndex].links.push(currentBusinessLink);
+      const newSections = [...updated.business.sections];
+      if (editMode && editIndex !== null) {
+        const newLinks = [...newSections[currentBusinessIndex].links];
+        newLinks[editIndex] = { ...currentBusinessLink };
+        newSections[currentBusinessIndex] = {
+          ...newSections[currentBusinessIndex],
+          links: newLinks
+        };
+      } else {
+        newSections[currentBusinessIndex] = {
+          ...newSections[currentBusinessIndex],
+          links: [...newSections[currentBusinessIndex].links, currentBusinessLink]
+        };
+      }
+      updated.business = {
+        ...updated.business,
+        sections: newSections
+      };
       return updated;
     });
     setOpenBusinessLinkDialog(false);
   };
   
+  
   const handleRemoveBusinessLink = (businessIndex, linkIndex) => {
     setFormData(prev => {
       const updated = { ...prev };
-      updated.business.sections[businessIndex].links = 
-        updated.business.sections[businessIndex].links.filter((_, i) => i !== linkIndex);
+      const newSections = [...updated.business.sections];
+      const newLinks = newSections[businessIndex].links.filter((_, i) => i !== linkIndex);
+      newSections[businessIndex] = {
+        ...newSections[businessIndex],
+        links: newLinks
+      };
+      updated.business = {
+        ...updated.business,
+        sections: newSections
+      };
       return updated;
     });
   };
-  
-  // Contact handlers
+    // Contact handlers
   const handleContactChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -352,416 +443,302 @@ const FooterEditForm = () => {
             
             <form onSubmit={handleSubmit}>
               {/* Logo Upload Section */}
-              <Card sx={{ mb: 4, backgroundColor: "#f5f5f5" }}>
-                <CardHeader 
-                  title="Logo" 
-                  action={
-                    <IconButton onClick={() => toggleEditMode('logo')}>
-                      {editMode.logo ? <CheckIcon color="primary" /> : <EditIcon />}
-                    </IconButton>
-                  }
-                />
+              <Card sx={{ mb: 4, backgroundColor: "gray" }}>
+                <CardHeader title="Logo" />
                 <CardContent>
-                  {editMode.logo ? (
-                    <Grid container spacing={2} alignItems="center">
-                      <Grid item xs={12} md={6}>
-                        <Button
-                          variant="contained"
-                          component="label"
-                        >
-                          Upload New Logo
-                          <input
-                            type="file"
-                            hidden
-                            accept="image/*"
-                            onChange={handleLogoChange}
-                          />
-                        </Button>
-                        <Typography variant="caption" display="block" sx={{ mt: 1 }}>
-                          Max size: 3MB
-                        </Typography>
-                      </Grid>
-                      <Grid item xs={12} md={6}>
-                        {logoPreview && (
-                          <Box sx={{ maxWidth: 200 }}>
-                            <img src={logoPreview} alt="Logo Preview" style={{ width: '100%' }} />
-                          </Box>
-                        )}
-                      </Grid>
+                  <Grid container spacing={2} alignItems="center">
+                    <Grid item xs={12} md={6}>
+                      <Button
+                        variant="contained"
+                        component="label"
+                      >
+                        Upload New Logo
+                        <input
+                          type="file"
+                          hidden
+                          accept="image/*"
+                          onChange={handleLogoChange}
+                        />
+                      </Button>
+                      <Typography variant="caption" display="block" sx={{ mt: 1 }}>
+                        Max size: 3MB
+                      </Typography>
                     </Grid>
-                  ) : (
-                    <Grid container spacing={2} alignItems="center">
-                      <Grid item xs={12} md={12}>
-                        {logoPreview ? (
-                          <Box sx={{ maxWidth: 200 }}>
-                            <img src={logoPreview} alt="Logo Preview" style={{ width: '100%' }} />
-                          </Box>
-                        ) : (
-                          <Typography variant="body2">No logo uploaded</Typography>
-                        )}
-                      </Grid>
+                    <Grid item xs={12} md={6}>
+                      {logoPreview && (
+                        <Box sx={{ maxWidth: 200 }}>
+                          <img src={logoPreview} alt="Logo Preview" style={{ width: '100%' }} />
+                          {selectedFooter && selectedFooter.logo && (
+                            <Typography variant="caption" display="block" sx={{ mt: 1 }}>
+                              {keepExistingLogo ? "Using existing logo" : "Using new logo"}
+                            </Typography>
+                          )}
+                        </Box>
+                      )}
                     </Grid>
-                  )}
+                  </Grid>
                 </CardContent>
               </Card>
               
               {/* Social Media Links */}
-              <Card sx={{ mb: 4, backgroundColor: "#f5f5f5" }}>
+              <Card sx={{ mb: 4 }}>
                 <CardHeader 
                   title="Social Media Links" 
                   action={
-                    <IconButton onClick={() => toggleEditMode('socials')}>
-                      {editMode.socials ? <CheckIcon color="primary" /> : <EditIcon />}
-                    </IconButton>
+                    <Button 
+                      startIcon={<AddIcon />} 
+                      onClick={() => handleOpenSocialDialog()}
+                      color="primary"
+                    >
+                      Add Social Link
+                    </Button>
                   }
                 />
                 <CardContent>
-                  {editMode.socials ? (
-                    <>
-                      <Button 
-                        startIcon={<AddIcon />} 
-                        onClick={handleOpenSocialDialog}
-                        color="primary"
-                        sx={{ mb: 2 }}
+                  <List>
+                    {formData.socials.map((social, index) => (
+                      <ListItem 
+                        key={index}
+                        secondaryAction={
+                          <Box>
+                            <IconButton 
+                              edge="end" 
+                              onClick={() => handleOpenSocialDialog(social, index)}
+                              sx={{ mr: 1 }}
+                            >
+                              <EditIcon />
+                            </IconButton>
+                            <IconButton edge="end" onClick={() => handleRemoveSocial(index)}>
+                              <DeleteIcon />
+                            </IconButton>
+                          </Box>
+                        }
                       >
-                        Add Social Link
-                      </Button>
-                      <List>
-                        {formData.socials.map((social, index) => (
-                          <ListItem 
-                            key={index}
-                            secondaryAction={
-                              <IconButton edge="end" onClick={() => handleRemoveSocial(index)}>
-                                <DeleteIcon />
-                              </IconButton>
-                            }
-                          >
-                            <ListItemText 
-                              primary={social.platform} 
-                              secondary={social.url} 
-                            />
-                          </ListItem>
-                        ))}
-                      </List>
-                    </>
-                  ) : (
-                    <List>
-                      {formData.socials.length > 0 ? (
-                        formData.socials.map((social, index) => (
-                          <ListItem key={index}>
-                            <ListItemText 
-                              primary={social.platform} 
-                              secondary={social.url} 
-                            />
-                          </ListItem>
-                        ))
-                      ) : (
-                        <Typography variant="body2">No social links added</Typography>
-                      )}
-                    </List>
-                  )}
+                        <ListItemText 
+                          primary={social.platform} 
+                          secondary={social.url} 
+                        />
+                      </ListItem>
+                    ))}
+                  </List>
                 </CardContent>
               </Card>
               
               {/* Quick Links Section */}
-              <Card sx={{ mb: 4, backgroundColor: "#f5f5f5" }}>
-                <CardHeader 
-                  title="Quick Links" 
-                  action={
-                    <IconButton onClick={() => toggleEditMode('quickLinks')}>
-                      {editMode.quickLinks ? <CheckIcon color="primary" /> : <EditIcon />}
-                    </IconButton>
-                  }
-                />
+              <Card sx={{ mb: 4 }}>
+                <CardHeader title="Quick Links" />
                 <CardContent>
                   {formData.quickLinks.map((section, sectionIndex) => (
                     <Box key={sectionIndex} sx={{ mb: 3 }}>
                       <Typography variant="h6" gutterBottom>
                         {section.title}
                       </Typography>
-                      
-                      {editMode.quickLinks ? (
-                        <>
-                          <Button 
-                            startIcon={<AddIcon />} 
-                            onClick={() => handleOpenLinkDialog('quickLinks', sectionIndex)}
-                            variant="outlined"
-                            size="small"
-                            sx={{ mb: 2 }}
+                      <Button 
+                        startIcon={<AddIcon />} 
+                        onClick={() => handleOpenLinkDialog('quickLinks', sectionIndex)}
+                        variant="outlined"
+                        size="small"
+                        sx={{ mb: 2 }}
+                      >
+                        Add Link
+                      </Button>
+                      <List>
+                        {section.links.map((link, linkIndex) => (
+                          <ListItem 
+                            key={linkIndex}
+                            secondaryAction={
+                              <Box>
+                                <IconButton 
+                                  edge="end" 
+                                  onClick={() => handleOpenLinkDialog('quickLinks', sectionIndex, link, linkIndex)}
+                                  sx={{ mr: 1 }}
+                                >
+                                  <EditIcon />
+                                </IconButton>
+                                <IconButton edge="end" onClick={() => handleRemoveLink('quickLinks', sectionIndex, linkIndex)}>
+                                  <DeleteIcon />
+                                </IconButton>
+                              </Box>
+                            }
                           >
-                            Add Link
-                          </Button>
-                          <List>
-                            {section.links.map((link, linkIndex) => (
-                              <ListItem 
-                                key={linkIndex}
-                                secondaryAction={
-                                  <IconButton edge="end" onClick={() => handleRemoveLink('quickLinks', sectionIndex, linkIndex)}>
-                                    <DeleteIcon />
-                                  </IconButton>
-                                }
-                              >
-                                <ListItemText 
-                                  primary={link.label} 
-                                  secondary={link.href} 
-                                />
-                              </ListItem>
-                            ))}
-                          </List>
-                        </>
-                      ) : (
-                        <List>
-                          {section.links.length > 0 ? (
-                            section.links.map((link, linkIndex) => (
-                              <ListItem key={linkIndex}>
-                                <ListItemText 
-                                  primary={link.label} 
-                                  secondary={link.href} 
-                                />
-                              </ListItem>
-                            ))
-                          ) : (
-                            <Typography variant="body2">No links added</Typography>
-                          )}
-                        </List>
-                      )}
+                            <ListItemText 
+                              primary={link.label} 
+                              secondary={link.href} 
+                            />
+                          </ListItem>
+                        ))}
+                      </List>
                     </Box>
                   ))}
                 </CardContent>
               </Card>
               
               {/* Support Section */}
-              <Card sx={{ mb: 4, backgroundColor: "#f5f5f5" }}>
-                <CardHeader 
-                  title="Support" 
-                  action={
-                    <IconButton onClick={() => toggleEditMode('support')}>
-                      {editMode.support ? <CheckIcon color="primary" /> : <EditIcon />}
-                    </IconButton>
-                  }
-                />
+              <Card sx={{ mb: 4 }}>
+                <CardHeader title="Support" />
                 <CardContent>
                   {formData.support.map((section, sectionIndex) => (
                     <Box key={sectionIndex} sx={{ mb: 3 }}>
                       <Typography variant="h6" gutterBottom>
                         {section.title}
                       </Typography>
-                      
-                      {editMode.support ? (
-                        <>
-                          <Button 
-                            startIcon={<AddIcon />} 
-                            onClick={() => handleOpenLinkDialog('support', sectionIndex)}
-                            variant="outlined"
-                            size="small"
-                            sx={{ mb: 2 }}
+                      <Button 
+                        startIcon={<AddIcon />} 
+                        onClick={() => handleOpenLinkDialog('support', sectionIndex)}
+                        variant="outlined"
+                        size="small"
+                        sx={{ mb: 2 }}
+                      >
+                        Add Link
+                      </Button>
+                      <List>
+                        {section.links.map((link, linkIndex) => (
+                          <ListItem 
+                            key={linkIndex}
+                            secondaryAction={
+                              <Box>
+                                <IconButton 
+                                  edge="end" 
+                                  onClick={() => handleOpenLinkDialog('support', sectionIndex, link, linkIndex)}
+                                  sx={{ mr: 1 }}
+                                >
+                                  <EditIcon />
+                                </IconButton>
+                                <IconButton edge="end" onClick={() => handleRemoveLink('support', sectionIndex, linkIndex)}>
+                                  <DeleteIcon />
+                                </IconButton>
+                              </Box>
+                            }
                           >
-                            Add Link
-                          </Button>
-                          <List>
-                            {section.links.map((link, linkIndex) => (
-                              <ListItem 
-                                key={linkIndex}
-                                secondaryAction={
-                                  <IconButton edge="end" onClick={() => handleRemoveLink('support', sectionIndex, linkIndex)}>
-                                    <DeleteIcon />
-                                  </IconButton>
-                                }
-                              >
-                                <ListItemText 
-                                  primary={link.label} 
-                                  secondary={link.href} 
-                                />
-                              </ListItem>
-                            ))}
-                          </List>
-                        </>
-                      ) : (
-                        <List>
-                          {section.links.length > 0 ? (
-                            section.links.map((link, linkIndex) => (
-                              <ListItem key={linkIndex}>
-                                <ListItemText 
-                                  primary={link.label} 
-                                  secondary={link.href} 
-                                />
-                              </ListItem>
-                            ))
-                          ) : (
-                            <Typography variant="body2">No links added</Typography>
-                          )}
-                        </List>
-                      )}
+                            <ListItemText 
+                              primary={link.label} 
+                              secondary={link.href} 
+                            />
+                          </ListItem>
+                        ))}
+                      </List>
                     </Box>
                   ))}
                 </CardContent>
               </Card>
               
               {/* Business Section */}
-              <Card sx={{ mb: 4, backgroundColor: "#f5f5f5" }}>
+              <Card sx={{ mb: 4 }}>
                 <CardHeader 
                   title="Business" 
                   action={
-                    <IconButton onClick={() => toggleEditMode('business')}>
-                      {editMode.business ? <CheckIcon color="primary" /> : <EditIcon />}
-                    </IconButton>
+                    <Button 
+                      startIcon={<AddIcon />} 
+                      onClick={() => handleOpenBusinessDialog()}
+                      color="primary"
+                    >
+                      Add Business Section
+                    </Button>
                   }
                 />
                 <CardContent>
-                  {editMode.business ? (
-                    <>
-                      <TextField
-                        fullWidth
-                        label="Business Title"
-                        name="title"
-                        value={formData.business.title}
-                        onChange={(e) => setFormData(prev => ({
-                          ...prev,
-                          business: { ...prev.business, title: e.target.value }
-                        }))}
-                        margin="normal"
-                      />
+                  <TextField
+                    fullWidth
+                    label="Business Title"
+                    name="title"
+                    value={formData.business.title}
+                    onChange={(e) => setFormData(prev => ({
+                      ...prev,
+                      business: { ...prev.business, title: e.target.value }
+                    }))}
+                    margin="normal"
+                  />
+                  
+                  {formData.business.sections.map((section, sectionIndex) => (
+                    <Box key={sectionIndex} sx={{ mb: 3, pl: 2, borderLeft: '1px solid #ddd' }}>
+                      <Box display="flex" justifyContent="space-between" alignItems="center">
+                        <Typography variant="h6" gutterBottom>
+                          {section.title}
+                        </Typography>
+                        <Box>
+                          <IconButton 
+                            onClick={() => handleOpenBusinessDialog(section, sectionIndex)}
+                            sx={{ mr: 1 }}
+                          >
+                            <EditIcon />
+                          </IconButton>
+                          <IconButton onClick={() => handleRemoveBusiness(sectionIndex)}>
+                            <DeleteIcon />
+                          </IconButton>
+                        </Box>
+                      </Box>
                       
                       <Button 
                         startIcon={<AddIcon />} 
-                        onClick={handleOpenBusinessDialog}
-                        color="primary"
-                        sx={{ mt: 2, mb: 2 }}
+                        onClick={() => handleOpenBusinessLinkDialog(sectionIndex)}
+                        variant="outlined"
+                        size="small"
+                        sx={{ mb: 2 }}
                       >
-                        Add Business Section
+                        Add Link
                       </Button>
                       
-                      {formData.business.sections.map((section, sectionIndex) => (
-                        <Box key={sectionIndex} sx={{ mb: 3, pl: 2, borderLeft: '1px solid #ddd' }}>
-                          <Box display="flex" justifyContent="space-between" alignItems="center">
-                            <Typography variant="h6" gutterBottom>
-                              {section.title}
-                            </Typography>
-                            <IconButton onClick={() => handleRemoveBusiness(sectionIndex)}>
-                              <DeleteIcon />
-                            </IconButton>
-                          </Box>
-                          
-                          <Button 
-                            startIcon={<AddIcon />} 
-                            onClick={() => handleOpenBusinessLinkDialog(sectionIndex)}
-                            variant="outlined"
-                            size="small"
-                            sx={{ mb: 2 }}
+                      <List>
+                        {section.links.map((link, linkIndex) => (
+                          <ListItem 
+                            key={linkIndex}
+                            secondaryAction={
+                              <Box>
+                                <IconButton 
+                                  edge="end" 
+                                  onClick={() => handleOpenBusinessLinkDialog(sectionIndex, link, linkIndex)}
+                                  sx={{ mr: 1 }}
+                                >
+                                  <EditIcon />
+                                </IconButton>
+                                <IconButton edge="end" onClick={() => handleRemoveBusinessLink(sectionIndex, linkIndex)}>
+                                  <DeleteIcon />
+                                </IconButton>
+                              </Box>
+                            }
                           >
-                            Add Link
-                          </Button>
-                          
-                          <List>
-                            {section.links.map((link, linkIndex) => (
-                              <ListItem 
-                                key={linkIndex}
-                                secondaryAction={
-                                  <IconButton edge="end" onClick={() => handleRemoveBusinessLink(sectionIndex, linkIndex)}>
-                                    <DeleteIcon />
-                                  </IconButton>
-                                }
-                              >
-                                <ListItemText 
-                                  primary={link.label} 
-                                  secondary={link.href} 
-                                />
-                              </ListItem>
-                            ))}
-                          </List>
-                        </Box>
-                      ))}
-                    </>
-                  ) : (
-                    <>
-                      <Typography variant="subtitle1" gutterBottom>
-                        Title: {formData.business.title}
-                      </Typography>
-                      
-                      {formData.business.sections.length > 0 ? (
-                        formData.business.sections.map((section, sectionIndex) => (
-                          <Box key={sectionIndex} sx={{ mb: 3, pl: 2, borderLeft: '1px solid #ddd' }}>
-                            <Typography variant="h6" gutterBottom>
-                              {section.title}
-                            </Typography>
-                            
-                            <List>
-                              {section.links.length > 0 ? (
-                                section.links.map((link, linkIndex) => (
-                                  <ListItem key={linkIndex}>
-                                    <ListItemText 
-                                      primary={link.label} 
-                                      secondary={link.href} 
-                                    />
-                                  </ListItem>
-                                ))
-                              ) : (
-                                <Typography variant="body2">No links added</Typography>
-                              )}
-                            </List>
-                          </Box>
-                        ))
-                      ) : (
-                        <Typography variant="body2">No business sections added</Typography>
-                      )}
-                    </>
-                  )}
+                            <ListItemText 
+                              primary={link.label} 
+                              secondary={link.href} 
+                            />
+                          </ListItem>
+                        ))}
+                      </List>
+                    </Box>
+                  ))}
                 </CardContent>
               </Card>
               
               {/* Contact Section */}
-              <Card sx={{ mb: 4, backgroundColor: "#f5f5f5" }}>
-                <CardHeader 
-                  title="Contact Information" 
-                  action={
-                    <IconButton onClick={() => toggleEditMode('contact')}>
-                      {editMode.contact ? <CheckIcon color="primary" /> : <EditIcon />}
-                    </IconButton>
-                  }
-                />
+              <Card sx={{ mb: 4 }}>
+                <CardHeader title="Contact Information" />
                 <CardContent>
-                  {editMode.contact ? (
-                    <>
-                      <TextField
-                        fullWidth
-                        label="Contact Section Title"
-                        name="title"
-                        value={formData.contact.title}
-                        onChange={handleContactChange}
-                        margin="normal"
-                      />
-                      <TextField
-                        fullWidth
-                        label="Phone Number"
-                        name="phone"
-                        value={formData.contact.phone}
-                        onChange={handleContactChange}
-                        margin="normal"
-                      />
-                      <TextField
-                        fullWidth
-                        label="Address"
-                        name="address"
-                        value={formData.contact.address}
-                        onChange={handleContactChange}
-                        margin="normal"
-                        multiline
-                        rows={3}
-                      />
-                    </>
-                  ) : (
-                    <>
-                      <Typography variant="subtitle1" gutterBottom>
-                        Title: {formData.contact.title}
-                      </Typography>
-                      <Typography variant="body1" gutterBottom>
-                        Phone: {formData.contact.phone || 'Not provided'}
-                      </Typography>
-                      <Typography variant="body1">
-                        Address: {formData.contact.address || 'Not provided'}
-                      </Typography>
-                    </>
-                  )}
+                  <TextField
+                    fullWidth
+                    label="Contact Section Title"
+                    name="title"
+                    value={formData.contact.title}
+                    onChange={handleContactChange}
+                    margin="normal"
+                  />
+                  <TextField
+                    fullWidth
+                    label="Phone Number"
+                    name="phone"
+                    value={formData.contact.phone}
+                    onChange={handleContactChange}
+                    margin="normal"
+                  />
+                  <TextField
+                    fullWidth
+                    label="Address"
+                    name="address"
+                    value={formData.contact.address}
+                    onChange={handleContactChange}
+                    margin="normal"
+                    multiline
+                    rows={3}
+                  />
                 </CardContent>
               </Card>
               
@@ -788,7 +765,7 @@ const FooterEditForm = () => {
           
           {/* Social Media Dialog */}
           <Dialog open={openSocialDialog} onClose={() => setOpenSocialDialog(false)}>
-            <DialogTitle>Add Social Media Link</DialogTitle>
+            <DialogTitle>{editMode ? 'Edit Social Media Link' : 'Add Social Media Link'}</DialogTitle>
             <DialogContent>
               <FormControl fullWidth margin="normal">
                 <InputLabel>Platform</InputLabel>
@@ -828,13 +805,13 @@ const FooterEditForm = () => {
             </DialogContent>
             <DialogActions>
               <Button onClick={() => setOpenSocialDialog(false)}>Cancel</Button>
-              <Button onClick={handleAddSocial} color="primary">Add</Button>
+              <Button onClick={handleSaveSocial} color="primary">{editMode ? 'Save' : 'Add'}</Button>
             </DialogActions>
           </Dialog>
           
           {/* Navigation Link Dialog */}
           <Dialog open={openLinkDialog} onClose={() => setOpenLinkDialog(false)}>
-            <DialogTitle>Add Link</DialogTitle>
+            <DialogTitle>{editMode ? 'Edit Link' : 'Add Link'}</DialogTitle>
             <DialogContent>
               <TextField
                 fullWidth
@@ -856,13 +833,13 @@ const FooterEditForm = () => {
             </DialogContent>
             <DialogActions>
               <Button onClick={() => setOpenLinkDialog(false)}>Cancel</Button>
-              <Button onClick={handleAddLink} color="primary">Add</Button>
+              <Button onClick={handleSaveLink} color="primary">{editMode ? 'Save' : 'Add'}</Button>
             </DialogActions>
           </Dialog>
           
           {/* Business Section Dialog */}
           <Dialog open={openBusinessDialog} onClose={() => setOpenBusinessDialog(false)}>
-            <DialogTitle>Add Business Section</DialogTitle>
+            <DialogTitle>{editMode ? 'Edit Business Section' : 'Add Business Section'}</DialogTitle>
             <DialogContent>
               <TextField
                 fullWidth
@@ -876,13 +853,13 @@ const FooterEditForm = () => {
             </DialogContent>
             <DialogActions>
               <Button onClick={() => setOpenBusinessDialog(false)}>Cancel</Button>
-              <Button onClick={handleAddBusiness} color="primary">Add</Button>
+              <Button onClick={handleSaveBusiness} color="primary">{editMode ? 'Save' : 'Add'}</Button>
             </DialogActions>
           </Dialog>
           
           {/* Business Link Dialog */}
           <Dialog open={openBusinessLinkDialog} onClose={() => setOpenBusinessLinkDialog(false)}>
-            <DialogTitle>Add Business Link</DialogTitle>
+            <DialogTitle>{editMode ? 'Edit Business Link' : 'Add Business Link'}</DialogTitle>
             <DialogContent>
               <TextField
                 fullWidth
@@ -904,7 +881,7 @@ const FooterEditForm = () => {
             </DialogContent>
             <DialogActions>
               <Button onClick={() => setOpenBusinessLinkDialog(false)}>Cancel</Button>
-              <Button onClick={handleAddBusinessLink} color="primary">Add</Button>
+              <Button onClick={handleSaveBusinessLink} color="primary">{editMode ? 'Save' : 'Add'}</Button>
             </DialogActions>
           </Dialog>
         </Container>

@@ -53,8 +53,10 @@ import {
   Reviews,
   Numbers,
   HighQualityRounded,
-  BrowseGallery,
   JoinRightSharp,
+  FormatQuoteRounded,
+  BrowseGallery,
+  PowerSettingsNewOutlined,
 } from "@mui/icons-material";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import { useNavigate } from "react-router-dom";
@@ -76,7 +78,6 @@ import CodeIcon from "@mui/icons-material/Code";
 import {
   BusinessCenterSharp,
   CheckCircle,
-  FormatQuoteRounded,
   LocalPostOfficeOutlined,
   PriorityHighTwoTone,
 } from "@material-ui/icons";
@@ -94,7 +95,6 @@ import {
   faAddressCard,
   faHome,
   faHistory,
-  faJoint,
 } from "@fortawesome/free-solid-svg-icons"; // Import your desired icons
 
 const drawerWidth = 300;
@@ -313,12 +313,12 @@ export default function LeftNavigationBar({ Content }) {
           icon: <WifiProtectedSetupSharp style={orangeIconStyle} />,
         },
         {
-          text: "Execution Highlights",
+          text: "Execution by Client",
           link: "Execution_Highlights",
           icon: <HighlightAlt style={orangeIconStyle} />,
         },
         {
-          text: "Execution Overview",
+          text: "Execution by Domain",
           link: "Execution_Overview",
           icon: <HighQualityOutlined style={orangeIconStyle} />,
         },
@@ -327,11 +327,11 @@ export default function LeftNavigationBar({ Content }) {
           link: "Placement-Training-Track",
           icon: <WorkOff style={orangeIconStyle} />,
         },
-        {
-          text: "Services Opportunity",
-          link: "Services-Opportunity",
-          icon: <SupervisedUserCircle CircleOutlined style={orangeIconStyle} />,
-        },
+        // {
+        //   text: "Services Opportunity",
+        //   link: "Services-Opportunity",
+        //   icon: <SupervisedUserCircle CircleOutlined style={orangeIconStyle} />,
+        // },
       ],
     },
     {
@@ -383,8 +383,8 @@ export default function LeftNavigationBar({ Content }) {
           icon: <Person3TwoTone style={orangeIconStyle} />,
         },
         {
-          text: "Our Sponosrs",
-          link: "degreeprogram/our-sponosrs",
+          text: "Our Sponsor",
+          link: "degreeprogram/our-sponsor",
           icon: <SportsOutlined style={orangeIconStyle} />,
         },
         {
@@ -457,6 +457,11 @@ export default function LeftNavigationBar({ Content }) {
           text: "Career",
           link: "career",
           icon: <JoinRightSharp style={orangeIconStyle} />,
+        },
+        {
+          text: "Job Position",
+          link: "Joinus",
+          icon: <PowerSettingsNewOutlined style={orangeIconStyle} />,
         },
       ],
     },

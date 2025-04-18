@@ -90,22 +90,23 @@ const CategoryControl = () => {
           alignItems="center"
           justifyContent="center"
         >
+          <Box sx={{ mb: 4 }}>
             <Typography
               variant="h4"
               sx={{
                 position: "relative",
                 padding: 0,
                 margin: 0,
-                fontFamily: 'Merriweather, serif',
-                fontWeight: 700, textAlign: 'center',
+                fontFamily: "Merriweather, serif",
+                fontWeight: 700,
+                textAlign: "center",
                 fontWeight: 300,
                 fontSize: { xs: "32px", sm: "40px" },
                 color: "#747474",
                 textAlign: "center",
                 textTransform: "uppercase",
                 paddingBottom: "5px",
-                mb: 3,
-                mt: -4,
+                mt: 2,
                 "&::before": {
                   content: '""',
                   width: "28px",
@@ -130,30 +131,30 @@ const CategoryControl = () => {
                 },
               }}
             >
-            Category Management
-          </Typography>
-          <br />
+              Category Management Control
+            </Typography>
+          </Box>
           <TableContainer component={Paper} elevation={3}>
             <Table>
               <TableHead>
                 <TableRow>
                   <TableCell
-                    style={{ backgroundColor: "#0C2233", color: "white" }}
+                    style={{ backgroundColor: "#1976d2", color: "white" }}
                   >
                     Category Name
                   </TableCell>
                   <TableCell
-                    style={{ backgroundColor: "#0C2233", color: "white" }}
+                    style={{ backgroundColor: "#1976d2", color: "white" }}
                   >
                     Image
                   </TableCell>
                   <TableCell
-                    style={{ backgroundColor: "#0C2233", color: "white" }}
+                    style={{ backgroundColor: "#1976d2", color: "white" }}
                   >
                     Description
                   </TableCell>
                   <TableCell
-                    style={{ backgroundColor: "#0C2233", color: "white" }}
+                    style={{ backgroundColor: "#1976d2", color: "white" }}
                   >
                     Actions
                   </TableCell>
@@ -172,20 +173,23 @@ const CategoryControl = () => {
                     </TableCell>
                     <TableCell>{category.description}</TableCell>
                     <TableCell>
-                      <IconButton
+                      <Button
+                        variant="outlined"
                         onClick={() => handleEdit(category._id)}
                         color="primary"
                         aria-label="edit"
                       >
                         <EditIcon />
-                      </IconButton>
-                      <IconButton
+                      </Button>
+                      <Button
+                        sx={{ mt: 2 }}
+                        variant="outlined"
                         onClick={() => handleDeleteClick(category._id)}
                         color="error"
                         aria-label="delete"
                       >
                         <DeleteIcon />
-                      </IconButton>
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))}

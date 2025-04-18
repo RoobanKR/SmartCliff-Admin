@@ -9,7 +9,6 @@ import {
   TableHead,
   TableRow,
   Typography,
-  IconButton,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -25,7 +24,7 @@ import {
   useMediaQuery,
   Grid,
   Badge,
-  DialogActions
+  DialogActions,
 } from "@mui/material";
 import {
   Delete as DeleteIcon,
@@ -34,10 +33,13 @@ import {
   Search as SearchIcon,
   CloudUpload as UploadIcon,
   Visibility as ViewIcon,
-  School as SchoolIcon
+  School as SchoolIcon,
 } from "@mui/icons-material";
 import LeftNavigationBar from "../../../navbars/LeftNavigationBar";
-import { deleteOutcome, getAllOutcomes } from "../../../redux/slices/mca/outcome/outcome";
+import {
+  deleteOutcome,
+  getAllOutcomes,
+} from "../../../redux/slices/mca/outcome/outcome";
 import { useNavigate } from "react-router-dom";
 import { useCookies } from "react-cookie";
 import { resetSignIn, userVerify } from "../../../redux/slices/user/Signin";
@@ -50,11 +52,11 @@ const OutcomeControl = () => {
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [cookies] = useCookies(["token"]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   useEffect(() => {
     if (!cookies.token) {
@@ -108,7 +110,7 @@ const OutcomeControl = () => {
   };
 
   const handleAddOutcome = () => {
-    navigate('/Outcomes-add');
+    navigate("/Outcomes-add");
   };
 
   const handleChangePage = (event, newPage) => {
@@ -120,11 +122,16 @@ const OutcomeControl = () => {
     setPage(0);
   };
 
-  const filteredOutcomes = outcomes.filter(outcome =>
-    outcome && (
-      (outcome.title && outcome.title.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (outcome.degree_program?.program_name && outcome.degree_program.program_name.toLowerCase().includes(searchTerm.toLowerCase()))
-    ));
+  const filteredOutcomes = outcomes.filter(
+    (outcome) =>
+      outcome &&
+      ((outcome.title &&
+        outcome.title.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (outcome.degree_program?.program_name &&
+          outcome.degree_program.program_name
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase())))
+  );
 
   useEffect(() => {
     setPage(0);
@@ -134,7 +141,12 @@ const OutcomeControl = () => {
     return (
       <LeftNavigationBar
         Content={
-          <Box display="flex" justifyContent="center" alignItems="center" minHeight="80vh">
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            minHeight="80vh"
+          >
             <CircularProgress size={60} thickness={4} />
           </Box>
         }
@@ -154,8 +166,9 @@ const OutcomeControl = () => {
                 position: "relative",
                 padding: 0,
                 margin: 0,
-                fontFamily: 'Merriweather, serif',
-                fontWeight: 700, textAlign: 'center',
+                fontFamily: "Merriweather, serif",
+                fontWeight: 700,
+                textAlign: "center",
                 fontWeight: 300,
                 fontSize: { xs: "32px", sm: "40px" },
                 color: "#747474",
@@ -188,7 +201,7 @@ const OutcomeControl = () => {
                 },
               }}
             >
-              Learning Outcomes Management
+              Outcomes Panel
             </Typography>
 
             <Grid container spacing={2} alignItems="center">
@@ -199,29 +212,36 @@ const OutcomeControl = () => {
                   size="small"
                   placeholder="Search outcomes..."
                   InputProps={{
-                    startAdornment: <SearchIcon color="action" sx={{ mr: 1 }} />,
+                    startAdornment: (
+                      <SearchIcon color="action" sx={{ mr: 1 }} />
+                    ),
                   }}
                   sx={{
-                    backgroundColor: 'background.paper',
+                    backgroundColor: "background.paper",
                     borderRadius: 1,
                   }}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   value={searchTerm}
                 />
               </Grid>
-              <Grid item xs={12} md={6} sx={{ textAlign: { xs: 'left', md: 'right' } }}>
+              <Grid
+                item
+                xs={12}
+                md={6}
+                sx={{ textAlign: { xs: "left", md: "right" } }}
+              >
                 <Button
                   variant="contained"
                   startIcon={<AddIcon />}
                   onClick={handleAddOutcome}
                   sx={{
                     backgroundColor: theme.palette.primary.main,
-                    color: 'white',
-                    '&:hover': {
-                      backgroundColor: theme.palette.primary.dark
+                    color: "white",
+                    "&:hover": {
+                      backgroundColor: theme.palette.primary.dark,
                     },
-                    whiteSpace: 'nowrap',
-                    width: { xs: '100%', md: 'auto' }
+                    whiteSpace: "nowrap",
+                    width: { xs: "100%", md: "auto" },
                   }}
                 >
                   Add New Outcome
@@ -231,93 +251,129 @@ const OutcomeControl = () => {
           </Box>
 
           {/* Table Section */}
-          <Paper elevation={3} sx={{ borderRadius: 2, overflow: 'hidden' }}>
+          <Paper elevation={3} sx={{ borderRadius: 2, overflow: "hidden" }}>
             <TableContainer>
               <Table>
                 <TableHead>
-                  <TableRow sx={{ backgroundColor: theme.palette.primary.main }}>
-                    <TableCell sx={{ color: 'white', fontWeight: 600 }}>Title</TableCell>
-                    <TableCell sx={{ color: 'white', fontWeight: 600 }}>Icon</TableCell>
+                  <TableRow
+                    sx={{ backgroundColor: theme.palette.primary.main }}
+                  >
+                    <TableCell sx={{ color: "white", fontWeight: 600 }}>
+                      Title
+                    </TableCell>
+                    <TableCell sx={{ color: "white", fontWeight: 600 }}>
+                      Icon
+                    </TableCell>
                     {!isMobile && (
-                      <TableCell sx={{ color: 'white', fontWeight: 600 }}>Program</TableCell>
+                      <TableCell sx={{ color: "white", fontWeight: 600 }}>
+                        Program
+                      </TableCell>
                     )}
-                    <TableCell sx={{ color: 'white', fontWeight: 600 }}>Actions</TableCell>
+                    <TableCell sx={{ color: "white", fontWeight: 600 }}>
+                      Actions
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {filteredOutcomes.length > 0 ? (
                     filteredOutcomes
-                      .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                      .map((outcome) => (
-                        outcome && (
-                          <TableRow
-                            key={outcome._id}
-                            hover
-                            sx={{
-                              '&:nth-of-type(odd)': {
-                                backgroundColor: theme.palette.action.hover
-                              },
-                              '&:last-child td, &:last-child th': { border: 0 }
-                            }}
-                          >
-                            <TableCell>
-                              <Typography fontWeight={500}>
-                                {outcome.title || 'N/A'}
-                              </Typography>
-                            </TableCell>
-                            <TableCell>
-                              <Avatar
-                                src={outcome.icon}
-                                alt={outcome.title}
-                                sx={{
-                                  width: 50,
-                                  height: 50,
-                                  backgroundColor: outcome.icon ? 'transparent' : theme.palette.grey[300]
-                                }}
-                              >
-                                {!outcome.icon && <SchoolIcon />}
-                              </Avatar>
-                            </TableCell>
-                            {!isMobile && (
+                      .slice(
+                        page * rowsPerPage,
+                        page * rowsPerPage + rowsPerPage
+                      )
+                      .map(
+                        (outcome) =>
+                          outcome && (
+                            <TableRow
+                              key={outcome._id}
+                              hover
+                              sx={{
+                                "&:nth-of-type(odd)": {
+                                  backgroundColor: theme.palette.action.hover,
+                                },
+                                "&:last-child td, &:last-child th": {
+                                  border: 0,
+                                },
+                              }}
+                            >
                               <TableCell>
-                                <Chip
-                                  label={outcome.degree_program?.program_name || 'N/A'}
-                                  size="small"
-                                  color="secondary"
-                                  icon={<SchoolIcon fontSize="small" />}
-                                />
+                                <Typography fontWeight={500}>
+                                  {outcome.title || "N/A"}
+                                </Typography>
                               </TableCell>
-                            )}
-                            <TableCell>
-                              <Box sx={{ display: 'flex', gap: 1 }}>
-                                <Tooltip title="Edit">
-                                  <IconButton
-                                    onClick={() => handleEdit(outcome._id)}
-                                    color="primary"
-                                    size={isMobile ? 'small' : 'medium'}
-                                  >
-                                    <EditIcon />
-                                  </IconButton>
-                                </Tooltip>
-                                <Tooltip title="Delete">
-                                  <IconButton
-                                    onClick={() => handleDelete(outcome._id)}
-                                    color="error"
-                                    size={isMobile ? 'small' : 'medium'}
-                                  >
-                                    <DeleteIcon />
-                                  </IconButton>
-                                </Tooltip>
-                              </Box>
-                            </TableCell>
-                          </TableRow>
-                        )
-                      ))
+                              <TableCell>
+                                <Avatar
+                                  src={outcome.icon}
+                                  alt={outcome.title}
+                                  sx={{
+                                    width: 50,
+                                    height: 50,
+                                    backgroundColor: outcome.icon
+                                      ? "transparent"
+                                      : theme.palette.grey[300],
+                                  }}
+                                >
+                                  {!outcome.icon && <SchoolIcon />}
+                                </Avatar>
+                              </TableCell>
+                              {!isMobile && (
+                                <TableCell>
+                                  <Chip
+                                    label={
+                                      outcome.degree_program?.program_name ||
+                                      "N/A"
+                                    }
+                                    size="small"
+                                    color="secondary"
+                                    icon={<SchoolIcon fontSize="small" />}
+                                  />
+                                </TableCell>
+                              )}
+                              <TableCell>
+                                <Box sx={{ display: "flex", gap: 1 }}>
+                                  <Tooltip title="Edit">
+                                    <Button
+                                      onClick={() => handleEdit(outcome._id)}
+                                      color="primary"
+                                      variant="outlined"
+                                      size={isMobile ? "small" : "medium"}
+                                    >
+                                      <EditIcon />
+                                    </Button>
+                                  </Tooltip>
+                                  <Tooltip title="Delete">
+                                    <Button
+                                      variant="outlined"
+                                      onClick={() => handleDelete(outcome._id)}
+                                      color="error"
+                                      size={isMobile ? "small" : "medium"}
+                                    >
+                                      <DeleteIcon />
+                                    </Button>
+                                  </Tooltip>
+                                </Box>
+                              </TableCell>
+                            </TableRow>
+                          )
+                      )
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={isMobile ? 3 : 4} align="center" sx={{ py: 4 }}>
-                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                          <UploadIcon color="disabled" sx={{ fontSize: 60, mb: 1 }} />
+                      <TableCell
+                        colSpan={isMobile ? 3 : 4}
+                        align="center"
+                        sx={{ py: 4 }}
+                      >
+                        <Box
+                          sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                          }}
+                        >
+                          <UploadIcon
+                            color="disabled"
+                            sx={{ fontSize: 60, mb: 1 }}
+                          />
                           <Typography variant="h6" color="text.secondary">
                             No learning outcomes found
                           </Typography>
@@ -345,10 +401,10 @@ const OutcomeControl = () => {
                 onRowsPerPageChange={handleChangeRowsPerPage}
                 sx={{
                   borderTop: `1px solid ${theme.palette.divider}`,
-                  '& .MuiTablePagination-toolbar': {
+                  "& .MuiTablePagination-toolbar": {
                     paddingLeft: 2,
-                    paddingRight: 1
-                  }
+                    paddingRight: 1,
+                  },
                 }}
               />
             )}
@@ -360,20 +416,23 @@ const OutcomeControl = () => {
             PaperProps={{
               sx: {
                 borderRadius: 2,
-                minWidth: isMobile ? '90%' : 400
-              }
+                minWidth: isMobile ? "90%" : 400,
+              },
             }}
           >
-            <DialogTitle sx={{
-              backgroundColor: theme.palette.error.light,
-              color: 'white',
-              fontWeight: 600
-            }}>
+            <DialogTitle
+              sx={{
+                backgroundColor: theme.palette.error.light,
+                color: "white",
+                fontWeight: 600,
+              }}
+            >
               Confirm Deletion
             </DialogTitle>
             <DialogContent sx={{ py: 3 }}>
               <Typography variant="body1">
-                Are you sure you want to delete this learning outcome? This action cannot be undone.
+                Are you sure you want to delete this learning outcome? This
+                action cannot be undone.
               </Typography>
             </DialogContent>
             <DialogActions sx={{ px: 3, pb: 2 }}>
@@ -382,7 +441,7 @@ const OutcomeControl = () => {
                 variant="outlined"
                 sx={{
                   borderColor: theme.palette.grey[400],
-                  color: theme.palette.text.primary
+                  color: theme.palette.text.primary,
                 }}
               >
                 Cancel
@@ -393,16 +452,16 @@ const OutcomeControl = () => {
                 color="error"
                 sx={{
                   backgroundColor: theme.palette.error.main,
-                  '&:hover': {
-                    backgroundColor: theme.palette.error.dark
-                  }
+                  "&:hover": {
+                    backgroundColor: theme.palette.error.dark,
+                  },
                 }}
               >
                 Delete
               </Button>
             </DialogActions>
           </Dialog>
-        </Box >
+        </Box>
       }
     />
   );
