@@ -10,6 +10,7 @@ import {
   Alert,
   Tooltip,
   Box,
+  IconButton,
 } from "@mui/material";
 import { DropzoneArea } from "material-ui-dropzone";
 import { useNavigate, useParams } from "react-router-dom";
@@ -21,6 +22,7 @@ import {
   updateHomeExecutionHighlight,
 } from "../../../redux/slices/home/homeExecutionHighlights/homeExecutionHighlights";
 import { HelpOutline } from "@mui/icons-material";
+import ClearIcon from "@mui/icons-material/Clear";
 
 const HomeExecutionHighlightsEditForm = () => {
   const { id } = useParams();
@@ -31,7 +33,8 @@ const HomeExecutionHighlightsEditForm = () => {
   const [stack, setStack] = useState("");
   const [image, setImage] = useState(null);
   const [count, setCount] = useState("");
-  const [existingImages, setExistingImages] = useState("");
+  const [existingImageUrl, setExistingImageUrl] = useState("");
+  const [imagePreview, setImagePreview] = useState(null);
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
   // Get error and success message from Redux state
@@ -46,7 +49,15 @@ const HomeExecutionHighlightsEditForm = () => {
           if (data) {
             setStack(data.stack || "");
             setCount(data.count || "");
-            setExistingImages(data.image || "");
+
+            // Handle image URL
+            if (data.image) {
+              // If image is a relative path, prepend the base URL if needed
+              const fullImageUrl = data.image.startsWith("http")
+                ? data.image
+                : `${process.env.REACT_APP_BASE_URL}/${data.image}`;
+              setExistingImageUrl(fullImageUrl);
+            }
           }
         })
         .catch((error) =>
@@ -55,14 +66,38 @@ const HomeExecutionHighlightsEditForm = () => {
     }
   }, [id, dispatch]);
 
+  const handleImageChange = (files) => {
+    if (files[0]) {
+      setImage(files[0]);
+
+      // Create preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(files[0]);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setExistingImageUrl("");
+    setImage(null);
+    setImagePreview(null);
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     const formData = new FormData();
     formData.append("stack", stack);
+    formData.append("count", count);
+
+    // Handle image upload or removal
     if (image) {
       formData.append("image", image);
+    } else if (!existingImageUrl) {
+      // If no image is present, send a flag to remove the existing image
+      formData.append("removeImage", "true");
     }
-    formData.append("count", count);
 
     try {
       await dispatch(
@@ -84,6 +119,10 @@ const HomeExecutionHighlightsEditForm = () => {
     }
   }, [submitSuccess, navigate, dispatch]);
 
+  const handleBack = () => {
+    navigate(-1); // Navigate to the previous page
+  };
+
   return (
     <LeftNavigationBar
       Content={
@@ -102,62 +141,79 @@ const HomeExecutionHighlightsEditForm = () => {
                 {error}
               </Alert>
             )}
+
             <Box
               display="flex"
               alignItems="center"
-              justifyContent="center"
+              justifyContent="space-between"
               gap={1}
               mt={2}
-              mb={1}
+              mb={2}
             >
-              <Typography
-                variant="h4"
+              <Button variant="outlined" color="primary" onClick={handleBack}>
+                Back
+              </Button>
+              <Box
                 sx={{
+                  display: "flex",
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "center",
                   position: "relative",
-                  padding: 0,
-                  margin: 0,
-                  fontFamily: "Merriweather, serif",
-                  fontWeight: 300,
-                  fontSize: { xs: "32px", sm: "40px" },
-                  color: "#747474",
-                  textAlign: "center",
-                  textTransform: "uppercase",
-                  paddingBottom: "5px",
-                  "&::before": {
-                    content: '""',
-                    width: "28px",
-                    height: "5px",
-                    display: "block",
-                    position: "absolute",
-                    bottom: "3px",
-                    left: "50%",
-                    transform: "translateX(-50%)",
-                    backgroundColor: "#747474",
-                  },
-                  "&::after": {
-                    content: '""',
-                    width: "100px",
-                    height: "1px",
-                    display: "block",
-                    position: "relative",
-                    marginTop: "5px",
-                    left: "50%",
-                    transform: "translateX(-50%)",
-                    backgroundColor: "#747474",
-                  },
+                  flex: 1,
                 }}
               >
-                Execution Slider <br></br> Edit Form
-              </Typography>
-
-              <Tooltip
-                title="This is where you can add the execution count for the service."
-                arrow
-              >
-                <HelpOutline
-                  sx={{ color: "#747474", fontSize: "24px", cursor: "pointer" }}
-                />
-              </Tooltip>
+                <Typography
+                  variant="h4"
+                  sx={{
+                    position: "relative",
+                    padding: 0,
+                    margin: 0,
+                    fontWeight: 300,
+                    fontSize: { xs: "32px", sm: "40px" },
+                    color: "#747474",
+                    textAlign: "center",
+                    textTransform: "uppercase",
+                    paddingBottom: "5px",
+                    "&::before": {
+                      content: '""',
+                      width: "28px",
+                      height: "5px",
+                      display: "block",
+                      position: "absolute",
+                      bottom: "3px",
+                      left: "50%",
+                      transform: "translateX(-50%)",
+                      backgroundColor: "#747474",
+                    },
+                    "&::after": {
+                      content: '""',
+                      width: "100px",
+                      height: "1px",
+                      display: "block",
+                      position: "relative",
+                      marginTop: "5px",
+                      left: "50%",
+                      transform: "translateX(-50%)",
+                      backgroundColor: "#747474",
+                    },
+                  }}
+                >
+                  Execution Slider Edit Form
+                </Typography>
+                <Tooltip
+                  title="This is where you can add the execution count for the service."
+                  arrow
+                >
+                  <HelpOutline
+                    sx={{
+                      color: "#747474",
+                      fontSize: "24px",
+                      cursor: "pointer",
+                    }}
+                  />
+                </Tooltip>
+              </Box>
             </Box>
             <form
               onSubmit={handleSubmit}
@@ -190,39 +246,68 @@ const HomeExecutionHighlightsEditForm = () => {
                     onChange={(e) => setCount(e.target.value)}
                   />
                 </Grid>
+
                 <Grid item xs={12}>
-                  <div style={{ marginTop: "16px" }}>
-                    <DropzoneArea
-                      onChange={(fileArray) => setImage(fileArray[0])}
-                      acceptedFiles={["image/*"]}
-                      filesLimit={1}
-                      showPreviews={false}
-                      showPreviewsInDropzone={true}
-                      dropzoneText="Drag and drop an image here or click"
-                      required
-                    />
-                  </div>
-                  <Typography
-                    variant="subtitle1"
-                    color="textSecondary"
-                    style={{ marginTop: "16px" }}
-                  >
-                    Existing Image:
-                  </Typography>
-                  {existingImages && (
-                    <img
-                      src={`${existingImages}`}
-                      alt="Existing Highlight"
-                      style={{
-                        width: "80px",
-                        height: "80px",
-                        marginTop: "8px",
-                        padding: "20px",
-                        background:
-                          "linear-gradient(135deg, rgb(44, 46, 84) 10%, rgb(26, 28, 51) 90%)",
+                  {/* Image Preview Section - Similar to Logo Preview in CompanyEditForm */}
+                  {(existingImageUrl || imagePreview) && (
+                    <Box
+                      sx={{
+                        position: "relative",
+                        marginBottom: 2,
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
                       }}
-                    />
+                    >
+                      <Typography variant="subtitle1">Current Image:</Typography>
+                      <Box
+                        sx={{
+                          position: "relative",
+                          width: "200px",
+                          height: "200px",
+                          marginTop: 2,
+                          padding: "20px",
+                          background:
+                            "linear-gradient(135deg, rgb(44, 46, 84) 10%, rgb(26, 28, 51) 90%)",
+                          borderRadius: 1,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
+                        <img
+                          src={imagePreview || existingImageUrl}
+                          alt="Execution Highlight"
+                          style={{
+                            maxWidth: "160px",
+                            maxHeight: "160px",
+                            objectFit: "contain",
+                          }}
+                        />
+                        <IconButton
+                          sx={{
+                            position: "absolute",
+                            top: 0,
+                            right: 0,
+                            color: "#fff",
+                          }}
+                          onClick={handleRemoveImage}
+                          color="secondary"
+                        >
+                          <ClearIcon />
+                        </IconButton>
+                      </Box>
+                    </Box>
                   )}
+
+                  <DropzoneArea
+                    onChange={handleImageChange}
+                    acceptedFiles={["image/*"]}
+                    filesLimit={1}
+                    showPreviews={false}
+                    showPreviewsInDropzone={true}
+                    dropzoneText="Drag and drop a new image here or click"
+                  />
                 </Grid>
               </Grid>
               <Button

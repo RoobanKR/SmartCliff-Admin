@@ -188,7 +188,6 @@ const HomeServiceCountControlPage = () => {
                 position: "relative",
                 padding: 0,
                 margin: 0,
-                fontFamily: "Merriweather, serif",
                 fontWeight: 700,
                 textAlign: "center",
                 fontWeight: 300,
@@ -223,7 +222,7 @@ const HomeServiceCountControlPage = () => {
                 },
               }}
             >
-              Execution Count <br></br> Control Panel
+              Execution Count Panel
             </Typography>
             <Grid container spacing={2} alignItems="center">
               <Grid item xs={12} md={6}>
@@ -279,18 +278,17 @@ const HomeServiceCountControlPage = () => {
                   <TableRow
                     sx={{ backgroundColor: theme.palette.primary.main }}
                   >
-                    <TableCell sx={{ color: "white", fontWeight: 600 }}>
+                    <TableCell sx={{ color: "white", fontWeight: 600, textAlign: "center" }}>
                       Count
                     </TableCell>
-                    <TableCell sx={{ color: "white", fontWeight: 600 }}>
+                    <TableCell sx={{ color: "white", fontWeight: 600, textAlign: "center" }}>
                       Service
                     </TableCell>
-                    <TableCell sx={{ color: "white", fontWeight: 600 }}>
+                    <TableCell sx={{ color: "white", fontWeight: 600, textAlign: "center" }}>
                       Slug
                     </TableCell>
                     <TableCell
-                      align="right"
-                      sx={{ color: "white", fontWeight: 600 }}
+                      sx={{ color: "white", fontWeight: 600, textAlign: "center" }}
                     >
                       Actions
                     </TableCell>
@@ -305,10 +303,10 @@ const HomeServiceCountControlPage = () => {
                       )
                       .map((service) => (
                         <TableRow key={service._id}>
-                          <TableCell>{service.count}</TableCell>
-                          <TableCell>{service.service}</TableCell>
-                          <TableCell>{service.slug}</TableCell>
-                          <TableCell align="right">
+                          <TableCell sx={{ textAlign: "center" }}>{service.count}</TableCell>
+                          <TableCell sx={{ textAlign: "center" }}>{service.service}</TableCell>
+                          <TableCell sx={{ textAlign: "center" }}>{service.slug}</TableCell>
+                          <TableCell sx={{ textAlign: "center" }}>
                             <Button
                               variant="outlined"
                               onClick={() => handleEdit(service._id)}

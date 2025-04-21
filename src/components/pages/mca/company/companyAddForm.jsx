@@ -134,17 +134,7 @@ const CompanyAddForm = () => {
       Content={
 
         <Container component="main" maxWidth="md">
-          {/* <Snackbar
-            open={submitSuccess}
-            autoHideDuration={2000}
-            onClose={() => setSubmitSuccess(false)}
-            anchorOrigin={{ vertical: "top", horizontal: "right" }}
 
-          >
-            <Alert severity="success">
-              Company created successfully!
-            </Alert>
-          </Snackbar> */}
           <Paper elevation={0} >
             <Box
               display="flex"
@@ -175,7 +165,6 @@ const CompanyAddForm = () => {
                     position: "relative",
                     padding: 0,
                     margin: 0,
-                    fontFamily: "Merriweather, serif",
                     fontWeight: 300,
                     fontSize: { xs: "32px", sm: "40px" },
                     color: "#747474",

@@ -3,7 +3,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import Paper from "@material-ui/core/Paper";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
-import { Snackbar, Alert, Typography, Tooltip, Box } from "@mui/material";
+import { Snackbar, Alert, Typography, Tooltip, Box, Container } from "@mui/material";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import LeftNavigationBar from "../../../navbars/LeftNavigationBar";
@@ -143,133 +143,152 @@ const HomeServiceCountAddForm = () => {
     setSnackbarOpen(false);
   };
 
+  const handleBack = () => {
+    navigate(-1); // Navigate to the previous page
+  };  // Extract unique job positions for dropdown filter
+
   return (
     <LeftNavigationBar
       Content={
-        <Paper className={classes.paper} elevation={0}>
-          <Box
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-            gap={1}
-            mt={2}
-            mb={1}
-          >
-            <Typography
-              variant="h4"
-              sx={{
-                position: "relative",
-                padding: 0,
-                margin: 0,
-                fontFamily: "Merriweather, serif",
-                fontWeight: 300,
-                fontSize: { xs: "32px", sm: "40px" },
-                color: "#747474",
-                textAlign: "center",
-                textTransform: "uppercase",
-                paddingBottom: "5px",
-                "&::before": {
-                  content: '""',
-                  width: "28px",
-                  height: "5px",
-                  display: "block",
-                  position: "absolute",
-                  bottom: "3px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
-                "&::after": {
-                  content: '""',
-                  width: "100px",
-                  height: "1px",
-                  display: "block",
-                  position: "relative",
-                  marginTop: "5px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
+        <Container component="main" maxWidth="md">
+          <Paper elevation={0}>
+            <Box
+              display="flex"
+              alignItems="center"
+              justifyContent="space-between"
+              gap={1}
+              mt={2}
+              mb={2}
+            >
+              <Button
+                variant="outlined"
+                color="primary"
+                onClick={handleBack}
+              >
+                Back
+              </Button>
+              <Box sx={{
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'center',
+                position: 'relative',
+                flex: 1
+              }}>
+                <Typography
+                  variant="h4"
+                  sx={{
+                    position: "relative",
+                    padding: 0,
+                    margin: 0,
+                    fontWeight: 300,
+                    fontSize: { xs: "32px", sm: "40px" },
+                    color: "#747474",
+                    textAlign: "center",
+                    textTransform: "uppercase",
+                    paddingBottom: "5px",
+                    "&::before": {
+                      content: '""',
+                      width: "28px",
+                      height: "5px",
+                      display: "block",
+                      position: "absolute",
+                      bottom: "3px",
+                      left: "50%",
+                      transform: "translateX(-50%)",
+                      backgroundColor: "#747474",
+                    },
+                    "&::after": {
+                      content: '""',
+                      width: "100px",
+                      height: "1px",
+                      display: "block",
+                      position: "relative",
+                      marginTop: "5px",
+                      left: "50%",
+                      transform: "translateX(-50%)",
+                      backgroundColor: "#747474",
+                    },
+                  }}
+                >
+                  Execution Count Add Form
+                </Typography>
+                <Tooltip
+                  title="This is where you can add the execution count for the service."
+                  arrow
+                >
+                  <HelpOutline
+                    sx={{ color: "#747474", fontSize: "24px", cursor: "pointer" }}
+                  />
+                </Tooltip>
+              </Box>
+            </Box>
+
+            <form
+              onSubmit={handleSubmit}
+              style={{
+                border: "2px dotted #D3D3D3",
+                padding: "20px",
+                borderRadius: "8px",
               }}
             >
-              Execution Count <br /> Add Form
-            </Typography>
-
-            <Tooltip
-              title="This is where you can add the execution count for the service."
-              arrow
-            >
-              <HelpOutline
-                sx={{ color: "#747474", fontSize: "24px", cursor: "pointer" }}
+              <TextField
+                variant="outlined"
+                margin="normal"
+                required
+                fullWidth
+                id="count"
+                label="Count"
+                name="count"
+                value={count}
+                onChange={(e) => setCount(e.target.value)}
               />
-            </Tooltip>
-          </Box>
-
-          <form
-            className={classes.form}
-            onSubmit={handleSubmit}
-            style={{
-              border: "2px dotted #D3D3D3",
-              padding: "20px",
-              borderRadius: "8px",
-            }}
-          >
-            <TextField
-              variant="outlined"
-              margin="normal"
-              required
-              fullWidth
-              id="count"
-              label="Count"
-              name="count"
-              value={count}
-              onChange={(e) => setCount(e.target.value)}
-            />
-            <TextField
-              variant="outlined"
-              margin="normal"
-              required
-              fullWidth
-              id="service"
-              label="Service"
-              name="service"
-              value={service}
-              onChange={(e) => setService(e.target.value)}
-            />
-            <TextField
-              variant="outlined"
-              margin="normal"
-              required
-              fullWidth
-              id="slug"
-              label="Slug"
-              name="slug"
-              value={slug}
-              onChange={(e) => setSlug(e.target.value)}
-            />
-            <Button
-              type="submit"
-              variant="contained"
-              className={classes.submit}
-            >
-              Submit Execution Count
-            </Button>
-          </form>
-          <Snackbar
-            open={snackbarOpen}
-            autoHideDuration={6000}
-            onClose={handleSnackbarClose}
-            anchorOrigin={{ vertical: "top", horizontal: "right" }}
-          >
-            <Alert
+              <TextField
+                variant="outlined"
+                margin="normal"
+                required
+                fullWidth
+                id="service"
+                label="Service"
+                name="service"
+                value={service}
+                onChange={(e) => setService(e.target.value)}
+              />
+              <TextField
+                variant="outlined"
+                margin="normal"
+                required
+                fullWidth
+                id="slug"
+                label="Slug"
+                name="slug"
+                value={slug}
+                onChange={(e) => setSlug(e.target.value)}
+              />
+              <Button
+                type="submit"
+                variant="contained"
+                className={classes.submit}
+              >
+                Submit Execution Count
+              </Button>
+            </form>
+            <Snackbar
+              open={snackbarOpen}
+              autoHideDuration={6000}
               onClose={handleSnackbarClose}
-              severity={snackbarSeverity}
-              sx={{ width: "100%" }}
+              anchorOrigin={{ vertical: "top", horizontal: "right" }}
             >
-              {snackbarMessage}
-            </Alert>
-          </Snackbar>
-        </Paper>
+              <Alert
+                onClose={handleSnackbarClose}
+                severity={snackbarSeverity}
+                sx={{ width: "100%" }}
+              >
+                {snackbarMessage}
+              </Alert>
+            </Snackbar>
+          </Paper>
+        </Container>
       }
     />
   );

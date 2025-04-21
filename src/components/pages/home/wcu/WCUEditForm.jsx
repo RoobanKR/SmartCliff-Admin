@@ -4,12 +4,13 @@ import Paper from "@material-ui/core/Paper";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import { DropzoneArea } from "material-ui-dropzone";
-import { Typography, Snackbar, Alert, IconButton } from "@mui/material";
+import { Typography, Snackbar, Alert, IconButton, Tooltip, Box, Container } from "@mui/material";
 import ClearIcon from "@mui/icons-material/Clear";
 import { useDispatch, useSelector } from "react-redux";
 import { updateWCU, getWCUById } from "../../../redux/slices/home/wcu/WhyCU"; // Adjust the import path as necessary
 import LeftNavigationBar from "../../../navbars/LeftNavigationBar";
 import { useParams, useNavigate } from "react-router-dom";
+import { HelpOutline } from "@material-ui/icons";
 
 const useStyles = makeStyles((theme) => ({
     paper: {
@@ -149,6 +150,11 @@ const WCUEditForm = () => {
         setSnackbarOpen(false);
     };
 
+
+    const handleBack = () => {
+        navigate(-1); // Navigate to the previous page
+    };
+
     // Prevent rendering until WCU data is loaded
     if (loading) {
         return <Typography>Loading...</Typography>;
@@ -157,126 +163,176 @@ const WCUEditForm = () => {
     return (
         <LeftNavigationBar
             Content={
-                <Paper className={classes.paper} elevation={3}>
-                    <Typography
-                        variant="h4"
-                        sx={{
-                            position: "relative",
-                            padding: 0,
-                            margin: 0,
-                            fontFamily: 'Merriweather, serif',
-                            fontWeight: 700,
-                            textAlign: 'center',
-                            fontSize: { xs: "32px", sm: "40px" },
-                            color: "#747474",
-                            textTransform: "uppercase",
-                            paddingBottom: "5px",
-                            mb: 5,
-                            "&::before": {
-                                content: '""',
-                                width: "28px",
-                                height: "5px",
-                                display: "block",
-                                position: "absolute",
-                                bottom: "3px",
-                                left: "50%",
-                                transform: "translateX(-50%)",
-                                backgroundColor: "#747474",
-                            },
-                            "&::after": {
-                                content: '""',
-                                width: "100px",
-                                height: "1px",
-                                display: "block",
-                                position: "relative",
-                                marginTop: "5px",
-                                left: "50%",
-                                transform: "translateX(-50%)",
-                                backgroundColor: "#747474",
-                            },
-                        }}
-                    >
-                        Edit Why Choose Us
-                    </Typography>
-                    <form className={classes.form} onSubmit={handleSubmit}>
-                        <TextField
-                            variant="outlined"
-                            margin="normal"
-                            required
-                            fullWidth
-                            id="title"
-                            label="Title"
-                            name="title"
-                            value={title}
-                            onChange={(e) => setTitle(e.target.value)}
-                        />
-                        <TextField
-                            variant="outlined"
-                            margin="normal"
-                            required
-                            fullWidth
-                            id="description"
-                            label="Description"
-                            name="description"
-                            multiline
-                            rows={4}
-                            value={description}
-                            onChange={(e) => setDescription(e.target.value)}
-                        />
+                <Container component="main" maxWidth="md">
 
-                        {/* Icon Preview Section */}
-                        {(existingIconUrl || iconPreview) && (
-                            <div className={classes.logoContainer}>
-                                <Typography variant="subtitle1">Current Icon:</Typography>
-                                <img
-                                    src={iconPreview || existingIconUrl}
-                                    alt="WCU Icon"
-                                    className={classes.logoImage}
-                                />
-                                <IconButton
-                                    className={classes.removeLogoButton}
-                                    onClick={handleRemoveIcon}
-                                    color="secondary"
+                    <Paper elevation={0}>
+                        <Box
+                            display="flex"
+                            alignItems="center"
+                            justifyContent="space-between"
+                            gap={1}
+                            mt={2}
+                            mb={2}
+                        >
+                            <Button variant="outlined" color="primary" onClick={handleBack}>
+                                Back
+                            </Button>
+                            <Box
+                                sx={{
+                                    display: "flex",
+                                    flexDirection: "row",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    position: "relative",
+                                    flex: 1,
+                                }}
+                            >
+                                <Typography
+                                    variant="h4"
+                                    sx={{
+                                        position: "relative",
+                                        padding: 0,
+                                        margin: 0,
+                                        fontWeight: 300,
+                                        fontSize: { xs: "32px", sm: "40px" },
+                                        color: "#747474",
+                                        textAlign: "center",
+                                        textTransform: "uppercase",
+                                        paddingBottom: "5px",
+                                        "&::before": {
+                                            content: '""',
+                                            width: "28px",
+                                            height: "5px",
+                                            display: "block",
+                                            position: "absolute",
+                                            bottom: "3px",
+                                            left: "50%",
+                                            transform: "translateX(-50%)",
+                                            backgroundColor: "#747474",
+                                        },
+                                        "&::after": {
+                                            content: '""',
+                                            width: "100px",
+                                            height: "1px",
+                                            display: "block",
+                                            position: "relative",
+                                            marginTop: "5px",
+                                            left: "50%",
+                                            transform: "translateX(-50%)",
+                                            backgroundColor: "#747474",
+                                        },
+                                    }}
                                 >
-                                    <ClearIcon />
-                                </IconButton>
-                            </div>
-                        )}
+                                    Why Choose Us Edit Form
+                                </Typography>
+                                <Tooltip
+                                    title="This is where you can add the execution count for the service."
+                                    arrow
+                                >
+                                    <HelpOutline
+                                        sx={{
+                                            color: "#747474",
+                                            fontSize: "24px",
+                                            cursor: "pointer",
+                                        }}
+                                    />
+                                </Tooltip>
+                            </Box>
+                        </Box>
+                        <form
+                            style={{
+                                border: "2px dotted #D3D3D3",
+                                padding: "20px",
+                                borderRadius: "8px",
+                            }}
+                            onSubmit={handleSubmit}>
+                            <TextField
+                                variant="outlined"
+                                margin="normal"
+                                required
+                                fullWidth
+                                id="title"
+                                label="Title"
+                                name="title"
+                                value={title}
+                                onChange={(e) => setTitle(e.target.value)}
+                            />
+                            <TextField
+                                variant="outlined"
+                                margin="normal"
+                                required
+                                fullWidth
+                                id="description"
+                                label="Description"
+                                name="description"
+                                multiline
+                                rows={4}
+                                value={description}
+                                onChange={(e) => setDescription(e.target.value)}
+                            />
 
-                        <DropzoneArea
-                            onChange={handleIconChange}
-                            acceptedFiles={["image/*"]}
-                            filesLimit={1}
-                            showPreviews={false}
-                            showPreviewsInDropzone={true}
-                            dropzoneText="Drag and drop a new icon image here or click (Optional)"
-                        />
+                            {/* Icon Preview Section */}
+                            {(existingIconUrl || iconPreview) && (
+                                <div className={classes.logoContainer}>
+                                    <Typography variant="subtitle1">Current Icon:</Typography>
+                                    <img
+                                        src={iconPreview || existingIconUrl}
+                                        alt="WCU Icon"
+                                        className={classes.logoImage}
+                                    />
+                                    <IconButton
+                                        className={classes.removeLogoButton}
+                                        onClick={handleRemoveIcon}
+                                        color="secondary"
+                                    >
+                                        <ClearIcon />
+                                    </IconButton>
+                                </div>
+                            )}
 
-                        <Button
-                            type="submit"
-                            variant="contained"
-                            className={classes.submit}
-                            fullWidth
-                        >
-                            Update WCU
-                        </Button>
-                    </form>
-                    <Snackbar
-                        open={snackbarOpen}
-                        autoHideDuration={6000}
-                        onClose={handleSnackbarClose}
-                        anchorOrigin={{ vertical: "top", horizontal: "right" }}
-                    >
-                        <Alert
+                            <DropzoneArea
+                                onChange={handleIconChange}
+                                acceptedFiles={["image/*"]}
+                                filesLimit={1}
+                                showPreviews={false}
+                                showPreviewsInDropzone={true}
+                                dropzoneText="Drag and drop a new icon image here or click (Optional)"
+                            />
+
+                            <Button
+                                type="submit"
+                                variant="contained"
+                                style={{
+                                    display: "block",
+                                    margin: "24px auto 0", // centers the button horizontally
+                                    backgroundColor: " #ff6d00", // green
+                                    color: "#fff",
+                                    padding: "5px 10px",
+                                    borderRadius: "4px",
+                                    textTransform: "uppercase",
+                                    cursor: "pointer",
+                                }}
+                            >
+                                Update WCU
+                            </Button>
+                        </form>
+                        <Snackbar
+                            open={snackbarOpen}
+                            autoHideDuration={6000}
                             onClose={handleSnackbarClose}
-                            severity={snackbarSeverity}
-                            sx={{ width: "100%" }}
-                            variant="filled"
+                            anchorOrigin={{ vertical: "top", horizontal: "right" }}
                         >
-                            {snackbarMessage}
-                        </Alert>
-                    </Snackbar>
-                </Paper>
+                            <Alert
+                                onClose={handleSnackbarClose}
+                                severity={snackbarSeverity}
+                                sx={{ width: "100%" }}
+                                variant="filled"
+                            >
+                                {snackbarMessage}
+                            </Alert>
+                        </Snackbar>
+                    </Paper>
+                </Container>
             }
         />
     );

@@ -128,7 +128,6 @@ const HomeExecutionHighlightsControl = () => {
                 position: "relative",
                 padding: 0,
                 margin: 0,
-                fontFamily: "Merriweather, serif",
                 fontWeight: 700,
                 textAlign: "center",
                 fontWeight: 300,
@@ -163,7 +162,7 @@ const HomeExecutionHighlightsControl = () => {
                 },
               }}
             >
-              Execution Slider <br></br>Control Panel
+              Execution Slider Panel
             </Typography>
             <Grid container spacing={2} alignItems="center">
               <Grid item xs={12} md={6}>
@@ -219,16 +218,16 @@ const HomeExecutionHighlightsControl = () => {
                   <TableRow
                     sx={{ backgroundColor: theme.palette.primary.main }}
                   >
-                    <TableCell sx={{ color: "white", fontWeight: 600 }}>
+                    <TableCell sx={{ color: "white", fontWeight: 600, textAlign: "center" }}>
                       Stack Name
                     </TableCell>
-                    <TableCell sx={{ color: "white", fontWeight: 600 }}>
+                    <TableCell sx={{ color: "white", fontWeight: 600, textAlign: "center" }}>
                       Count
                     </TableCell>
-                    <TableCell sx={{ color: "white", fontWeight: 600 }}>
+                    <TableCell sx={{ color: "white", fontWeight: 600, textAlign: "center" }}>
                       Image
                     </TableCell>
-                    <TableCell sx={{ color: "white", fontWeight: 600 }}>
+                    <TableCell sx={{ color: "white", fontWeight: 600, textAlign: "center" }}>
                       Actions
                     </TableCell>
                   </TableRow>
@@ -242,9 +241,9 @@ const HomeExecutionHighlightsControl = () => {
                       )
                       .map((executionHighlight, index) => (
                         <TableRow key={executionHighlight._id}>
-                          <TableCell>{executionHighlight.stack}</TableCell>
-                          <TableCell>{executionHighlight.count}</TableCell>
-                          <TableCell>
+                          <TableCell sx={{ textAlign: "center" }} >{executionHighlight.stack}</TableCell>
+                          <TableCell sx={{ textAlign: "center" }}>{executionHighlight.count}</TableCell>
+                          <TableCell sx={{ textAlign: "center" }}>
                             <img
                               src={executionHighlight.image}
                               alt={executionHighlight.stack}
@@ -257,7 +256,7 @@ const HomeExecutionHighlightsControl = () => {
                               }}
                             />
                           </TableCell>
-                          <TableCell>
+                          <TableCell sx={{ textAlign: "center" }}>
                             <Button
                               variant="outlined"
                               onClick={() => handleEdit(executionHighlight._id)}

@@ -148,8 +148,7 @@ const WCUControl = () => {
                                 position: "relative",
                                 padding: 0,
                                 margin: 0,
-                                fontFamily: 'Merriweather, serif',
-                                fontWeight: 700,
+                                fontWeight: 300,
                                 textAlign: 'center',
                                 fontSize: { xs: "32px", sm: "40px" },
                                 color: "#747474",
@@ -181,7 +180,7 @@ const WCUControl = () => {
                                 },
                             }}
                         >
-                            Why Choose Us Management
+                            Why Choose Us Panel
                         </Typography>
 
                         <Grid container spacing={2} alignItems="center">
@@ -229,10 +228,10 @@ const WCUControl = () => {
                             <Table>
                                 <TableHead>
                                     <TableRow sx={{ backgroundColor: theme.palette.primary.main }}>
-                                        <TableCell sx={{ color: 'white', fontWeight: 600 }}>Title</TableCell>
-                                        <TableCell sx={{ color: 'white', fontWeight: 600 }}>Description</TableCell>
-                                        <TableCell sx={{ color: 'white', fontWeight: 600 }}>Icon</TableCell>
-                                        <TableCell sx={{ color: 'white', fontWeight: 600 }}>Actions</TableCell>
+                                        <TableCell sx={{ color: 'white', fontWeight: 600, textAlign: 'center', }}>Title</TableCell>
+                                        <TableCell sx={{ color: 'white', fontWeight: 600, textAlign: 'center', }}>Description</TableCell>
+                                        <TableCell sx={{ color: 'white', fontWeight: 600, textAlign: 'center', }}>Icon</TableCell>
+                                        <TableCell sx={{ color: 'white', fontWeight: 600, textAlign: 'center', }}>Actions</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
@@ -250,26 +249,26 @@ const WCUControl = () => {
                                                         '&:last-child td, &:last-child th': { border: 0 }
                                                     }}
                                                 >
-                                                    <TableCell>
+                                                    <TableCell sx={{ textAlign: 'center' }}>
                                                         <Typography fontWeight={500}>
                                                             {wcu.title || 'N/A'}
                                                         </Typography>
                                                     </TableCell>
-                                                    <TableCell>
+                                                    <TableCell sx={{ textAlign: 'center' }}>
                                                         <Typography variant="body2">
                                                             {wcu.description || 'No description'}
                                                         </Typography>
                                                     </TableCell>
-                                                    <TableCell>
+                                                    <TableCell sx={{ textAlign: 'center' }}>
                                                         <Avatar
                                                             src={`${wcu.icon}`}
                                                             alt={wcu.title || 'WCU icon'}
-                                                           
+
                                                         >
                                                             {!wcu.icon && wcu.title?.charAt(0)}
                                                         </Avatar>
                                                     </TableCell>
-                                                    <TableCell>
+                                                    <TableCell sx={{ textAlign: 'center' }}>
                                                         <Box sx={{ display: 'flex', gap: 1 }}>
                                                             <Tooltip title="Edit">
                                                                 <IconButton

@@ -129,7 +129,8 @@ const CourseEditForm = ({ onCancel }) => {
             courseOutline: courseData.courseOutline.modules.map((module) => ({
               module,
             })),
-            courseSummary: courseData.courseSummary,
+           // In your useEffect that fetches course data
+courseSummary: courseData.courseSummary ? courseData.courseSummary.map(item => ({ ...item })) : [],
             tool_software: courseData.tool_software || [],
           });
 
@@ -189,11 +190,14 @@ const CourseEditForm = ({ onCancel }) => {
   };
 
   const handleSummaryChange = (index, field, value) => {
-    const newSummary = [...formData.courseSummary];
-    newSummary[index][field] = value;
+    const newSummary = formData.courseSummary.map((item, i) => {
+      if (i === index) {
+        return { ...item, [field]: value };
+      }
+      return item;
+    });
     setFormData({ ...formData, courseSummary: newSummary });
   };
-
   const addSummary = () => {
     setFormData({
       ...formData,

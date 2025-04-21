@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import {
   TextField,
   Button,
-  MenuItem,
   Card,
   CardContent,
   Typography,
@@ -13,8 +12,10 @@ import {
   useTheme,
   Box,
   Tooltip,
+  IconButton,
 } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import ClearIcon from "@mui/icons-material/Clear";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import LeftNavigationBar from "../../../navbars/LeftNavigationBar";
@@ -33,16 +34,21 @@ const AboutUsEditForm = () => {
   const theme = useTheme();
 
   const aboutUss = useSelector((state) => state.aboutUs.aboutUss);
+  const loading = useSelector((state) => state.aboutUs.loading);
+
   const [formData, setFormData] = useState({
     title: "",
     image: null,
     preview: "",
+    removeImage: false
   });
-  const [loading, setLoading] = useState(false);
+
+  const [submitLoading, setSubmitLoading] = useState(false);
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [message, setMessage] = useState({ text: "", type: "success" });
   const [cookies] = useCookies(["token"]);
 
+  // Authentication check
   useEffect(() => {
     if (!cookies.token) {
       dispatch(resetSignIn());
@@ -51,22 +57,23 @@ const AboutUsEditForm = () => {
       dispatch(userVerify({ token: cookies.token }));
     }
   }, [cookies, dispatch, navigate]);
-  useEffect(() => {
-    if (!aboutUss.length) {
-      dispatch(getAllAboutUs()); // Ensure the data is loaded
-    }
-  }, [dispatch, aboutUss.length]);
 
+  // Load about us data
   useEffect(() => {
-    console.log("aboutUss from Redux:", aboutUss); // Debugging log
-    if (id) {
+    dispatch(getAllAboutUs());
+  }, [dispatch]);
+
+  // Set form data when about us data is loaded
+  useEffect(() => {
+    if (id && aboutUss.length > 0) {
       const existingData = aboutUss.find((item) => item._id === id);
-      console.log("existingData", existingData); // Debugging log
 
       if (existingData) {
         setFormData({
           title: existingData.title || "",
+          image: null,
           preview: existingData.image || "",
+          removeImage: false
         });
       } else {
         setMessage({ text: "Failed to fetch data", type: "error" });
@@ -88,119 +95,168 @@ const AboutUsEditForm = () => {
         setOpenSnackbar(true);
         return;
       }
+
       setFormData((prev) => ({
         ...prev,
         image: file,
         preview: URL.createObjectURL(file),
+        removeImage: false
       }));
     }
   };
 
+  const handleRemoveImage = () => {
+    setFormData((prev) => ({
+      ...prev,
+      image: null,
+      preview: "",
+      removeImage: true
+    }));
+  };
+
+  const handleBack = () => {
+    navigate(-1);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    setSubmitLoading(true);
 
     const formDataToSend = new FormData();
     formDataToSend.append("title", formData.title);
 
     if (formData.image) {
       formDataToSend.append("image", formData.image);
-    } else {
-      formDataToSend.append("image", formData.preview.split("/").pop()); // Send existing image name
+    } else if (formData.removeImage) {
+      formDataToSend.append("removeImage", "true");
     }
 
-    dispatch(
-      updateAboutUs({ id, formData: formDataToSend, token: cookies.token })
-    )
-      .unwrap()
-      .then(() => {
-        setMessage({ text: "Updated successfully", type: "success" });
-        setOpenSnackbar(true);
-        setTimeout(() => navigate("/about/aboutus-control"), 2000);
-      })
-      .catch((error) => {
-        setMessage({
-          text: error?.message || "Something went wrong",
-          type: "error",
-        });
-        setOpenSnackbar(true);
-      })
-      .finally(() => setLoading(false));
+    try {
+      await dispatch(updateAboutUs({
+        id,
+        formData: formDataToSend,
+        token: cookies.token
+      })).unwrap();
+
+      setMessage({ text: "Updated successfully", type: "success" });
+      setOpenSnackbar(true);
+
+      setTimeout(() => navigate("/about/aboutus-control"), 1500);
+    } catch (error) {
+      setMessage({
+        text: error?.message || "Something went wrong",
+        type: "error",
+      });
+      setOpenSnackbar(true);
+    } finally {
+      setSubmitLoading(false);
+    }
   };
+
+  if (loading) {
+    return (
+      <LeftNavigationBar
+        Content={
+          <Box display="flex" justifyContent="center" alignItems="center" height="80vh">
+            <CircularProgress />
+          </Box>
+        }
+      />
+    );
+  }
 
   return (
     <LeftNavigationBar
       Content={
-        <>
-          {" "}
+        <Box sx={{ maxWidth: 800, margin: "auto", px: 2 }}>
+          {/* Header with Back Button */}
           <Box
             display="flex"
             alignItems="center"
-            justifyContent="center"
+            justifyContent="space-between"
             gap={1}
-            mt={2}
-            mb={1}
+            mt={3}
+            mb={2}
           >
-            <Typography
-              variant="h4"
+            <Button
+              variant="outlined"
+              color="primary"
+              onClick={handleBack}
+            >
+              Back
+            </Button>
+
+            <Box
               sx={{
-                position: "relative",
-                padding: 0,
-                margin: 0,
-                fontFamily: "Merriweather, serif",
-                fontWeight: 300,
-                fontSize: { xs: "32px", sm: "40px" },
-                color: "#747474",
-                textAlign: "center",
-                textTransform: "uppercase",
-                paddingBottom: "5px",
-                "&::before": {
-                  content: '""',
-                  width: "28px",
-                  height: "5px",
-                  display: "block",
-                  position: "absolute",
-                  bottom: "3px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
-                "&::after": {
-                  content: '""',
-                  width: "100px",
-                  height: "1px",
-                  display: "block",
-                  position: "relative",
-                  marginTop: "5px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "center",
+                flex: 1,
               }}
             >
-              About Us Content
-              <br /> Edit Form
-            </Typography>
-
-            <Tooltip
-              title="This is where you can add the execution count for the service."
-              arrow
-            >
-              <HelpOutline
-                sx={{ color: "#747474", fontSize: "24px", cursor: "pointer" }}
-              />
-            </Tooltip>
-          </Box>
-          <Card elevation={0} sx={{ maxWidth: 700, margin: "auto" }}>
-            <CardContent>
-              <Snackbar
-                open={openSnackbar}
-                autoHideDuration={3000}
-                onClose={() => setOpenSnackbar(false)}
+              <Typography
+                variant="h4"
+                sx={{
+                  position: "relative",
+                  padding: 0,
+                  margin: 0,
+                  fontWeight: 300,
+                  fontSize: { xs: "28px", sm: "36px" },
+                  color: "#747474",
+                  textAlign: "center",
+                  textTransform: "uppercase",
+                  paddingBottom: "5px",
+                  "&::before": {
+                    content: '""',
+                    width: "28px",
+                    height: "5px",
+                    display: "block",
+                    position: "absolute",
+                    bottom: "3px",
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    backgroundColor: "#747474",
+                  },
+                  "&::after": {
+                    content: '""',
+                    width: "100px",
+                    height: "1px",
+                    display: "block",
+                    position: "relative",
+                    marginTop: "5px",
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    backgroundColor: "#747474",
+                  },
+                }}
               >
-                <Alert severity={message.type}>{message.text}</Alert>
-              </Snackbar>
+                About Us Edit Form
+              </Typography>
 
+              <Tooltip
+                title="Edit the about us content and image here"
+                arrow
+                placement="top"
+              >
+                <HelpOutline
+                  sx={{
+                    color: "#747474",
+                    fontSize: "24px",
+                    cursor: "pointer",
+                    ml: 1,
+                  }}
+                />
+              </Tooltip>
+            </Box>
+          </Box>
+
+          {/* Form Card */}
+          <Card
+            elevation={0}
+            sx={{ mb: 4 }}
+          >
+            <CardContent>
               <form
                 onSubmit={handleSubmit}
                 style={{
@@ -220,17 +276,62 @@ const AboutUsEditForm = () => {
                       multiline
                       rows={4}
                       margin="normal"
+                      required
                     />
                   </Grid>
+
+                  {/* Image Preview Section */}
+                  {formData.preview && (
+                    <Grid item xs={12}>
+                      <Box sx={{ position: "relative", mt: 2 }}>
+                        <Typography variant="subtitle1" gutterBottom>
+                          Current Image:
+                        </Typography>
+                        <img
+                          src={formData.preview}
+                          alt="About Us Preview"
+                          style={{
+                            width: "100%",
+                            maxHeight: "300px",
+                            objectFit: "contain",
+                            borderRadius: "8px",
+                          }}
+                        />
+                        <IconButton
+                          sx={{
+                            position: "absolute",
+                            top: 30,
+                            right: 10,
+                            backgroundColor: "rgba(255, 255, 255, 0.7)",
+                            "&:hover": {
+                              backgroundColor: "rgba(255, 255, 255, 0.9)",
+                            },
+                          }}
+                          onClick={handleRemoveImage}
+                          color="secondary"
+                        >
+                          <ClearIcon />
+                        </IconButton>
+                      </Box>
+                    </Grid>
+                  )}
+
+                  {/* Image Upload Button */}
                   <Grid item xs={12}>
                     <Button
                       variant="contained"
                       component="label"
                       fullWidth
                       startIcon={<CloudUploadIcon />}
-                      sx={{ mt: 2 }}
+                      sx={{
+                        mt: 2,
+                        backgroundColor: theme.palette.primary.main,
+                        "&:hover": {
+                          backgroundColor: theme.palette.primary.dark,
+                        },
+                      }}
                     >
-                      Click Here Update Image
+                      {formData.preview ? "Change Image" : "Upload Image"}
                       <input
                         type="file"
                         hidden
@@ -238,43 +339,54 @@ const AboutUsEditForm = () => {
                         onChange={handleFileChange}
                       />
                     </Button>
-                    {formData.preview && (
-                      <img
-                        src={formData.preview}
-                        alt="Preview"
-                        style={{
-                          width: "100%",
-                          height: "auto",
-                          marginTop: 10,
-                          borderRadius: 8,
-                        }}
-                      />
-                    )}
                   </Grid>
-                  <Grid item xs={12}>
+
+                  {/* Submit Button */}
+                  <Grid item xs={12} sx={{ mt: 2, textAlign: "center" }}>
                     <Button
                       type="submit"
                       variant="contained"
+                      disabled={submitLoading}
                       sx={{
-                        backgroundColor: theme.palette.warning.main,
-                        color: theme.palette.warning.contrastText,
-                        display: "block",
-                        marginLeft: "auto",
-                        marginRight: "auto",
-                        mt: 3, // optional: top margin
+                        backgroundColor: "#ff6d00",
+                        color: "#fff",
+                        padding: "8px 24px",
+                        textTransform: "uppercase",
+                        borderRadius: "4px",
+                        mt: 2,
                         "&:hover": {
-                          backgroundColor: theme.palette.warning.dark,
+                          backgroundColor: "#e65100",
                         },
                       }}
                     >
-                      Submit Content
+                      {submitLoading ? (
+                        <CircularProgress size={24} color="inherit" />
+                      ) : (
+                        "Update Content"
+                      )}
                     </Button>
                   </Grid>
                 </Grid>
               </form>
             </CardContent>
           </Card>
-        </>
+
+          {/* Snackbar for notifications */}
+          <Snackbar
+            open={openSnackbar}
+            autoHideDuration={3000}
+            onClose={() => setOpenSnackbar(false)}
+            anchorOrigin={{ vertical: "top", horizontal: "right" }}
+          >
+            <Alert
+              onClose={() => setOpenSnackbar(false)}
+              severity={message.type}
+              sx={{ width: "100%" }}
+            >
+              {message.text}
+            </Alert>
+          </Snackbar>
+        </Box>
       }
     />
   );

@@ -14,6 +14,7 @@ import {
   Tooltip,
   Box,
   useTheme,
+  IconButton,
 } from "@mui/material";
 import { DropzoneArea } from "material-ui-dropzone";
 import { useNavigate, useParams } from "react-router-dom";
@@ -28,14 +29,11 @@ import {
   updateReview,
 } from "../../redux/slices/review/review";
 import { useCookies } from "react-cookie";
-import { HelpOutline } from "@mui/icons-material";
+import { HelpOutline, Clear as ClearIcon } from "@mui/icons-material";
 import { makeStyles } from "@material-ui/core/styles";
 
 const useStyles = makeStyles((theme) => ({
   paper: {
-    // maxWidth: 600,
-    // margin: "auto",
-    // padding: theme.spacing(3),
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
@@ -52,6 +50,29 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: "auto",
     marginRight: "auto",
     display: "block",
+  },
+  mediaContainer: {
+    position: "relative",
+    marginBottom: theme.spacing(2),
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+  },
+  profileImage: {
+    maxWidth: "200px",
+    maxHeight: "200px",
+    marginTop: theme.spacing(2),
+    borderRadius: theme.spacing(1),
+  },
+  video: {
+    maxWidth: "100%",
+    marginTop: theme.spacing(2),
+    borderRadius: theme.spacing(1),
+  },
+  removeButton: {
+    position: "absolute",
+    top: 0,
+    right: 0,
   },
 }));
 
@@ -79,7 +100,9 @@ const ReviewsEditForm = () => {
   const [role, setRole] = useState("");
   const [video, setVideo] = useState(null);
   const [existingProfile, setExistingProfile] = useState("");
+  const [profilePreview, setProfilePreview] = useState(null);
   const [existingVideo, setExistingVideo] = useState("");
+  const [videoPreview, setVideoPreview] = useState(null);
 
   // Validation
   const [errors, setErrors] = useState({
@@ -102,8 +125,24 @@ const ReviewsEditForm = () => {
             setRatings(data.ratings || "");
             setBatch(data.batch || "");
             setRole(data.role || "");
-            setExistingProfile(data.profile || "");
-            setExistingVideo(data.video || "");
+
+            // Handle profile image URL
+            if (data.profile) {
+              // If profile is a relative path, prepend the base URL
+              const fullProfileUrl = data.profile.startsWith("http")
+                ? data.profile
+                : `${process.env.REACT_APP_BASE_URL}/${data.profile}`;
+              setExistingProfile(fullProfileUrl);
+            }
+
+            // Handle video URL
+            if (data.video) {
+              // If video is a relative path, prepend the base URL
+              const fullVideoUrl = data.video.startsWith("http")
+                ? data.video
+                : `${process.env.REACT_APP_BASE_URL}/${data.video}`;
+              setExistingVideo(fullVideoUrl);
+            }
           }
         })
         .catch((error) => console.error("Error fetching Review:", error));
@@ -165,7 +204,20 @@ const ReviewsEditForm = () => {
   const handleImageChange = (fileArray) => {
     if (fileArray.length > 0) {
       setProfile(fileArray[0]);
+
+      // Create preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfilePreview(reader.result);
+      };
+      reader.readAsDataURL(fileArray[0]);
     }
+  };
+
+  const handleRemoveProfile = () => {
+    setExistingProfile("");
+    setProfile(null);
+    setProfilePreview(null);
   };
 
   const handleVideoChange = (fileArray) => {
@@ -184,7 +236,20 @@ const ReviewsEditForm = () => {
 
       setVideo(file);
       setErrors((prev) => ({ ...prev, video: "" }));
+
+      // Create video preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setVideoPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
     }
+  };
+
+  const handleRemoveVideo = () => {
+    setExistingVideo("");
+    setVideo(null);
+    setVideoPreview(null);
   };
 
   const handleSubmit = async (event) => {
@@ -220,10 +285,16 @@ const ReviewsEditForm = () => {
 
     if (profile) {
       formData.append("profile", profile);
+    } else if (!existingProfile) {
+      // If no profile is present, send a flag to remove the existing profile
+      formData.append("removeProfile", "true");
     }
 
     if (video) {
       formData.append("video", video);
+    } else if (!existingVideo) {
+      // If no video is present, send a flag to remove the existing video
+      formData.append("removeVideo", "true");
     }
 
     try {
@@ -234,6 +305,11 @@ const ReviewsEditForm = () => {
       console.error("Error updating review:", error);
     }
   };
+
+  const handleBack = () => {
+    navigate(-1); // Navigate to the previous page
+  };
+
   return (
     <LeftNavigationBar
       Content={
@@ -241,66 +317,76 @@ const ReviewsEditForm = () => {
           <Box
             display="flex"
             alignItems="center"
-            justifyContent="center"
+            justifyContent="space-between"
             gap={1}
             mt={2}
-            mb={1}
+            mb={2}
           >
-            <Typography
-              variant="h4"
+            <Button variant="outlined" color="primary" onClick={handleBack}>
+              Back
+            </Button>
+            <Box
               sx={{
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "center",
                 position: "relative",
-                padding: 0,
-                margin: 0,
-                fontFamily: "Merriweather, serif",
-                fontWeight: 300,
-                fontSize: { xs: "32px", sm: "40px" },
-                color: "#747474",
-                textAlign: "center",
-                textTransform: "uppercase",
-                paddingBottom: "5px",
-
-                "&::before": {
-                  content: '""',
-                  width: "28px",
-                  height: "5px",
-                  display: "block",
-                  position: "absolute",
-                  bottom: "3px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
-                "&::after": {
-                  content: '""',
-                  width: "100px",
-                  height: "1px",
-                  display: "block",
-                  position: "relative",
-                  marginTop: "5px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
+                flex: 1,
               }}
             >
-              Testimonial Edit Form
-            </Typography>
-
-            <Tooltip
-              title="This is where you can add the execution count for the service."
-              arrow
-            >
-              <HelpOutline
+              <Typography
+                variant="h4"
                 sx={{
+                  position: "relative",
+                  padding: 0,
+                  margin: 0,
+                  fontWeight: 300,
+                  fontSize: { xs: "32px", sm: "40px" },
                   color: "#747474",
-                  fontSize: "24px",
-                  cursor: "pointer",
+                  textAlign: "center",
+                  textTransform: "uppercase",
+                  paddingBottom: "5px",
+                  "&::before": {
+                    content: '""',
+                    width: "28px",
+                    height: "5px",
+                    display: "block",
+                    position: "absolute",
+                    bottom: "3px",
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    backgroundColor: "#747474",
+                  },
+                  "&::after": {
+                    content: '""',
+                    width: "100px",
+                    height: "1px",
+                    display: "block",
+                    position: "relative",
+                    marginTop: "5px",
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    backgroundColor: "#747474",
+                  },
                 }}
-              />
-            </Tooltip>
+              >
+                Testimonial Edit Form
+              </Typography>
+              <Tooltip
+                title="This is where you can add the execution count for the service."
+                arrow
+              >
+                <HelpOutline
+                  sx={{
+                    color: "#747474",
+                    fontSize: "24px",
+                    cursor: "pointer",
+                  }}
+                />
+              </Tooltip>
+            </Box>
           </Box>
-
           <Snackbar
             open={openSnackbar}
             autoHideDuration={2000}
@@ -402,6 +488,25 @@ const ReviewsEditForm = () => {
                 />
               </Grid>
               <Grid item xs={12}>
+                {/* Profile Image Preview Section */}
+                {(existingProfile || profilePreview) && (
+                  <div className={classes.mediaContainer}>
+                    <Typography variant="subtitle1">Current Profile Image:</Typography>
+                    <img
+                      src={profilePreview || existingProfile}
+                      alt="Profile"
+                      className={classes.profileImage}
+                    />
+                    <IconButton
+                      className={classes.removeButton}
+                      onClick={handleRemoveProfile}
+                      color="secondary"
+                    >
+                      <ClearIcon />
+                    </IconButton>
+                  </div>
+                )}
+
                 <div style={{ marginTop: "16px" }}>
                   <DropzoneArea
                     onChange={handleImageChange}
@@ -418,23 +523,29 @@ const ReviewsEditForm = () => {
                     dropzoneText="Drag and drop a profile image (PNG, SVG, JPG, JPEG) here or click"
                   />
                 </div>
-
-                {existingProfile && (
-                  <div>
-                    <Typography
-                      variant="subtitle1"
-                      color="textSecondary"
-                      style={{ marginTop: "16px" }}
-                    >
-                      Existing Profile:
-                    </Typography>
-                    <Typography style={{ marginLeft: "16px" }}>
-                      {existingProfile.split("/").pop()}
-                    </Typography>
-                  </div>
-                )}
               </Grid>
               <Grid item xs={12}>
+                {/* Video Preview Section */}
+                {(existingVideo || videoPreview) && (
+                  <div className={classes.mediaContainer}>
+                    <Typography variant="subtitle1">Current Video:</Typography>
+                    <video
+                      controls
+                      className={classes.video}
+                      src={videoPreview || existingVideo}
+                    >
+                      Your browser does not support the video tag.
+                    </video>
+                    <IconButton
+                      className={classes.removeButton}
+                      onClick={handleRemoveVideo}
+                      color="secondary"
+                    >
+                      <ClearIcon />
+                    </IconButton>
+                  </div>
+                )}
+
                 <div style={{ marginTop: "16px" }}>
                   <DropzoneArea
                     onChange={handleVideoChange}
@@ -451,21 +562,6 @@ const ReviewsEditForm = () => {
                     </Typography>
                   )}
                 </div>
-
-                {existingVideo && (
-                  <div>
-                    <Typography
-                      variant="subtitle1"
-                      color="textSecondary"
-                      style={{ marginTop: "16px" }}
-                    >
-                      Existing Video:
-                    </Typography>
-                    <Typography style={{ marginLeft: "16px" }}>
-                      {existingVideo.split("/").pop()}
-                    </Typography>
-                  </div>
-                )}
               </Grid>
             </Grid>
             <Box sx={{ mt: 2, display: "flex", justifyContent: "center" }}>

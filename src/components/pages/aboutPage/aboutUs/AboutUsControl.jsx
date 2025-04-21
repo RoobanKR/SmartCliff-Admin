@@ -25,6 +25,7 @@ import {
   CircularProgress,
   useTheme,
   useMediaQuery,
+  Tooltip,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
@@ -119,7 +120,6 @@ const AboutUsControl = () => {
               position: "relative",
               padding: 0,
               margin: 0,
-              fontFamily: "Merriweather, serif",
               fontWeight: 700,
               textAlign: "center",
               fontWeight: 300,
@@ -154,8 +154,7 @@ const AboutUsControl = () => {
               },
             }}
           >
-            About Us <br />
-            Content Control
+            About Us Content Panel
           </Typography>
           <Grid container spacing={2} alignItems="center" sx={{ mb: 2 }}>
             <Grid item xs={12} md={6}>
@@ -212,27 +211,35 @@ const AboutUsControl = () => {
                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                     .map((item) => (
                       <TableRow key={item._id}>
-                        <TableCell>{item.title}</TableCell>
-                        <TableCell>
+                        <TableCell sx={{ textAlign: "center" }}>{item.title}</TableCell>
+                        <TableCell sx={{ textAlign: "center" }}>
                           <img
                             src={item.image}
                             alt={item.title}
                             style={{ maxWidth: "50px", maxHeight: "50px" }}
                           />
                         </TableCell>
-                        <TableCell>
-                          <IconButton
-                            onClick={() => handleEdit(item._id)}
-                            color="primary"
-                          >
-                            <EditIcon />
-                          </IconButton>
-                          <IconButton
-                            onClick={() => handleConfirmDeleteOpen(item._id)}
-                            color="error"
-                          >
-                            <DeleteIcon />
-                          </IconButton>
+                        <TableCell >
+                          <Box sx={{ display: 'flex', gap: 1 }}>
+                            <Tooltip title="Edit">
+                              <Button
+                                onClick={() => handleEdit(item._id)}
+                                color="primary"
+                                variant="outlined"
+                              >
+                                <EditIcon />
+                              </Button>
+                            </Tooltip>
+                            <Tooltip title="Delete">
+                              <Button
+                                onClick={() => handleConfirmDeleteOpen(item._id)}
+                                color="error"
+                                variant="outlined"
+                              >
+                                <DeleteIcon />
+                              </Button>
+                            </Tooltip>
+                          </Box>
                         </TableCell>
                       </TableRow>
                     ))
@@ -257,37 +264,55 @@ const AboutUsControl = () => {
             onRowsPerPageChange={handleChangeRowsPerPage}
           />
 
-          <Dialog open={confirmDeleteOpen} onClose={handleConfirmDeleteClose}>
-            <DialogTitle>Confirm Delete</DialogTitle>
-            <DialogContent>
-              <Typography>
-                Are you sure you want to delete this entry?
+          <Dialog
+            open={confirmDeleteOpen}
+            onClose={handleConfirmDeleteClose}
+            PaperProps={{
+              sx: {
+                borderRadius: 2,
+                minWidth: isMobile ? '90%' : 400
+              }
+            }}
+          >
+            <DialogTitle sx={{
+              backgroundColor: theme.palette.error.light,
+              color: 'white',
+              fontWeight: 600
+            }}>
+              Confirm Deletion
+            </DialogTitle>
+            <DialogContent sx={{ py: 3 }}>
+              <Typography variant="body1">
+                Are you sure you want to delete this about us entry? This action cannot be undone.
               </Typography>
             </DialogContent>
-            <DialogActions>
-              <Button onClick={handleConfirmDeleteClose} color="primary">
+            <DialogActions sx={{ px: 3, pb: 2 }}>
+              <Button
+                onClick={handleConfirmDeleteClose}
+                variant="outlined"
+                sx={{
+                  borderColor: theme.palette.grey[400],
+                  color: theme.palette.text.primary
+                }}
+              >
                 Cancel
               </Button>
-              <Button onClick={handleDelete} color="error">
+              <Button
+                onClick={handleDelete}
+                variant="contained"
+                color="error"
+                sx={{
+                  backgroundColor: theme.palette.error.main,
+                  '&:hover': {
+                    backgroundColor: theme.palette.error.dark
+                  }
+                }}
+              >
                 Delete
               </Button>
             </DialogActions>
           </Dialog>
 
-          <Snackbar
-            open={snackbarOpen}
-            autoHideDuration={3000}
-            onClose={handleSnackbarClose}
-            anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-          >
-            <Alert
-              onClose={handleSnackbarClose}
-              severity="success"
-              sx={{ width: "100%" }}
-            >
-              Entry deleted successfully!
-            </Alert>
-          </Snackbar>
         </Box>
       }
     />
