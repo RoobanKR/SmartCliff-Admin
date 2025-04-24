@@ -71,12 +71,12 @@ const VisionMissionControl = () => {
       handleConfirmDeleteClose()
     );
   };
-
-  const filteredVisionMissions = (visionMissions || []).filter(
-    (item) =>
-      item.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.description.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredVisionMissions = (visionMissions || [])
+    .filter(item => item) // Filter out null/undefined items first
+    .filter(item =>
+      item.type?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.description?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -121,7 +121,6 @@ const VisionMissionControl = () => {
                 position: "relative",
                 padding: 0,
                 margin: 0,
-                fontFamily: "Merriweather, serif",
                 fontWeight: 300,
                 fontSize: { xs: "32px", sm: "40px" },
                 color: "#747474",
@@ -152,18 +151,8 @@ const VisionMissionControl = () => {
                 },
               }}
             >
-              Mission & Vision
-              <br /> Control Panel
+              Vision & Mission Panel
             </Typography>
-
-            <Tooltip
-              title="This is where you can add the execution count for the service."
-              arrow
-            >
-              <HelpOutline
-                sx={{ color: "#747474", fontSize: "24px", cursor: "pointer" }}
-              />
-            </Tooltip>
           </Box>
           <Box
             display="flex"
@@ -243,21 +232,27 @@ const VisionMissionControl = () => {
                             {item.description}
                           </TableCell>
                           <TableCell sx={{ textAlign: "center" }}>
-                            <Button
-                              variant="outlined"
-                              onClick={() => handleEdit(item._id)}
-                              color="primary"
-                            >
-                              <EditIcon />
-                            </Button>
-                            <Button
-                              variant="outlined"
-                              onClick={() => handleConfirmDeleteOpen(item._id)}
-                              color="error"
-                              style={{ marginTop: "5%" }}
-                            >
-                              <DeleteIcon />
-                            </Button>
+                            <Box sx={{ display: 'flex', gap: 1 }}>
+                              <Tooltip title="Edit">
+                                <Button
+                                  variant="outlined"
+                                  onClick={() => handleEdit(item._id)}
+                                  color="primary"
+                                >
+                                  <EditIcon />
+                                </Button>
+                              </Tooltip>
+                              <Tooltip title="Delete">
+                                <Button
+                                  variant="outlined"
+                                  onClick={() => handleConfirmDeleteOpen(item._id)}
+                                  color="error"
+
+                                >
+                                  <DeleteIcon />
+                                </Button>
+                              </Tooltip>
+                            </Box>
                           </TableCell>
                         </TableRow>
                       ))
@@ -282,22 +277,57 @@ const VisionMissionControl = () => {
               onRowsPerPageChange={handleChangeRowsPerPage}
             />
 
-            <Dialog open={confirmDeleteOpen} onClose={handleConfirmDeleteClose}>
-              <DialogTitle>Confirm Delete</DialogTitle>
-              <DialogContent>
-                <Typography>
-                  Are you sure you want to delete this entry?
+            <Dialog
+              open={confirmDeleteOpen}
+              onClose={handleConfirmDeleteClose}
+              PaperProps={{
+                sx: {
+                  borderRadius: 2,
+                  minWidth: isMobile ? '90%' : 400
+                }
+              }}
+            >
+              <DialogTitle
+                sx={{
+                  backgroundColor: theme.palette.error.light,
+                  color: 'white',
+                  fontWeight: 600
+                }}
+              >
+                Confirm Deletion
+              </DialogTitle>
+              <DialogContent sx={{ py: 3 }}>
+                <Typography variant="body1">
+                  Are you sure you want to delete this entry? This action cannot be undone.
                 </Typography>
               </DialogContent>
-              <DialogActions>
-                <Button onClick={handleConfirmDeleteClose} color="primary">
+              <DialogActions sx={{ px: 3, pb: 2 }}>
+                <Button
+                  onClick={handleConfirmDeleteClose}
+                  variant="outlined"
+                  sx={{
+                    borderColor: theme.palette.grey[400],
+                    color: theme.palette.text.primary
+                  }}
+                >
                   Cancel
                 </Button>
-                <Button onClick={handleDelete} color="error">
+                <Button
+                  onClick={handleDelete}
+                  variant="contained"
+                  color="error"
+                  sx={{
+                    backgroundColor: theme.palette.error.main,
+                    '&:hover': {
+                      backgroundColor: theme.palette.error.dark
+                    }
+                  }}
+                >
                   Delete
                 </Button>
               </DialogActions>
             </Dialog>
+
           </Box>
         </>
       }

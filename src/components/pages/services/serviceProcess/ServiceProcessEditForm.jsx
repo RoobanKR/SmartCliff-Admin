@@ -96,9 +96,8 @@ const ServiceProcessEditForm = () => {
             let iconFile = null;
             if (f.icon) {
               const fileExt = f.icon.split(".").pop().split("?")[0];
-              const mimeType = `image/${
-                fileExt === "svg" ? "svg+xml" : fileExt
-              }`;
+              const mimeType = `image/${fileExt === "svg" ? "svg+xml" : fileExt
+                }`;
               iconFile = await urlToFile(
                 f.icon,
                 `icon_${i}.${fileExt}`,
@@ -222,6 +221,12 @@ const ServiceProcessEditForm = () => {
     }
   }, [updateSuccess, navigate, dispatch]);
 
+
+  const handleBack = () => {
+    navigate(-1);
+  };
+
+
   if (loading) {
     return <Typography>Loading...</Typography>;
   }
@@ -234,8 +239,9 @@ const ServiceProcessEditForm = () => {
             open={updateSuccess}
             autoHideDuration={2000}
             onClose={() => dispatch(clearUpdateStatus())}
+            anchorOrigin={{ vertical: "top", horizontal: "right" }}
           >
-            <Alert severity="success">{successMessage}</Alert>
+            <Alert severity="success" variant="filled">{successMessage}</Alert>
           </Snackbar>
 
           {updateError && (
@@ -246,197 +252,214 @@ const ServiceProcessEditForm = () => {
           <Box
             display="flex"
             alignItems="center"
-            justifyContent="center"
+            justifyContent="space-between"
             gap={1}
-            mt={2}
-            mb={1}
+            mt={3}
+            mb={2}
           >
-            <Typography
-              variant="h4"
+            <Button
+              variant="outlined"
+              color="primary"
+              onClick={handleBack}
+            >
+              Back
+            </Button>
+
+            <Box
               sx={{
-                position: "relative",
-                padding: 0,
-                margin: 0,
-                fontFamily: "Merriweather, serif",
-                fontWeight: 300,
-                fontSize: { xs: "32px", sm: "40px" },
-                color: "#747474",
-                textAlign: "center",
-                textTransform: "uppercase",
-                paddingBottom: "5px",
-                "&::before": {
-                  content: '""',
-                  width: "28px",
-                  height: "5px",
-                  display: "block",
-                  position: "absolute",
-                  bottom: "3px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
-                "&::after": {
-                  content: '""',
-                  width: "100px",
-                  height: "1px",
-                  display: "block",
-                  position: "relative",
-                  marginTop: "5px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "center",
+                flex: 1,
               }}
             >
-              Service Process Details
-              <br /> Edit Form
-            </Typography>
-
-            <Tooltip
-              title="This is where you can add the execution count for the service."
-              arrow
-            >
-              <HelpOutline
-                sx={{ color: "#747474", fontSize: "24px", cursor: "pointer" }}
-              />
-            </Tooltip>
-          </Box>
-          <Paper
-            elevation={0}
-            sx={{ padding: 2, maxWidth: 700, margin: "auto" }}
-          >
-            <form
-              onSubmit={handleSubmit}
-              encType="multipart/form-data"
-              style={{
-                border: "2px dotted #D3D3D3",
-                padding: "20px",
-                borderRadius: "8px",
-              }}
-            >
-              <FormControl fullWidth>
-                <Autocomplete
-                  id="business-services"
-                  options={businessServiceData || []}
-                  getOptionLabel={(option) => option?.name || ""}
-                  value={selectedBusinessService}
-                  onChange={handleBusinessServiceChange}
-                  isOptionEqualToValue={(option, value) =>
-                    option._id === value._id
-                  }
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      variant="outlined"
-                      label="Business Services"
-                      fullWidth
-                      error={Boolean(errors.business_service)}
-                      helperText={
-                        touchedFields.business_service &&
-                        errors.business_service
-                      }
-                    />
-                  )}
-                />
-              </FormControl>
-              <br /> <br />
-              <FormControl fullWidth>
-                <Autocomplete
-                  id="service"
-                  options={filteredServices || []}
-                  getOptionLabel={(option) => option?.title || ""}
-                  value={selectedService}
-                  onChange={handleServiceChange}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      variant="outlined"
-                      label="Service"
-                      fullWidth
-                      required
-                      error={touchedFields.service && Boolean(errors.service)}
-                      helperText={touchedFields.service && errors.service}
-                      onBlur={() =>
-                        setTouchedFields((prev) => ({ ...prev, service: true }))
-                      }
-                    />
-                  )}
-                />
-              </FormControl>{" "}
-              <br /> <br />
-              <Typography variant="h6">Features</Typography>
-              <br></br>
-              {processs.map((process, index) => (
-                <div
-                  key={index}
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 10,
-                    marginBottom: 15,
-                  }}
-                >
-                  <TextField
-                    fullWidth
-                    label="Feature Heading"
-                    name="heading"
-                    value={process.heading}
-                    onChange={(e) => handleProcessChange(index, e)}
-                    required
-                  />
-                  <DropzoneArea
-                    acceptedFiles={["image/*"]}
-                    onChange={(files) => handleProcessIconChange(index, files)}
-                    dropzoneText="Drag and drop an icon here or click to select"
-                    showPreviews={true}
-                    showPreviewsInDropzone={false}
-                    previewText="Selected files"
-                    filesLimit={1}
-                  />
-                  {process.icon && (
-                    <img
-                      src={
-                        process.icon instanceof File
-                          ? URL.createObjectURL(process.icon)
-                          : process.icon
-                      }
-                      alt="Feature Icon"
-                      width="50"
-                    />
-                  )}
-
-                  <Button
-                    variant="outlined"
-                    onClick={() => removeprocess(index)}
-                    color="error"
-                    startIcon={<Delete />}
-                  >
-                    Delete Image
-                  </Button>
-                </div>
-              ))}
-              <Button startIcon={<Add />} onClick={addProcess}>
-                Add Feature
-              </Button>
-              <Button
-                type="submit"
-                variant="contained"
+              <Typography
+                variant="h4"
                 sx={{
-                  backgroundColor: theme.palette.warning.main,
-                  color: theme.palette.warning.contrastText,
-                  display: "block",
-                  marginLeft: "auto",
-                  marginRight: "auto",
-                  mt: 3, // optional: top margin
-                  "&:hover": {
-                    backgroundColor: theme.palette.warning.dark,
+                  position: "relative",
+                  padding: 0,
+                  margin: 0,
+                  fontWeight: 300,
+                  fontSize: { xs: "28px", sm: "36px" },
+                  color: "#747474",
+                  textAlign: "center",
+                  textTransform: "uppercase",
+                  paddingBottom: "5px",
+                  "&::before": {
+                    content: '""',
+                    width: "28px",
+                    height: "5px",
+                    display: "block",
+                    position: "absolute",
+                    bottom: "3px",
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    backgroundColor: "#747474",
+                  },
+                  "&::after": {
+                    content: '""',
+                    width: "100px",
+                    height: "1px",
+                    display: "block",
+                    position: "relative",
+                    marginTop: "5px",
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    backgroundColor: "#747474",
                   },
                 }}
               >
-                Update Data
-              </Button>
-            </form>
-          </Paper>
+                Service Process Details Edit Form              </Typography>
+
+              <Tooltip
+                title="Edit the about us content and image here"
+                arrow
+                placement="top"
+              >
+                <HelpOutline
+                  sx={{
+                    color: "#747474",
+                    fontSize: "24px",
+                    cursor: "pointer",
+                    ml: 1,
+                  }}
+                />
+              </Tooltip>
+            </Box>
+          </Box>
+
+          <form
+            onSubmit={handleSubmit}
+            encType="multipart/form-data"
+            style={{
+              border: "2px dotted #D3D3D3",
+              padding: "20px",
+              borderRadius: "8px",
+            }}
+          >
+            <FormControl fullWidth>
+              <Autocomplete
+                id="business-services"
+                options={businessServiceData || []}
+                getOptionLabel={(option) => option?.name || ""}
+                value={selectedBusinessService}
+                onChange={handleBusinessServiceChange}
+                isOptionEqualToValue={(option, value) =>
+                  option._id === value._id
+                }
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    variant="outlined"
+                    label="Business Services"
+                    fullWidth
+                    error={Boolean(errors.business_service)}
+                    helperText={
+                      touchedFields.business_service &&
+                      errors.business_service
+                    }
+                  />
+                )}
+              />
+            </FormControl>
+            <br /> <br />
+            <FormControl fullWidth>
+              <Autocomplete
+                id="service"
+                options={filteredServices || []}
+                getOptionLabel={(option) => option?.title || ""}
+                value={selectedService}
+                onChange={handleServiceChange}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    variant="outlined"
+                    label="Service"
+                    fullWidth
+                    required
+                    error={touchedFields.service && Boolean(errors.service)}
+                    helperText={touchedFields.service && errors.service}
+                    onBlur={() =>
+                      setTouchedFields((prev) => ({ ...prev, service: true }))
+                    }
+                  />
+                )}
+              />
+            </FormControl>{" "}
+            <br /> <br />
+            <Typography variant="h6">Features</Typography>
+            <br></br>
+            {processs.map((process, index) => (
+              <div
+                key={index}
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 10,
+                  marginBottom: 15,
+                }}
+              >
+                <TextField
+                  fullWidth
+                  label="Feature Heading"
+                  name="heading"
+                  value={process.heading}
+                  onChange={(e) => handleProcessChange(index, e)}
+                  required
+                />
+                <DropzoneArea
+                  acceptedFiles={["image/*"]}
+                  onChange={(files) => handleProcessIconChange(index, files)}
+                  dropzoneText="Drag and drop an icon here or click to select"
+                  showPreviews={true}
+                  showPreviewsInDropzone={false}
+                  previewText="Selected files"
+                  filesLimit={1}
+                />
+                {process.icon && (
+                  <img
+                    src={
+                      process.icon instanceof File
+                        ? URL.createObjectURL(process.icon)
+                        : process.icon
+                    }
+                    alt="Feature Icon"
+                    width="50"
+                  />
+                )}
+
+                <Button
+                  variant="outlined"
+                  onClick={() => removeprocess(index)}
+                  color="error"
+                  startIcon={<Delete />}
+                >
+                  Delete Image
+                </Button>
+              </div>
+            ))}
+            <Button startIcon={<Add />} onClick={addProcess}>
+              Add Feature
+            </Button>
+            <Button
+              type="submit"
+              variant="contained"
+              sx={{
+                backgroundColor: theme.palette.warning.main,
+                color: theme.palette.warning.contrastText,
+                display: "block",
+                marginLeft: "auto",
+                marginRight: "auto",
+                mt: 3, // optional: top margin
+                "&:hover": {
+                  backgroundColor: theme.palette.warning.dark,
+                },
+              }}
+            >
+              Update Data
+            </Button>
+          </form>
         </Container>
       }
     />

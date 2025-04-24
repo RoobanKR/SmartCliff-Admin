@@ -153,7 +153,6 @@ const OurProgramControl = () => {
                 position: "relative",
                 padding: 0,
                 margin: 0,
-                fontFamily: 'Merriweather, serif',
                 fontWeight: 700, textAlign: 'center',
                 fontWeight: 300,
                 fontSize: { xs: "32px", sm: "40px" },

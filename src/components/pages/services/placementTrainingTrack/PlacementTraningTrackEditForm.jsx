@@ -6,13 +6,16 @@ import {
   Typography,
   Paper,
   IconButton,
-  Select,
-  MenuItem,
-  Autocomplete,
   FormControl,
-  InputLabel,
+  FormGroup,
+  FormControlLabel,
+  Checkbox,
+  Autocomplete,
   Tooltip,
   useTheme,
+  Container,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import { Add, Delete, HelpOutline } from "@mui/icons-material";
 import { useParams, useNavigate } from "react-router-dom";
@@ -42,6 +45,17 @@ const PlacementTrainingTrackEditForm = () => {
     trainingModuleSummary: [],
   });
 
+  // Snackbar state
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
+
+  const handleCloseSnackbar = () => {
+    setSnackbar({ ...snackbar, open: false });
+  };
+
   const serviceData = useSelector((state) => state.service.serviceData);
   const businessServiceData = useSelector(
     (state) => state.businessService.businessServiceData
@@ -68,14 +82,24 @@ const PlacementTrainingTrackEditForm = () => {
 
   useEffect(() => {
     if (trackDetails) {
+      // Create deep copies of arrays to avoid modifying Redux state directly
+      const modulelevels = trackDetails.trainingModuleLevels ?
+        JSON.parse(JSON.stringify(trackDetails.trainingModuleLevels)) : [];
+
+      const moduleSummary = trackDetails.trainingModuleSummary ?
+        JSON.parse(JSON.stringify(trackDetails.trainingModuleSummary)) : [];
+
+      const targetSem = trackDetails.targetSemester ?
+        [...trackDetails.targetSemester] : [];
+
       setFormData({
         trackName: trackDetails.trackName || "",
         proposedHour: trackDetails.proposedHour || "",
         noOfDays: trackDetails.noOfDays || "",
-        targetSemester: trackDetails.targetSemester || [],
+        targetSemester: targetSem,
         objecttive: trackDetails.objecttive || "",
-        trainingModuleLevels: trackDetails.trainingModuleLevels || [],
-        trainingModuleSummary: trackDetails.trainingModuleSummary || [],
+        trainingModuleLevels: modulelevels,
+        trainingModuleSummary: moduleSummary,
       });
 
       setSelectedBusinessService(trackDetails.business_service || null);
@@ -110,20 +134,51 @@ const PlacementTrainingTrackEditForm = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSemesterChange = (event) => {
-    setFormData({ ...formData, targetSemester: event.target.value });
+  // Handle checkbox change for semesters
+  const handleSemesterChange = (semester) => {
+    setFormData((prevData) => {
+      const currentTargetSemesters = [...prevData.targetSemester];
+
+      if (currentTargetSemesters.includes(semester)) {
+        // Remove semester if already selected
+        return {
+          ...prevData,
+          targetSemester: currentTargetSemesters.filter(sem => sem !== semester)
+        };
+      } else {
+        // Add semester if not selected
+        return {
+          ...prevData,
+          targetSemester: [...currentTargetSemesters, semester]
+        };
+      }
+    });
   };
 
   const handleModuleChange = (levelIndex, moduleIndex, field, value) => {
-    const newModules = [...formData.trainingModuleLevels];
-    newModules[levelIndex].modules[moduleIndex][field] = value;
-    setFormData({ ...formData, trainingModuleLevels: newModules });
+    setFormData(prevFormData => {
+      // Create a deep copy of the training module levels
+      const newModules = JSON.parse(JSON.stringify(prevFormData.trainingModuleLevels));
+
+      // Update the specific field
+      newModules[levelIndex].modules[moduleIndex][field] = value;
+
+      // Return the updated form data
+      return { ...prevFormData, trainingModuleLevels: newModules };
+    });
   };
 
   const handleSummaryChange = (summaryIndex, field, value) => {
-    const newSummary = [...formData.trainingModuleSummary];
-    newSummary[summaryIndex][field] = value;
-    setFormData({ ...formData, trainingModuleSummary: newSummary });
+    setFormData(prevFormData => {
+      // Create a deep copy of the training module summary
+      const newSummary = JSON.parse(JSON.stringify(prevFormData.trainingModuleSummary));
+
+      // Update the specific field
+      newSummary[summaryIndex][field] = value;
+
+      // Return the updated form data
+      return { ...prevFormData, trainingModuleSummary: newSummary };
+    });
   };
 
   const addModuleLevel = () => {
@@ -152,31 +207,32 @@ const PlacementTrainingTrackEditForm = () => {
 
   const addModule = (levelIndex) => {
     setFormData((prevFormData) => {
-      const newTrainingModuleLevels = prevFormData.trainingModuleLevels.map(
-        (level, idx) =>
-          idx === levelIndex
-            ? {
-                ...level,
-                modules: [
-                  ...level.modules,
-                  {
-                    modulename: "",
-                    TrainingComponentInHours: "",
-                    TrainingComponentInDays: "",
-                  },
-                ],
-              }
-            : level
-      );
+      // Create a deep copy of the training module levels
+      const newTrainingModuleLevels = JSON.parse(JSON.stringify(prevFormData.trainingModuleLevels));
 
+      // Add a new module to the specified level
+      newTrainingModuleLevels[levelIndex].modules.push({
+        modulename: "",
+        TrainingComponentInHours: "",
+        TrainingComponentInDays: "",
+      });
+
+      // Return the updated form data
       return { ...prevFormData, trainingModuleLevels: newTrainingModuleLevels };
     });
   };
 
   const removeModule = (levelIndex, moduleIndex) => {
-    const newModules = [...formData.trainingModuleLevels];
-    newModules[levelIndex].modules.splice(moduleIndex, 1);
-    setFormData({ ...formData, trainingModuleLevels: newModules });
+    setFormData(prevFormData => {
+      // Create a deep copy of the training module levels
+      const newModules = JSON.parse(JSON.stringify(prevFormData.trainingModuleLevels));
+
+      // Remove the specified module
+      newModules[levelIndex].modules.splice(moduleIndex, 1);
+
+      // Return the updated form data
+      return { ...prevFormData, trainingModuleLevels: newModules };
+    });
   };
 
   const addSummary = () => {
@@ -195,9 +251,20 @@ const PlacementTrainingTrackEditForm = () => {
   };
 
   const removeSummary = (index) => {
-    const newSummary = [...formData.trainingModuleSummary];
-    newSummary.splice(index, 1);
-    setFormData({ ...formData, trainingModuleSummary: newSummary });
+    setFormData(prevFormData => {
+      // Create a deep copy of the training module summary
+      const newSummary = JSON.parse(JSON.stringify(prevFormData.trainingModuleSummary));
+
+      // Remove the specified summary
+      newSummary.splice(index, 1);
+
+      // Return the updated form data
+      return { ...prevFormData, trainingModuleSummary: newSummary };
+    });
+  };
+
+  const handleBack = () => {
+    navigate(-1); // Navigate to the previous page
   };
 
   const handleSubmit = async (event) => {
@@ -210,7 +277,11 @@ const PlacementTrainingTrackEditForm = () => {
       !formData.noOfDays ||
       !service
     ) {
-      alert("Please fill all required fields");
+      setSnackbar({
+        open: true,
+        message: "Please fill all required fields",
+        severity: "error",
+      });
       setLoading(false);
       return;
     }
@@ -224,12 +295,29 @@ const PlacementTrainingTrackEditForm = () => {
     dispatch(updatePlacementTrainingTrack({ id, updatedData }))
       .unwrap()
       .then(() => {
-        alert("Training track updated successfully!");
-        navigate("/Placement-Training-Track-control");
+        setSnackbar({
+          open: true,
+          message: "Training track updated successfully!",
+          severity: "success",
+        });
+
+        // Redirect after a short delay
+        setTimeout(() => {
+          navigate("/Placement-Training-Track-control");
+        }, 1500);
       })
-      .catch((error) => alert(error))
+      .catch((error) => {
+        setSnackbar({
+          open: true,
+          message: `Failed to update training track: ${error}`,
+          severity: "error",
+        });
+      })
       .finally(() => setLoading(false));
   };
+
+  // List of available semesters
+  const semesters = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII"];
 
   if (!trackDetails) {
     return <Typography>Loading...</Typography>;
@@ -238,380 +326,452 @@ const PlacementTrainingTrackEditForm = () => {
   return (
     <LeftNavigationBar
       Content={
-        <>
-          <Box
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-            gap={1}
-            mt={2}
-            mb={1}
-          >
-            <Typography
-              variant="h4"
-              sx={{
-                position: "relative",
-                padding: 0,
-                margin: 0,
-                fontFamily: "Merriweather, serif",
-                fontWeight: 300,
-                fontSize: { xs: "32px", sm: "40px" },
-                color: "#747474",
-                textAlign: "center",
-                textTransform: "uppercase",
-                paddingBottom: "5px",
-                "&::before": {
-                  content: '""',
-                  width: "28px",
-                  height: "5px",
-                  display: "block",
-                  position: "absolute",
-                  bottom: "3px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
-                "&::after": {
-                  content: '""',
-                  width: "100px",
-                  height: "1px",
-                  display: "block",
-                  position: "relative",
-                  marginTop: "5px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
-              }}
-            >
-              Training Track <br /> Edit Form
-            </Typography>
-
-            <Tooltip
-              title="This is where you can add the execution count for the service."
-              arrow
-            >
-              <HelpOutline
-                sx={{ color: "#747474", fontSize: "24px", cursor: "pointer" }}
-              />
-            </Tooltip>
-          </Box>
-          <Paper
-            elevation={0}
-            sx={{ padding: 2, maxWidth: 800, margin: "auto" }}
-            style={{
-              border: "2px dotted #D3D3D3",
-              padding: "20px",
-              borderRadius: "8px",
-            }}
-          >
+        <Container component="main" maxWidth="md">
+          <Paper elevation={0}>
             <Box
-              component="form"
-              onSubmit={handleSubmit}
-              sx={{ display: "flex", flexDirection: "column", gap: 2 }}
+              display="flex"
+              alignItems="center"
+              justifyContent="space-between"
+              gap={1}
+              mt={2}
+              mb={2}
             >
-              <FormControl fullWidth>
-                <Autocomplete
-                  id="business-services"
-                  options={businessServiceData || []}
-                  getOptionLabel={(option) => option?.name || ""}
-                  value={selectedBusinessService}
-                  onChange={handleBusinessServiceChange}
-                  isOptionEqualToValue={(option, value) =>
-                    option?._id === value?._id
-                  }
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      variant="outlined"
-                      label="Business Services"
-                      fullWidth
-                    />
-                  )}
-                />
-              </FormControl>
-
-              <FormControl fullWidth>
-                <Autocomplete
-                  id="service"
-                  options={filteredServices || []}
-                  getOptionLabel={(option) => option?.title || ""}
-                  value={service}
-                  onChange={handleServiceChange}
-                  isOptionEqualToValue={(option, value) =>
-                    option?._id === value?._id
-                  }
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      variant="outlined"
-                      label="Service"
-                      fullWidth
-                      required
-                    />
-                  )}
-                />
-              </FormControl>
-              <TextField
-                label="Track Name"
-                name="trackName"
-                value={formData.trackName}
-                onChange={handleChange}
-                required
-              />
-              <TextField
-                label="Proposed Hours"
-                name="proposedHour"
-                type="number"
-                value={formData.proposedHour}
-                onChange={handleChange}
-                required
-              />
-              <TextField
-                label="No of Days"
-                name="noOfDays"
-                type="number"
-                value={formData.noOfDays}
-                onChange={handleChange}
-                required
-              />
-              <Select
-                multiple
-                value={formData.targetSemester}
-                onChange={handleSemesterChange}
-                displayEmpty
+              <Button
+                variant="outlined"
+                color="primary"
+                onClick={handleBack}
               >
-                <MenuItem value="" disabled>
-                  Select Semester
-                </MenuItem>
-                {["I", "II", "III", "IV", "V", "VI", "VII", "VIII"].map(
-                  (sem) => (
-                    <MenuItem key={sem} value={sem}>
-                      {sem}
-                    </MenuItem>
-                  )
-                )}
-              </Select>
-              <TextField
-                label="Objective"
-                name="objecttive"
-                multiline
-                rows={3}
-                value={formData.objecttive}
-                onChange={handleChange}
-                required
-              />
-
-              {/* Training Module Levels */}
-              {formData.trainingModuleLevels.map((level, levelIndex) => (
-                <Paper
-                  key={levelIndex}
+                Back
+              </Button>
+              <Box sx={{
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'center',
+                position: 'relative',
+                flex: 1
+              }}>
+                <Typography
+                  variant="h4"
                   sx={{
-                    padding: 2,
-                    backgroundColor: "#f9f9f9",
                     position: "relative",
+                    padding: 0,
+                    margin: 0,
+                    fontWeight: 300,
+                    fontSize: { xs: "32px", sm: "40px" },
+                    color: "#747474",
+                    textAlign: "center",
+                    textTransform: "uppercase",
+                    paddingBottom: "5px",
+                    "&::before": {
+                      content: '""',
+                      width: "28px",
+                      height: "5px",
+                      display: "block",
+                      position: "absolute",
+                      bottom: "3px",
+                      left: "50%",
+                      transform: "translateX(-50%)",
+                      backgroundColor: "#747474",
+                    },
+                    "&::after": {
+                      content: '""',
+                      width: "100px",
+                      height: "1px",
+                      display: "block",
+                      position: "relative",
+                      marginTop: "5px",
+                      left: "50%",
+                      transform: "translateX(-50%)",
+                      backgroundColor: "#747474",
+                    },
                   }}
                 >
-                  <Typography variant="h6">
-                    Module Level {levelIndex + 1}
+                  Training Track Edit Form
+                </Typography>
+
+                <Tooltip
+                  title="This is where you can edit the training track details."
+                  arrow
+                >
+                  <HelpOutline
+                    sx={{ color: "#747474", fontSize: "24px", cursor: "pointer" }}
+                  />
+                </Tooltip>
+              </Box>
+            </Box>
+            <Paper
+              elevation={0}
+              style={{
+                border: "2px dotted #D3D3D3",
+                padding: "20px",
+                borderRadius: "8px",
+              }}
+            >
+              <Box
+                component="form"
+                onSubmit={handleSubmit}
+                sx={{ display: "flex", flexDirection: "column", gap: 2 }}
+              >
+                <FormControl fullWidth>
+                  <Autocomplete
+                    id="business-services"
+                    options={businessServiceData || []}
+                    getOptionLabel={(option) => option?.name || ""}
+                    value={selectedBusinessService}
+                    onChange={handleBusinessServiceChange}
+                    isOptionEqualToValue={(option, value) =>
+                      option?._id === value?._id
+                    }
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        variant="outlined"
+                        label="Business Services"
+                        fullWidth
+                      />
+                    )}
+                  />
+                </FormControl>
+
+                <FormControl fullWidth>
+                  <Autocomplete
+                    id="service"
+                    options={filteredServices || []}
+                    getOptionLabel={(option) => option?.title || ""}
+                    value={service}
+                    onChange={handleServiceChange}
+                    isOptionEqualToValue={(option, value) =>
+                      option?._id === value?._id
+                    }
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        variant="outlined"
+                        label="Service"
+                        fullWidth
+                        required
+                      />
+                    )}
+                  />
+                </FormControl>
+                <TextField
+                  label="Track Name"
+                  name="trackName"
+                  value={formData.trackName}
+                  onChange={handleChange}
+                  required
+                />
+                <TextField
+                  label="Proposed Hours"
+                  name="proposedHour"
+                  type="number"
+                  value={formData.proposedHour}
+                  onChange={handleChange}
+                  required
+                />
+                <TextField
+                  label="No of Days"
+                  name="noOfDays"
+                  type="number"
+                  value={formData.noOfDays}
+                  onChange={handleChange}
+                  required
+                />
+
+                {/* Target Semester using Checkboxes */}
+                <FormControl component="fieldset">
+                  <Typography variant="subtitle1" sx={{ mb: 1 }}>
+                    Target Semester
                   </Typography>
-                  {level.modules.map((module, moduleIndex) => (
+                  <Paper
+                    sx={{
+                      p: 2,
+                      backgroundColor: "#f9f9f9",
+                      display: "flex",
+                      flexWrap: "wrap"
+                    }}
+                  >
+                    <FormGroup row>
+                      {semesters.map((semester) => (
+                        <FormControlLabel
+                          key={semester}
+                          control={
+                            <Checkbox
+                              checked={formData.targetSemester.includes(semester)}
+                              onChange={() => handleSemesterChange(semester)}
+                              name={semester}
+                            />
+                          }
+                          label={`Semester ${semester}`}
+                          sx={{ width: "25%", minWidth: "150px" }}
+                        />
+                      ))}
+                    </FormGroup>
+                  </Paper>
+                </FormControl>
+
+                <TextField
+                  label="Objective"
+                  name="objecttive"
+                  multiline
+                  rows={3}
+                  value={formData.objecttive}
+                  onChange={handleChange}
+                  required
+                />
+
+                {/* Training Module Levels */}
+                <Typography variant="h6" sx={{ mt: 3, mb: 1 }}>
+                  Training Module Levels
+                </Typography>
+                {formData.trainingModuleLevels.map((level, levelIndex) => (
+                  <Paper
+                    key={levelIndex}
+                    sx={{
+                      padding: 2,
+                      backgroundColor: "#f9f9f9",
+                      position: "relative",
+                      mb: 2,
+                    }}
+                  >
+                    <Typography variant="subtitle1">
+                      Module Level {levelIndex + 1}
+                    </Typography>
+
+                    {/* Modules Inside a Level */}
+                    {level.modules.map((module, moduleIndex) => (
+                      <Box
+                        key={moduleIndex}
+                        sx={{ display: "flex", gap: 2, mt: 1, flexWrap: "wrap" }}
+                      >
+                        <TextField
+                          label="Module Name"
+                          value={module.modulename}
+                          onChange={(e) =>
+                            handleModuleChange(
+                              levelIndex,
+                              moduleIndex,
+                              "modulename",
+                              e.target.value
+                            )
+                          }
+                          required
+                          sx={{ flexGrow: 1, minWidth: "200px" }}
+                        />
+                        <TextField
+                          label="Hours"
+                          type="number"
+                          value={module.TrainingComponentInHours}
+                          onChange={(e) =>
+                            handleModuleChange(
+                              levelIndex,
+                              moduleIndex,
+                              "TrainingComponentInHours",
+                              e.target.value
+                            )
+                          }
+                          required
+                          sx={{ width: "100px" }}
+                        />
+                        <TextField
+                          label="Days"
+                          type="number"
+                          value={module.TrainingComponentInDays}
+                          onChange={(e) =>
+                            handleModuleChange(
+                              levelIndex,
+                              moduleIndex,
+                              "TrainingComponentInDays",
+                              e.target.value
+                            )
+                          }
+                          required
+                          sx={{ width: "100px" }}
+                        />
+                        <IconButton
+                          onClick={() => removeModule(levelIndex, moduleIndex)}
+                        >
+                          <Delete />
+                        </IconButton>
+                      </Box>
+                    ))}
+
                     <Box
-                      key={moduleIndex}
-                      sx={{ display: "flex", gap: 2, mt: 1 }}
+                      sx={{
+                        mt: 2,
+                        display: "flex",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <Button
+                        variant="outlined"
+                        startIcon={<Add />}
+                        onClick={() => addModule(levelIndex)}
+                        size="small"
+                      >
+                        Add Module
+                      </Button>
+                      <IconButton
+                        onClick={() => removeModuleLevel(levelIndex)}
+                        color="error"
+                      >
+                        <Delete />
+                      </IconButton>
+                    </Box>
+                  </Paper>
+                ))}
+
+                <Button
+                  variant="outlined"
+                  startIcon={<Add />}
+                  onClick={addModuleLevel}
+                  sx={{ alignSelf: "flex-start" }}
+                >
+                  Add Module Level
+                </Button>
+
+                {/* Training Module Summary Section */}
+                <Typography variant="h6" sx={{ mt: 4, mb: 1 }}>
+                  Training Module Summary
+                </Typography>
+                {formData.trainingModuleSummary.map((summary, summaryIndex) => (
+                  <Paper
+                    key={summaryIndex}
+                    sx={{
+                      padding: 2,
+                      backgroundColor: "#f0f7ff",
+                      position: "relative",
+                      mb: 2,
+                    }}
+                  >
+                    <Typography variant="subtitle1">
+                      Summary {summaryIndex + 1}
+                    </Typography>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 2,
+                        mt: 1,
+                      }}
                     >
                       <TextField
-                        label="Module Name"
-                        value={module.modulename}
+                        label="Module Level"
+                        value={summary.moduleLevel}
                         onChange={(e) =>
-                          handleModuleChange(
-                            levelIndex,
-                            moduleIndex,
-                            "modulename",
+                          handleSummaryChange(
+                            summaryIndex,
+                            "moduleLevel",
                             e.target.value
                           )
                         }
                         required
                       />
+                      <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+                        <TextField
+                          label="Training Hours"
+                          type="number"
+                          value={summary.TrainingInHours}
+                          onChange={(e) =>
+                            handleSummaryChange(
+                              summaryIndex,
+                              "TrainingInHours",
+                              e.target.value
+                            )
+                          }
+                          required
+                          sx={{ width: "48%" }}
+                        />
+                        <TextField
+                          label="Training Days"
+                          type="number"
+                          value={summary.TrainingInDays}
+                          onChange={(e) =>
+                            handleSummaryChange(
+                              summaryIndex,
+                              "TrainingInDays",
+                              e.target.value
+                            )
+                          }
+                          required
+                          sx={{ width: "48%" }}
+                        />
+                      </Box>
                       <TextField
-                        label="Hours"
-                        type="number"
-                        value={module.TrainingComponentInHours}
+                        label="Remarks"
+                        multiline
+                        rows={2}
+                        value={summary.remarks}
                         onChange={(e) =>
-                          handleModuleChange(
-                            levelIndex,
-                            moduleIndex,
-                            "TrainingComponentInHours",
-                            e.target.value
-                          )
-                        }
-                        required
-                      />
-                      <TextField
-                        label="Days"
-                        type="number"
-                        value={module.TrainingComponentInDays}
-                        onChange={(e) =>
-                          handleModuleChange(
-                            levelIndex,
-                            moduleIndex,
-                            "TrainingComponentInDays",
+                          handleSummaryChange(
+                            summaryIndex,
+                            "remarks",
                             e.target.value
                           )
                         }
                         required
                       />
                       <IconButton
-                        onClick={() => removeModule(levelIndex, moduleIndex)}
+                        onClick={() => removeSummary(summaryIndex)}
+                        sx={{ position: "absolute", top: 5, right: 5 }}
+                        color="error"
                       >
                         <Delete />
                       </IconButton>
                     </Box>
-                  ))}
-                  <Button
-                    variant="outlined"
-                    startIcon={<Add />}
-                    onClick={() => addModule(levelIndex)}
-                    sx={{ mt: 2 }}
-                  >
-                    Add Module
-                  </Button>
-                  <IconButton
-                    onClick={() => removeModuleLevel(levelIndex)}
-                    sx={{ position: "absolute", top: 5, right: 5 }}
-                  >
-                    <Delete />
-                  </IconButton>
-                </Paper>
-              ))}
-              <Button
-                variant="outlined"
-                startIcon={<Add />}
-                onClick={addModuleLevel}
-              >
-                Add Module Level
-              </Button>
+                  </Paper>
+                ))}
 
-              {/* Training Module Summary Section */}
-              <Typography variant="h6" sx={{ mt: 4 }}>
-                Training Module Summary
-              </Typography>
-              {formData.trainingModuleSummary.map((summary, summaryIndex) => (
-                <Paper
-                  key={summaryIndex}
+                <Button
+                  variant="outlined"
+                  startIcon={<Add />}
+                  onClick={addSummary}
+                  sx={{ alignSelf: "flex-start", mb: 3 }}
+                >
+                  Add Summary
+                </Button>
+
+                {/* Submit Button */}
+                <Button
+                  type="submit"
+                  variant="contained"
+                  disabled={loading}
                   sx={{
-                    padding: 2,
-                    backgroundColor: "#f0f7ff",
-                    position: "relative",
-                    mb: 2,
+                    backgroundColor: theme.palette.warning.main,
+                    color: theme.palette.warning.contrastText,
+                    display: "block",
+                    marginLeft: "auto",
+                    marginRight: "auto",
+                    mt: 3, // optional: top margin
+                    "&:hover": {
+                      backgroundColor: theme.palette.warning.dark,
+                    },
                   }}
                 >
-                  <Typography variant="subtitle1">
-                    Summary {summaryIndex + 1}
-                  </Typography>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: 2,
-                      mt: 1,
-                    }}
-                  >
-                    <TextField
-                      label="Module Level"
-                      value={summary.moduleLevel}
-                      onChange={(e) =>
-                        handleSummaryChange(
-                          summaryIndex,
-                          "moduleLevel",
-                          e.target.value
-                        )
-                      }
-                      required
-                    />
-                    <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
-                      <TextField
-                        label="Training Hours"
-                        type="number"
-                        value={summary.TrainingInHours}
-                        onChange={(e) =>
-                          handleSummaryChange(
-                            summaryIndex,
-                            "TrainingInHours",
-                            e.target.value
-                          )
-                        }
-                        required
-                        sx={{ width: "48%" }}
-                      />
-                      <TextField
-                        label="Training Days"
-                        type="number"
-                        value={summary.TrainingInDays}
-                        onChange={(e) =>
-                          handleSummaryChange(
-                            summaryIndex,
-                            "TrainingInDays",
-                            e.target.value
-                          )
-                        }
-                        required
-                        sx={{ width: "48%" }}
-                      />
-                    </Box>
-                    <TextField
-                      label="Remarks"
-                      multiline
-                      rows={2}
-                      value={summary.remarks}
-                      onChange={(e) =>
-                        handleSummaryChange(
-                          summaryIndex,
-                          "remarks",
-                          e.target.value
-                        )
-                      }
-                      required
-                    />
-                    <IconButton
-                      onClick={() => removeSummary(summaryIndex)}
-                      sx={{ position: "absolute", top: 5, right: 5 }}
-                      color="error"
-                    >
-                      <Delete />
-                    </IconButton>
-                  </Box>
-                </Paper>
-              ))}
-              <Button
-                variant="outlined"
-                startIcon={<Add />}
-                onClick={addSummary}
-                sx={{ alignSelf: "flex-start", mb: 3 }}
-              >
-                Add Summary
-              </Button>
-
-              <Button
-                type="submit"
-                variant="contained"
-                sx={{
-                  backgroundColor: theme.palette.warning.main,
-                  color: theme.palette.warning.contrastText,
-                  display: "block",
-                  marginLeft: "auto",
-                  marginRight: "auto",
-                  mt: 3, // optional: top margin
-                  "&:hover": {
-                    backgroundColor: theme.palette.warning.dark,
-                  },
-                }}
-              >
-                Submit Training Track
-              </Button>
-            </Box>
+                  {loading ? "Updating..." : "Update Training Track"}
+                </Button>
+              </Box>
+            </Paper>
           </Paper>
-        </>
+
+          {/* Snackbar for notifications */}
+          <Snackbar
+            open={snackbar.open}
+            autoHideDuration={6000}
+            onClose={handleCloseSnackbar}
+            anchorOrigin={{ vertical: "top", horizontal: "right" }}
+          >
+            <Alert
+              onClose={handleCloseSnackbar}
+              severity={snackbar.severity}
+              sx={{ width: "100%" }}
+              variant="filled"
+            >
+              {snackbar.message}
+            </Alert>
+          </Snackbar>
+        </Container>
       }
     />
   );

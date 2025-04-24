@@ -132,8 +132,9 @@ const HomeExecutionHighlightsEditForm = () => {
               open={openSnackbar}
               autoHideDuration={2000}
               onClose={() => setOpenSnackbar(false)}
+              anchorOrigin={{ vertical: "top", horizontal: "right" }}
             >
-              <Alert severity="success">{successMessage}</Alert>
+              <Alert severity="success" variant="filled">{successMessage}</Alert>
             </Snackbar>
 
             {error && (

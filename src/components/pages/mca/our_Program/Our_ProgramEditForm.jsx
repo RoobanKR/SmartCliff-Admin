@@ -11,6 +11,8 @@ import {
   Box,
   Tooltip,
   IconButton,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import { makeStyles } from "@material-ui/core/styles";
 import { DropzoneArea } from "material-ui-dropzone";
@@ -80,6 +82,11 @@ const Our_ProgramEditForm = () => {
   const [selectedService, setSelectedService] = useState(null);
   const [selectedCompany, setSelectedCompany] = useState(null);
   const [selectedCollege, setSelectedCollege] = useState(null);
+
+
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+
 
   const serviceData = useSelector((state) => state.service.serviceData);
   const businessServiceData = useSelector(
@@ -270,7 +277,11 @@ const Our_ProgramEditForm = () => {
       await dispatch(
         updateOurProgram({ token: cookies.token, programId, formData })
       );
-      navigate(`/Our_Program-control`);
+      setSnackbarMessage("Program updated successfully!");
+      setSnackbarOpen(true);
+      setTimeout(() => {
+        navigate(`/Our_Program-control`);
+      }, 1500);
     } catch (error) {
       setError(error.message);
     } finally {
@@ -285,6 +296,10 @@ const Our_ProgramEditForm = () => {
     } else {
       setIcon(null);
     }
+  };
+
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false);
   };
 
   const handleBack = () => {
@@ -323,7 +338,6 @@ const Our_ProgramEditForm = () => {
                     position: "relative",
                     padding: 0,
                     margin: 0,
-                    fontFamily: "Merriweather, serif",
                     fontWeight: 300,
                     fontSize: { xs: "32px", sm: "40px" },
                     color: "#747474",
@@ -564,6 +578,22 @@ const Our_ProgramEditForm = () => {
                 </Typography>
               )}
             </form>
+
+            <Snackbar
+              open={snackbarOpen}
+              autoHideDuration={6000}
+              onClose={handleSnackbarClose}
+              anchorOrigin={{ vertical: "top", horizontal: "right" }}
+            >
+              <Alert
+                onClose={handleSnackbarClose}
+                severity="success"
+                sx={{ width: "100%" }}
+                variant="filled"
+              >
+                {snackbarMessage}
+              </Alert>
+            </Snackbar>
           </Paper>
         </Container>
       }

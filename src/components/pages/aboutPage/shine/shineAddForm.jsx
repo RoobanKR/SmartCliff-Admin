@@ -19,6 +19,7 @@ import {
   Snackbar,
   Tooltip,
   useTheme,
+  Container,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -222,391 +223,410 @@ const ShineAddForm = () => {
     setSnackbar((prev) => ({ ...prev, open: false }));
   };
 
+  const handleBack = () => {
+    navigate(-1); // Navigate to the previous page
+  };  // Extract unique job positions for dropdown filter
+
+
   return (
     <LeftNavigationBar
       Content={
-        <>
-          <Box
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-            gap={1}
-            mt={2}
-            mb={1}
-          >
-            <Typography
-              variant="h4"
-              sx={{
-                position: "relative",
-                padding: 0,
-                margin: 0,
-                fontFamily: "Merriweather, serif",
-                fontWeight: 300,
-                fontSize: { xs: "32px", sm: "40px" },
-                color: "#747474",
-                textAlign: "center",
-                textTransform: "uppercase",
-                paddingBottom: "5px",
-                "&::before": {
-                  content: '""',
-                  width: "28px",
-                  height: "5px",
-                  display: "block",
-                  position: "absolute",
-                  bottom: "3px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
-                "&::after": {
-                  content: '""',
-                  width: "100px",
-                  height: "1px",
-                  display: "block",
-                  position: "relative",
-                  marginTop: "5px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
+        <Container component="main" maxWidth="md">
+
+          <Paper elevation={0} >
+            <Box
+              display="flex"
+              alignItems="center"
+              justifyContent="space-between"
+              gap={1}
+              mt={2}
+              mb={2}
+            >
+              <Button
+                variant="outlined"
+                color="primary"
+                onClick={handleBack}
+              >
+                Back
+              </Button>
+              <Box sx={{
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'center',
+                position: 'relative',
+                flex: 1
+              }}>
+                <Typography
+                  variant="h4"
+                  sx={{
+                    position: "relative",
+                    padding: 0,
+                    margin: 0,
+                    fontWeight: 300,
+                    fontSize: { xs: "32px", sm: "40px" },
+                    color: "#747474",
+                    textAlign: "center",
+                    textTransform: "uppercase",
+                    paddingBottom: "5px",
+                    "&::before": {
+                      content: '""',
+                      width: "28px",
+                      height: "5px",
+                      display: "block",
+                      position: "absolute",
+                      bottom: "3px",
+                      left: "50%",
+                      transform: "translateX(-50%)",
+                      backgroundColor: "#747474",
+                    },
+                    "&::after": {
+                      content: '""',
+                      width: "100px",
+                      height: "1px",
+                      display: "block",
+                      position: "relative",
+                      marginTop: "5px",
+                      left: "50%",
+                      transform: "translateX(-50%)",
+                      backgroundColor: "#747474",
+                    },
+                  }}
+                >
+                  Shine Content Add Form
+                </Typography>
+                <Tooltip
+                  title="This is where you can add the execution count for the service."
+                  arrow
+                >
+                  <HelpOutline
+                    sx={{ color: "#747474", fontSize: "24px", cursor: "pointer" }}
+                  />
+                </Tooltip>
+              </Box>
+            </Box>
+
+            <form
+              onSubmit={handleSubmit}
+              style={{
+                border: "2px dotted #D3D3D3",
+                padding: "20px",
+                borderRadius: "8px",
               }}
             >
-              Shine Content
-              <br /> Add Form
-            </Typography>
+              <Grid container spacing={3}>
+                {/* Main Details */}
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    fullWidth
+                    label="Title"
+                    name="title"
+                    value={formData.title}
+                    onChange={handleChange}
+                    required
+                    margin="normal"
+                  />
 
-            <Tooltip
-              title="This is where you can add the execution count for the service."
-              arrow
-            >
-              <HelpOutline
-                sx={{ color: "#747474", fontSize: "24px", cursor: "pointer" }}
-              />
-            </Tooltip>
-          </Box>
-          <Box sx={{ maxWidth: 1200, mx: "auto" }}>
-            <Paper elevation={0} sx={{ p: 3 }}>
-              <form
-                onSubmit={handleSubmit}
-                style={{
-                  border: "2px dotted #D3D3D3",
-                  padding: "20px",
-                  borderRadius: "8px",
-                }}
-              >
-                <Grid container spacing={3}>
-                  {/* Main Details */}
-                  <Grid item xs={12} md={6}>
-                    <TextField
-                      fullWidth
-                      label="Title"
-                      name="title"
-                      value={formData.title}
-                      onChange={handleChange}
-                      required
-                      margin="normal"
-                    />
+                  <TextField
+                    fullWidth
+                    label="Description"
+                    name="description"
+                    value={formData.description}
+                    onChange={handleChange}
+                    multiline
+                    rows={4}
+                    margin="normal"
+                  />
+                </Grid>
 
-                    <TextField
-                      fullWidth
-                      label="Description"
-                      name="description"
-                      value={formData.description}
-                      onChange={handleChange}
-                      multiline
-                      rows={4}
-                      margin="normal"
-                    />
-                  </Grid>
+                {/* Image Upload */}
+                <Grid item xs={12} md={6}>
+                  <Card sx={{ mb: 2 }}>
+                    <CardContent>
+                      <Typography variant="h5" gutterBottom>
+                        <b> Shine Image:</b>
+                      </Typography>
+                      <Typography variant="h9" gutterBottom>
+                        <i>
+                          {" "}
+                          This is the place to add the main image to the shine
+                          content{" "}
+                        </i>
+                      </Typography>
+                      <Box sx={{ mb: 2, textAlign: "center" }}>
+                        {formData.imagePreview && (
+                          <Box
+                            component="img"
+                            src={formData.imagePreview}
+                            alt="Shine Preview"
+                            sx={{
+                              maxWidth: "100%",
+                              maxHeight: 200,
+                              objectFit: "contain",
+                              mb: 2,
+                            }}
+                          />
+                        )}
+                      </Box>
 
-                  {/* Image Upload */}
-                  <Grid item xs={12} md={6}>
-                    <Card sx={{ mb: 2 }}>
-                      <CardContent>
-                        <Typography variant="h5" gutterBottom>
-                          <b> Shine Image:</b>
+                      <Button
+                        variant="outlined"
+                        component="label"
+                        startIcon={<PhotoCamera />}
+                        fullWidth
+                        color="secondary"
+                      >
+                        {formData.imagePreview
+                          ? "Change Image"
+                          : "Upload Image"}
+                        <input
+                          type="file"
+                          accept="image/*"
+                          hidden
+                          onChange={handleImageChange}
+                        />
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              </Grid>
+
+              {/* Shine Definitions */}
+              <Box sx={{ mt: 4, mb: 2 }}>
+                <Stack
+                  direction="row"
+                  justifyContent="space-between"
+                  alignItems="center"
+                >
+                  <Typography variant="h5" gutterBottom>
+                    Shine Definitions
+                  </Typography>
+                  <Button
+                    variant="outlined"
+                    startIcon={<AddIcon />}
+                    onClick={addDefinition}
+                    color="secondary"
+                  >
+                    Add Definition
+                  </Button>
+                </Stack>
+              </Box>
+
+              {formData.shineDefinition.length === 0 && (
+                <Alert severity="info" sx={{ mb: 2 }}>
+                  No shine definitions added. Click "Add Definition" to create
+                  one.
+                </Alert>
+              )}
+
+              {formData.shineDefinition.map((def, index) => (
+                <Paper key={index} elevation={2} sx={{ p: 2, mb: 3 }}>
+                  <Grid container spacing={2}>
+                    <Grid item xs={12}>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                        }}
+                      >
+                        <Typography variant="h6">
+                          Definition #{index + 1}
                         </Typography>
-                        <Typography variant="h9" gutterBottom>
-                          <i>
-                            {" "}
-                            This is the place to add the main image to the shine
-                            content{" "}
-                          </i>
-                        </Typography>
-                        <Box sx={{ mb: 2, textAlign: "center" }}>
-                          {formData.imagePreview && (
-                            <Box
-                              component="img"
-                              src={formData.imagePreview}
-                              alt="Shine Preview"
-                              sx={{
-                                maxWidth: "100%",
-                                maxHeight: 200,
-                                objectFit: "contain",
-                                mb: 2,
-                              }}
-                            />
-                          )}
-                        </Box>
+                        <IconButton
+                          onClick={() => removeDefinition(index)}
+                          color="error"
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                      </Box>
+                      <Divider sx={{ my: 1 }} />
+                    </Grid>
+
+                    <Grid item xs={12} md={6}>
+                      <TextField
+                        fullWidth
+                        label="Title"
+                        value={def.title}
+                        onChange={(e) =>
+                          handleDefinitionChange(
+                            index,
+                            "title",
+                            e.target.value
+                          )
+                        }
+                        required
+                        margin="normal"
+                      />
+
+                      <TextField
+                        fullWidth
+                        label="Description"
+                        value={def.description}
+                        onChange={(e) =>
+                          handleDefinitionChange(
+                            index,
+                            "description",
+                            e.target.value
+                          )
+                        }
+                        multiline
+                        rows={3}
+                        required
+                        margin="normal"
+                      />
+                    </Grid>
+
+                    <Grid item xs={12} md={6}>
+                      {/* Icon Upload */}
+                      <Typography variant="subtitle1" gutterBottom>
+                        Icon
+                      </Typography>
+
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", mb: 2 }}
+                      >
+                        {def.iconPreview && (
+                          <Box
+                            component="img"
+                            src={def.iconPreview}
+                            alt="Icon Preview"
+                            sx={{
+                              width: 50,
+                              height: 50,
+                              objectFit: "contain",
+                              mr: 2,
+                            }}
+                          />
+                        )}
 
                         <Button
                           variant="outlined"
                           component="label"
                           startIcon={<PhotoCamera />}
-                          fullWidth
                           color="secondary"
                         >
-                          {formData.imagePreview
-                            ? "Change Image"
-                            : "Upload Image"}
+                          {def.iconPreview ? "Change Icon" : "Upload Icon"}
                           <input
                             type="file"
                             accept="image/*"
                             hidden
-                            onChange={handleImageChange}
+                            onChange={(e) => handleIconChange(index, e)}
                           />
                         </Button>
-                      </CardContent>
-                    </Card>
-                  </Grid>
-                </Grid>
+                      </Box>
 
-                {/* Shine Definitions */}
-                <Box sx={{ mt: 4, mb: 2 }}>
-                  <Stack
-                    direction="row"
-                    justifyContent="space-between"
-                    alignItems="center"
-                  >
-                    <Typography variant="h5" gutterBottom>
-                      Shine Definitions
-                    </Typography>
-                    <Button
-                      variant="outlined"
-                      startIcon={<AddIcon />}
-                      onClick={addDefinition}
-                      color="secondary"
-                    >
-                      Add Definition
-                    </Button>
-                  </Stack>
-                </Box>
+                      {/* Color Picker */}
+                      <Typography variant="subtitle1" gutterBottom>
+                        Color
+                      </Typography>
 
-                {formData.shineDefinition.length === 0 && (
-                  <Alert severity="info" sx={{ mb: 2 }}>
-                    No shine definitions added. Click "Add Definition" to create
-                    one.
-                  </Alert>
-                )}
+                      {/* Predefined Colors */}
+                      <Box
+                        sx={{
+                          mb: 1,
+                          display: "flex",
+                          flexWrap: "wrap",
+                          gap: 1,
+                        }}
+                      >
+                        {presetColors.map((color) => (
+                          <Box
+                            key={color}
+                            sx={{
+                              width: 30,
+                              height: 30,
+                              bgcolor: color,
+                              borderRadius: "50%",
+                              cursor: "pointer",
+                              border:
+                                def.color === color
+                                  ? "3px solid black"
+                                  : "2px solid white",
+                            }}
+                            onClick={() =>
+                              handlePresetColorSelect(index, color)
+                            }
+                          />
+                        ))}
+                      </Box>
 
-                {formData.shineDefinition.map((def, index) => (
-                  <Paper key={index} elevation={2} sx={{ p: 2, mb: 3 }}>
-                    <Grid container spacing={2}>
-                      <Grid item xs={12}>
-                        <Box
-                          sx={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                          }}
-                        >
-                          <Typography variant="h6">
-                            Definition #{index + 1}
-                          </Typography>
-                          <IconButton
-                            onClick={() => removeDefinition(index)}
-                            color="error"
-                          >
-                            <DeleteIcon />
-                          </IconButton>
-                        </Box>
-                        <Divider sx={{ my: 1 }} />
-                      </Grid>
+                      {/* Manual Hex Input */}
+                      <TextField
+                        fullWidth
+                        label="Enter Hex Color"
+                        value={def.color}
+                        onChange={(e) =>
+                          handleDefinitionChange(
+                            index,
+                            "color",
+                            e.target.value
+                          )
+                        }
+                        error={!/^#([0-9A-Fa-f]{3}){1,2}$/.test(def.color)} // Validate hex format
+                        helperText={
+                          !/^#([0-9A-Fa-f]{3}){1,2}$/.test(def.color)
+                            ? "Enter a valid hex color (e.g., #FF5733)"
+                            : ""
+                        }
+                        margin="normal"
+                      />
 
-                      <Grid item xs={12} md={6}>
-                        <TextField
-                          fullWidth
-                          label="Title"
-                          value={def.title}
-                          onChange={(e) =>
-                            handleDefinitionChange(
-                              index,
-                              "title",
-                              e.target.value
-                            )
-                          }
-                          required
-                          margin="normal"
-                        />
+                      {/* Color Picker */}
+                      <HexColorPicker
+                        color={def.color}
+                        onChange={(color) =>
+                          handleDefinitionChange(index, "color", color)
+                        }
+                        style={{ width: "100%", marginBottom: "10px" }}
+                      />
 
-                        <TextField
-                          fullWidth
-                          label="Description"
-                          value={def.description}
-                          onChange={(e) =>
-                            handleDefinitionChange(
-                              index,
-                              "description",
-                              e.target.value
-                            )
-                          }
-                          multiline
-                          rows={3}
-                          required
-                          margin="normal"
-                        />
-                      </Grid>
-
-                      <Grid item xs={12} md={6}>
-                        {/* Icon Upload */}
-                        <Typography variant="subtitle1" gutterBottom>
-                          Icon
-                        </Typography>
-
-                        <Box
-                          sx={{ display: "flex", alignItems: "center", mb: 2 }}
-                        >
-                          {def.iconPreview && (
-                            <Box
-                              component="img"
-                              src={def.iconPreview}
-                              alt="Icon Preview"
-                              sx={{
-                                width: 50,
-                                height: 50,
-                                objectFit: "contain",
-                                mr: 2,
-                              }}
-                            />
-                          )}
-
-                          <Button
-                            variant="outlined"
-                            component="label"
-                            startIcon={<PhotoCamera />}
-                            color="secondary"
-                          >
-                            {def.iconPreview ? "Change Icon" : "Upload Icon"}
-                            <input
-                              type="file"
-                              accept="image/*"
-                              hidden
-                              onChange={(e) => handleIconChange(index, e)}
-                            />
-                          </Button>
-                        </Box>
-
-                        {/* Color Picker */}
-                        <Typography variant="subtitle1" gutterBottom>
-                          Color
-                        </Typography>
-
-                        {/* Predefined Colors */}
-                        <Box
-                          sx={{
-                            mb: 1,
-                            display: "flex",
-                            flexWrap: "wrap",
-                            gap: 1,
-                          }}
-                        >
-                          {presetColors.map((color) => (
-                            <Box
-                              key={color}
-                              sx={{
-                                width: 30,
-                                height: 30,
-                                bgcolor: color,
-                                borderRadius: "50%",
-                                cursor: "pointer",
-                                border:
-                                  def.color === color
-                                    ? "3px solid black"
-                                    : "2px solid white",
-                              }}
-                              onClick={() =>
-                                handlePresetColorSelect(index, color)
-                              }
-                            />
-                          ))}
-                        </Box>
-
-                        {/* Manual Hex Input */}
-                        <TextField
-                          fullWidth
-                          label="Enter Hex Color"
-                          value={def.color}
-                          onChange={(e) =>
-                            handleDefinitionChange(
-                              index,
-                              "color",
-                              e.target.value
-                            )
-                          }
-                          error={!/^#([0-9A-Fa-f]{3}){1,2}$/.test(def.color)} // Validate hex format
-                          helperText={
-                            !/^#([0-9A-Fa-f]{3}){1,2}$/.test(def.color)
-                              ? "Enter a valid hex color (e.g., #FF5733)"
-                              : ""
-                          }
-                          margin="normal"
-                        />
-
-                        {/* Color Picker */}
-                        <HexColorPicker
-                          color={def.color}
-                          onChange={(color) =>
-                            handleDefinitionChange(index, "color", color)
-                          }
-                          style={{ width: "100%", marginBottom: "10px" }}
-                        />
-
-                        {/* Color Preview */}
-                        <Box
-                          sx={{
-                            p: 1,
-                            bgcolor: def.color,
-                            color: getContrastColor(def.color),
-                            textAlign: "center",
-                            borderRadius: 1,
-                          }}
-                        >
-                          {def.color}
-                        </Box>
-                      </Grid>
+                      {/* Color Preview */}
+                      <Box
+                        sx={{
+                          p: 1,
+                          bgcolor: def.color,
+                          color: getContrastColor(def.color),
+                          textAlign: "center",
+                          borderRadius: 1,
+                        }}
+                      >
+                        {def.color}
+                      </Box>
                     </Grid>
-                  </Paper>
-                ))}
+                  </Grid>
+                </Paper>
+              ))}
 
-                {/* Submit Button */}
-                <Box
-                  sx={{ mt: 4, display: "flex", justifyContent: "flex-end" }}
+              {/* Submit Button */}
+              <Box
+                sx={{ mt: 4, display: "flex", justifyContent: "flex-end" }}
+              >
+                <Button
+                  type="submit"
+                  variant="contained"
+                  sx={{
+                    backgroundColor: theme.palette.primary.main,
+                    color: theme.palette.primary.contrastText,
+                    display: "block",
+                    marginLeft: "auto",
+                    marginRight: "auto",
+                    mt: 3, // optional: top margin
+                    "&:hover": {
+                      backgroundColor: theme.palette.primary.dark,
+                    },
+                  }}
                 >
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    sx={{
-                      backgroundColor: theme.palette.primary.main,
-                      color: theme.palette.primary.contrastText,
-                      display: "block",
-                      marginLeft: "auto",
-                      marginRight: "auto",
-                      mt: 3, // optional: top margin
-                      "&:hover": {
-                        backgroundColor: theme.palette.primary.dark,
-                      },
-                    }}
-                  >
-                    Submit Shine Content
-                  </Button>
-                </Box>
-              </form>
-            </Paper>
+                  Submit Shine Content
+                </Button>
+              </Box>
+            </form>
+
 
             <Snackbar
               open={snackbar.open}
               autoHideDuration={6000}
               onClose={handleCloseSnackbar}
-              anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+              anchorOrigin={{ vertical: "top", horizontal: "right" }}
             >
               <Alert
                 onClose={handleCloseSnackbar}
@@ -617,8 +637,8 @@ const ShineAddForm = () => {
                 {snackbar.message}
               </Alert>
             </Snackbar>
-          </Box>
-        </>
+          </Paper>
+        </Container>
       }
     />
   );

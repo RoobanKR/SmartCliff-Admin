@@ -143,7 +143,6 @@ const OurSponsorsControlPage = () => {
               position: "relative",
               padding: 0,
               margin: 0,
-              fontFamily: 'Merriweather, serif',
               fontWeight: 700, textAlign: 'center',
               fontWeight: 300,
               fontSize: { xs: "32px", sm: "40px" },
@@ -177,7 +176,7 @@ const OurSponsorsControlPage = () => {
               },
             }}
           >
-            Sponsors Management
+            Our Sponsors Panel
           </Typography>
 
           <Grid container spacing={2} alignItems="center" sx={{ mb: 3 }}>
@@ -223,14 +222,14 @@ const OurSponsorsControlPage = () => {
               <Table>
                 <TableHead>
                   <TableRow sx={{ backgroundColor: theme.palette.primary.main }}>
-                    <TableCell sx={{ color: 'white', fontWeight: 600 }}>Company</TableCell>
-                    <TableCell sx={{ color: 'white', fontWeight: 600 }}>Type</TableCell>
-                    <TableCell sx={{ color: 'white', fontWeight: 600 }}>Category</TableCell>
-                    <TableCell sx={{ color: 'white', fontWeight: 600 }}>Contributions</TableCell>
-                    <TableCell sx={{ color: 'white', fontWeight: 600 }}>Service</TableCell>
-                    <TableCell sx={{ color: 'white', fontWeight: 600 }}>Business Service</TableCell>
-                    <TableCell sx={{ color: 'white', fontWeight: 600 }}>Degree Program</TableCell>
-                    <TableCell sx={{ color: 'white', fontWeight: 600 }} align="center">Actions</TableCell>
+                    <TableCell sx={{ color: 'white', fontWeight: 600, textAlign: "center" }}>Company</TableCell>
+                    <TableCell sx={{ color: 'white', fontWeight: 600, textAlign: "center" }}>Type</TableCell>
+                    <TableCell sx={{ color: 'white', fontWeight: 600, textAlign: "center" }}>Category</TableCell>
+                    <TableCell sx={{ color: 'white', fontWeight: 600, textAlign: "center" }}>Contributions</TableCell>
+                    <TableCell sx={{ color: 'white', fontWeight: 600, textAlign: "center" }}>Service</TableCell>
+                    <TableCell sx={{ color: 'white', fontWeight: 600, textAlign: "center" }}>Business Service</TableCell>
+                    <TableCell sx={{ color: 'white', fontWeight: 600, textAlign: "center" }}>Degree Program</TableCell>
+                    <TableCell sx={{ color: 'white', fontWeight: 600, textAlign: "center" }} align="center">Actions</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -248,32 +247,33 @@ const OurSponsorsControlPage = () => {
                             '&:last-child td, &:last-child th': { border: 0 }
                           }}
                         >
-                          <TableCell>{sponsor.companyName || 'N/A'}</TableCell>
-                          <TableCell>{sponsor.type || 'N/A'}</TableCell>
-                          <TableCell>{sponsor.category || 'N/A'}</TableCell>
-                          <TableCell>{sponsor.contributions ? sponsor.contributions.join(', ') : 'N/A'}</TableCell>
-                          <TableCell>{sponsor.service?.title || 'N/A'}</TableCell>
-                          <TableCell>{sponsor.business_service?.name || 'N/A'}</TableCell>
-                          <TableCell>{sponsor.degree_program?.program_name || 'N/A'}</TableCell>
+                          <TableCell sx={{ textAlign: "center" }}>{sponsor.companyName || 'N/A'}</TableCell>
+                          <TableCell sx={{ textAlign: "center" }}>{sponsor.type || 'N/A'}</TableCell>
+                          <TableCell sx={{ textAlign: "center" }}>{sponsor.category || 'N/A'}</TableCell>
+                          <TableCell sx={{ textAlign: "center" }}>{sponsor.contributions ? sponsor.contributions.join(', ') : 'N/A'}</TableCell>
+                          <TableCell sx={{ textAlign: "center" }}>{sponsor.service?.title || 'N/A'}</TableCell>
+                          <TableCell sx={{ textAlign: "center" }}>{sponsor.business_service?.name || 'N/A'}</TableCell>
+                          <TableCell sx={{ textAlign: "center" }}>{sponsor.degree_program?.program_name || 'N/A'}</TableCell>
                           <TableCell align="center">
                             <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1 }}>
                               <Tooltip title="Edit">
-                                <IconButton
+                                <Button
                                   onClick={() => handleEdit(sponsor._id)}
                                   color="primary"
                                   size={isMobile ? 'small' : 'medium'}
-                                >
+                                  variant="outlined"                                >
                                   <EditIcon />
-                                </IconButton>
+                                </Button>
                               </Tooltip>
                               <Tooltip title="Delete">
-                                <IconButton
+                                <Button
                                   onClick={() => handleDeleteClick(sponsor._id)}
                                   color="error"
                                   size={isMobile ? 'small' : 'medium'}
+                                  variant="outlined"
                                 >
                                   <DeleteIcon />
-                                </IconButton>
+                                </Button>
                               </Tooltip>
                             </Box>
                           </TableCell>

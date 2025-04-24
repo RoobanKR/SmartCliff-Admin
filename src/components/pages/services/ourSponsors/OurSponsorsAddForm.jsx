@@ -5,7 +5,7 @@ import Paper from "@material-ui/core/Paper";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import { DropzoneArea } from "material-ui-dropzone";
-import { Autocomplete, FormControl, Typography, Snackbar, Alert, Box, IconButton, Chip } from "@mui/material";
+import { Autocomplete, FormControl, Typography, Snackbar, Alert, Box, IconButton, Chip, Container, Tooltip } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchServices } from "../../../redux/slices/services/services/Services";
@@ -14,6 +14,8 @@ import { createOurSponsors } from "../../../redux/slices/services/ourSponsors/ou
 import { fetchDegreeProgramData } from "../../../redux/slices/mca/degreeProgram/degreeProgram";
 import { useNavigate } from "react-router-dom";
 import LeftNavigationBar from "../../../navbars/LeftNavigationBar";
+import { HelpOutline } from "@material-ui/icons";
+import AddIcon from "@mui/icons-material/Add"; // Import the Add icon
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -49,7 +51,7 @@ const OurSponsorsAddForm = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const [company, setCompany] = useState("");
+  const [companyName, setCompany] = useState("");
   const [type, setType] = useState("");
   const [category, setCategory] = useState("");
   const [contributions, setContributions] = useState([]);
@@ -145,7 +147,7 @@ const OurSponsorsAddForm = () => {
     e.preventDefault();
 
     const formData = new FormData();
-    formData.append("company", company);
+    formData.append("companyName", companyName);
     formData.append("type", type);
     formData.append("category", category);
     formData.append("contributions", JSON.stringify(contributions));
@@ -185,203 +187,257 @@ const OurSponsorsAddForm = () => {
       addContribution(contributionInput.trim());
     }
   };
+  const handleBack = () => {
+    navigate(-1); // Navigate to the previous page
+  };
+
 
   return (
     <LeftNavigationBar
       Content={
-        <Paper className={classes.paper} elevation={3}>
-<Typography
-              variant="h4"
-              sx={{
-                position: "relative",
-                padding: 0,
-                margin: 0,
-                fontFamily: 'Merriweather, serif',
-                fontWeight: 700, textAlign: 'center',
-                fontWeight: 300,
-                fontSize: { xs: "32px", sm: "40px" },
-                color: "#747474",
-                textAlign: "center",
-                textTransform: "uppercase",
-                paddingBottom: "5px",
-                mb: 5,
-                "&::before": {
-                  content: '""',
-                  width: "28px",
-                  height: "5px",
-                  display: "block",
-                  position: "absolute",
-                  bottom: "3px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
-                "&::after": {
-                  content: '""',
-                  width: "100px",
-                  height: "1px",
-                  display: "block",
-                  position: "relative",
-                  marginTop: "5px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
-              }}
-            >            Add Our Sponsors
-          </Typography>
-          <form className={classes.form} onSubmit={handleSubmit}>
-            <FormControl fullWidth>
-              <Autocomplete
-                id="Business Services"
-                options={businessServiceData || []}
-                getOptionLabel={(option) => option?.name || ""}
-                value={selectedBusinessService}
-                onChange={handleBussinessServiceChange}
-                isOptionEqualToValue={(option, value) =>
-                  option._id === value._id
-                }
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    variant="outlined"
-                    label="Business Services"
-                    fullWidth
-                  />
-                )}
-              />
-            </FormControl>
-            <br /> <br />
-            <FormControl fullWidth>
-              <Autocomplete
-                id="service"
-                options={filteredServices || []}
-                getOptionLabel={(option) => option?.title || ""}
-                value={selectedService}
-                onChange={handleServiceChange}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    variant="outlined"
-                    label="Service"
-                    fullWidth
-                    required
-                  />
-                )}
-              />
-            </FormControl>
-            <br /><br />
-            <FormControl fullWidth>
-              <Autocomplete
-                id="degree_program"
-                options={filteredDegreePrograms || []}
-                getOptionLabel={(option) =>
-                  option ? option.program_name : ""
-                }
-                value={selectedProgram}
-                onChange={handleProgramChange}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    variant="outlined"
-                    label="Program"
-                    fullWidth
-                  />
-                )}
-              />
-            </FormControl>
+        <Container component="main" maxWidth="md">
+          <Paper elevation={0}>
+            <Box
+              display="flex"
+              alignItems="center"
+              justifyContent="space-between"
+              gap={1}
+              mt={2}
+              mb={2}
+            >
+              <Button
+                variant="outlined"
+                color="primary"
+                onClick={handleBack}
+              >
+                Back
+              </Button>
+              <Box sx={{
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'center',
+                position: 'relative',
+                flex: 1
+              }}>
+                <Typography
+                  variant="h4"
+                  sx={{
+                    position: "relative",
+                    padding: 0,
+                    margin: 0,
+                    fontWeight: 300,
+                    fontSize: { xs: "32px", sm: "40px" },
+                    color: "#747474",
+                    textAlign: "center",
+                    textTransform: "uppercase",
+                    paddingBottom: "5px",
+                    "&::before": {
+                      content: '""',
+                      width: "28px",
+                      height: "5px",
+                      display: "block",
+                      position: "absolute",
+                      bottom: "3px",
+                      left: "50%",
+                      transform: "translateX(-50%)",
+                      backgroundColor: "#747474",
+                    },
+                    "&::after": {
+                      content: '""',
+                      width: "100px",
+                      height: "1px",
+                      display: "block",
+                      position: "relative",
+                      marginTop: "5px",
+                      left: "50%",
+                      transform: "translateX(-50%)",
+                      backgroundColor: "#747474",
+                    },
+                  }}
+                >
+                  Our Sponsor Add Form
+                </Typography>
 
-            <TextField
-              variant="outlined"
-              margin="normal"
-              required
-              fullWidth
-              label="Company"
-              value={company}
-              onChange={(e) => setCompany(e.target.value)}
-            />
-            <TextField
-              variant="outlined"
-              margin="normal"
-              required
-              fullWidth
-              label="Type"
-              value={type}
-              onChange={(e) => setType(e.target.value)}
-            />
-            <TextField
-              variant="outlined"
-              margin="normal"
-              required
-              fullWidth
-              label="Category"
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-            />
+                <Tooltip
+                  title="This is where you can add the execution count for the service."
+                  arrow
+                >
+                  <HelpOutline
+                    sx={{ color: "#747474", fontSize: "24px", cursor: "pointer" }}
+                  />
+                </Tooltip>
+              </Box>
+            </Box>
+            <form style={{
+              border: "2px dotted #D3D3D3",
+              padding: "20px",
+              borderRadius: "8px",
+            }} onSubmit={handleSubmit}>
+              <FormControl fullWidth>
+                <Autocomplete
+                  id="Business Services"
+                  options={businessServiceData || []}
+                  getOptionLabel={(option) => option?.name || ""}
+                  value={selectedBusinessService}
+                  onChange={handleBussinessServiceChange}
+                  isOptionEqualToValue={(option, value) =>
+                    option._id === value._id
+                  }
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      variant="outlined"
+                      label="Business Services"
+                      fullWidth
+                    />
+                  )}
+                />
+              </FormControl>
+              <br /> <br />
+              <FormControl fullWidth>
+                <Autocomplete
+                  id="service"
+                  options={filteredServices || []}
+                  getOptionLabel={(option) => option?.title || ""}
+                  value={selectedService}
+                  onChange={handleServiceChange}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      variant="outlined"
+                      label="Service"
+                      fullWidth
+                      required
+                    />
+                  )}
+                />
+              </FormControl>
+              <br /><br />
+              <FormControl fullWidth>
+                <Autocomplete
+                  id="degree_program"
+                  options={filteredDegreePrograms || []}
+                  getOptionLabel={(option) =>
+                    option ? option.program_name : ""
+                  }
+                  value={selectedProgram}
+                  onChange={handleProgramChange}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      variant="outlined"
+                      label="Program"
+                      fullWidth
+                    />
+                  )}
+                />
+              </FormControl>
 
-            <Box sx={{ display: 'flex', alignItems: 'center', mt: 3, mb: 1 }}>
               <TextField
                 variant="outlined"
+                margin="normal"
+                required
                 fullWidth
-                label="Contributions"
-                value={contributionInput}
-                onChange={handleContributionInputChange}
-                onKeyDown={handleContributionKeyDown}
-                placeholder="Press Enter or comma to add a contribution"
-                sx={{ mr: 1 }}
+                label="Company Name"
+                value={companyName}
+                onChange={(e) => setCompany(e.target.value)}
+              />
+              <TextField
+                variant="outlined"
+                margin="normal"
+                required
+                fullWidth
+                label="Type"
+                value={type}
+                onChange={(e) => setType(e.target.value)}
+              />
+              <TextField
+                variant="outlined"
+                margin="normal"
+                required
+                fullWidth
+                label="Category"
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+              />
+
+              <Box sx={{ display: 'flex', alignItems: 'center', mt: 3, mb: 1 }}>
+                <Box sx={{ flexGrow: 1 }}>
+                  <TextField
+                    variant="outlined"
+                    fullWidth
+                    label="Contributions"
+                    value={contributionInput}
+                    onChange={handleContributionInputChange}
+                    onKeyDown={handleContributionKeyDown}
+                    placeholder="Press Enter or comma to add a contribution"
+                  />
+                </Box>
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  onClick={handleAddButtonClick}
+                  startIcon={<AddIcon />}
+                  sx={{ ml: 2 }}
+                >
+                  Add
+                </Button>
+              </Box>
+
+
+              <Box className={classes.contributionsContainer}>
+                {contributions.map((contribution, index) => (
+                  <Chip
+                    key={index}
+                    label={contribution}
+                    onDelete={() => removeContribution(index)}
+                    className={classes.contributionChip}
+                    color="primary"
+                    variant="outlined"
+                  />
+                ))}
+              </Box>
+              <DropzoneArea
+                acceptedFiles={["image/jpeg", "image/png", "image/gif", "image/bmp", "image/webp", "image/svg+xml"]}
+                filesLimit={1}
+                dropzoneText="Drag and drop an image here or click"
+                onChange={handleImageChange}
               />
               <Button
+                type="submit"
                 variant="contained"
-                color="primary"
-                onClick={handleAddButtonClick}
+                style={{
+                  display: "block",
+                  margin: "24px auto 0", // centers the button horizontally
+                  backgroundColor: " #1976d2", // green
+                  color: "#fff",
+                  padding: "5px 10px",
+                  borderRadius: "4px",
+                  textTransform: "uppercase",
+                  cursor: "pointer",
+                }}
               >
-                Add
+                Submit Our Sponsor
               </Button>
-            </Box>
-
-            <Box className={classes.contributionsContainer}>
-              {contributions.map((contribution, index) => (
-                <Chip
-                  key={index}
-                  label={contribution}
-                  onDelete={() => removeContribution(index)}
-                  className={classes.contributionChip}
-                  color="primary"
-                  variant="outlined"
-                />
-              ))}
-            </Box>
-            <DropzoneArea
-              acceptedFiles={["image/jpeg", "image/png", "image/gif", "image/bmp", "image/webp", "image/svg+xml"]}
-              filesLimit={1}
-              dropzoneText="Drag and drop an image here or click"
-              onChange={handleImageChange}
-            />
-            <Button
-              type="submit"
-              variant="contained"
-              className={classes.submit}
-              fullWidth
-            >
-              Submit
-            </Button>
-          </form>
-          <Snackbar
-            open={snackbar.open}
-            autoHideDuration={6000}
-            onClose={handleCloseSnackbar}
-            anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-          >
-            <Alert
+            </form>
+            <Snackbar
+              open={snackbar.open}
+              autoHideDuration={6000}
               onClose={handleCloseSnackbar}
-              severity={snackbar.severity}
-              variant="filled"
-              sx={{ width: '100%' }}
+              anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
             >
-              {snackbar.message}
-            </Alert>
-          </Snackbar>
-        </Paper>
+              <Alert
+                onClose={handleCloseSnackbar}
+                severity={snackbar.severity}
+                variant="filled"
+                sx={{ width: '100%' }}
+              >
+                {snackbar.message}
+              </Alert>
+            </Snackbar>
+          </Paper>
+        </Container>
       }
     />
   );

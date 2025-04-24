@@ -13,6 +13,8 @@ import {
   Tooltip,
   Box,
   useTheme,
+  Container,
+  Paper,
 } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { useNavigate, useParams } from "react-router-dom";
@@ -102,137 +104,158 @@ const VisionMissionEditForm = () => {
       .finally(() => setLoading(false));
   };
 
+  const handleBack = () => {
+    navigate(-1); // Navigate to the previous page
+  };
+
   return (
     <LeftNavigationBar
       Content={
-        <>
-          <Box
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-            gap={1}
-            mt={2}
-            mb={1}
-          >
-            <Typography
-              variant="h4"
-              sx={{
-                position: "relative",
-                padding: 0,
-                margin: 0,
-                fontFamily: "Merriweather, serif",
-                fontWeight: 300,
-                fontSize: { xs: "32px", sm: "40px" },
-                color: "#747474",
-                textAlign: "center",
-                textTransform: "uppercase",
-                paddingBottom: "5px",
-                "&::before": {
-                  content: '""',
-                  width: "28px",
-                  height: "5px",
-                  display: "block",
-                  position: "absolute",
-                  bottom: "3px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
-                "&::after": {
-                  content: '""',
-                  width: "100px",
-                  height: "1px",
-                  display: "block",
+        <Container component="main" maxWidth="md">
+          <Paper elevation={0}>
+            <Box
+              display="flex"
+              alignItems="center"
+              justifyContent="space-between"
+              gap={1}
+              mt={2}
+              mb={2}
+            >
+              <Button variant="outlined" color="primary" onClick={handleBack}>
+                Back
+              </Button>
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "center",
                   position: "relative",
-                  marginTop: "5px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
-              }}
-            >
-              Vision / Mission
-              <br /> Edit Form
-            </Typography>
-
-            <Tooltip
-              title="This is where you can add the execution count for the service."
-              arrow
-            >
-              <HelpOutline
-                sx={{ color: "#747474", fontSize: "24px", cursor: "pointer" }}
-              />
-            </Tooltip>
-          </Box>
-          <Card elevation={0} sx={{ maxWidth: 800, margin: "auto" }}>
-            <CardContent>
-              <Snackbar
-                open={openSnackbar}
-                autoHideDuration={3000}
-                onClose={() => setOpenSnackbar(false)}
-              >
-                <Alert severity={message.type}>{message.text}</Alert>
-              </Snackbar>
-              <form
-                onSubmit={handleSubmit}
-                style={{
-                  border: "2px dotted #D3D3D3",
-                  padding: "20px",
-                  borderRadius: "8px",
+                  flex: 1,
                 }}
               >
-                <Grid container spacing={2}>
-                  <Grid item xs={12}>
-                    <TextField
-                      select
-                      label="Type"
-                      name="type"
-                      value={formData.type}
-                      onChange={handleChange}
-                      fullWidth
-                      margin="normal"
-                    >
-                      <MenuItem value="vision">Vision</MenuItem>
-                      <MenuItem value="mission">Mission</MenuItem>
-                    </TextField>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <TextField
-                      label="Description"
-                      name="description"
-                      value={formData.description}
-                      onChange={handleChange}
-                      fullWidth
-                      multiline
-                      rows={4}
-                      margin="normal"
-                    />
-                  </Grid>
+                <Typography
+                  variant="h4"
+                  sx={{
+                    position: "relative",
+                    padding: 0,
+                    margin: 0,
+                    fontWeight: 300,
+                    fontSize: { xs: "32px", sm: "40px" },
+                    color: "#747474",
+                    textAlign: "center",
+                    textTransform: "uppercase",
+                    paddingBottom: "5px",
+                    "&::before": {
+                      content: '""',
+                      width: "28px",
+                      height: "5px",
+                      display: "block",
+                      position: "absolute",
+                      bottom: "3px",
+                      left: "50%",
+                      transform: "translateX(-50%)",
+                      backgroundColor: "#747474",
+                    },
+                    "&::after": {
+                      content: '""',
+                      width: "100px",
+                      height: "1px",
+                      display: "block",
+                      position: "relative",
+                      marginTop: "5px",
+                      left: "50%",
+                      transform: "translateX(-50%)",
+                      backgroundColor: "#747474",
+                    },
+                  }}
+                >
+                  Vision / Mission Edit Form
+                </Typography>
+                <Tooltip
+                  title="This is where you can add the execution count for the service."
+                  arrow
+                >
+                  <HelpOutline
+                    sx={{
+                      color: "#747474",
+                      fontSize: "24px",
+                      cursor: "pointer",
+                    }}
+                  />
+                </Tooltip>
+              </Box>
+            </Box>
 
-                  <Grid item xs={12}>
-                    <Button
-                      type="submit"
-                      variant="contained"
-                      sx={{
-                        backgroundColor: theme.palette.warning.main,
-                        color: theme.palette.warning.contrastText,
-                        display: "block",
-                        marginLeft: "auto",
-                        marginRight: "auto",
-                        mt: 3, // optional: top margin
-                        "&:hover": {
-                          backgroundColor: theme.palette.warning.dark,
-                        },
-                      }}
-                    >
-                      Submit Content
-                    </Button>
-                  </Grid>
+
+            <Snackbar
+              open={openSnackbar}
+              autoHideDuration={3000}
+              onClose={() => setOpenSnackbar(false)}
+              anchorOrigin={{ vertical: "top", horizontal: "right" }}
+
+            >
+              <Alert variant="filled" severity={message.type}>{message.text}</Alert>
+            </Snackbar>
+            <form
+              onSubmit={handleSubmit}
+              style={{
+                border: "2px dotted #D3D3D3",
+                padding: "20px",
+                borderRadius: "8px",
+              }}
+            >
+              <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  <TextField
+                    select
+                    label="Type"
+                    name="type"
+                    value={formData.type}
+                    onChange={handleChange}
+                    fullWidth
+                    margin="normal"
+                  >
+                    <MenuItem value="vision">Vision</MenuItem>
+                    <MenuItem value="mission">Mission</MenuItem>
+                  </TextField>
                 </Grid>
-              </form>
-            </CardContent>
-          </Card>
-        </>
+                <Grid item xs={12}>
+                  <TextField
+                    label="Description"
+                    name="description"
+                    value={formData.description}
+                    onChange={handleChange}
+                    fullWidth
+                    multiline
+                    rows={4}
+                    margin="normal"
+                  />
+                </Grid>
+
+                <Grid item xs={12}>
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    sx={{
+                      backgroundColor: theme.palette.warning.main,
+                      color: theme.palette.warning.contrastText,
+                      display: "block",
+                      marginLeft: "auto",
+                      marginRight: "auto",
+                      mt: 3, // optional: top margin
+                      "&:hover": {
+                        backgroundColor: theme.palette.warning.dark,
+                      },
+                    }}
+                  >
+                    Submit Content
+                  </Button>
+                </Grid>
+              </Grid>
+            </form>
+          </Paper>
+        </Container>
       }
     />
   );

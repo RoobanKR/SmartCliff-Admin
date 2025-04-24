@@ -87,8 +87,10 @@ const ReviewsEditForm = () => {
   const { allReview, updateSuccess, successMessage, error, isSuccess } =
     useSelector((state) => state.reviews);
 
+
   const [openSnackbar, setOpenSnackbar] = useState(false);
-  const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
   const [reviewState, setReviewState] = useState(null);
 
   // Form fields
@@ -151,14 +153,12 @@ const ReviewsEditForm = () => {
 
   useEffect(() => {
     if (updateSuccess) {
-      setOpenSnackbar(true);
       setTimeout(() => {
         dispatch(clearUpdateStatus());
         navigate("/Review-control");
       }, 2000);
     }
   }, [updateSuccess, dispatch, navigate]);
-
   const handleChange = (event) => {
     const { name, value } = event.target;
 
@@ -223,7 +223,7 @@ const ReviewsEditForm = () => {
   const handleVideoChange = (fileArray) => {
     if (fileArray.length > 0) {
       const file = fileArray[0];
-      const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+      const maxSize = 40 * 1024 * 1024; // 10MB in bytes
 
       if (file.size > maxSize) {
         setErrors((prev) => ({
@@ -298,10 +298,20 @@ const ReviewsEditForm = () => {
     }
 
     try {
-      const result = await dispatch(
+      await dispatch(
         updateReview({ reviewId, formData, token: cookies.token })
       ).unwrap();
+      setSnackbarMessage("Review updated successfully");
+      setSnackbarSeverity("success");
+      setOpenSnackbar(true);
+      setTimeout(() => {
+        dispatch(clearUpdateStatus());
+        navigate("/Review-control");
+      }, 2000);
     } catch (error) {
+      setSnackbarMessage("Error updating review");
+      setSnackbarSeverity("error");
+      setOpenSnackbar(true);
       console.error("Error updating review:", error);
     }
   };
@@ -391,14 +401,15 @@ const ReviewsEditForm = () => {
             open={openSnackbar}
             autoHideDuration={2000}
             onClose={() => setOpenSnackbar(false)}
+            anchorOrigin={{ vertical: "top", horizontal: "right" }}
           >
-            <Alert severity="success">
+            <Alert severity="success" variant="filled">
               {successMessage || "Review Updated successfully"}
             </Alert>
           </Snackbar>
 
           {error && (
-            <Alert severity="error" sx={{ mb: 2 }}>
+            <Alert severity="error" sx={{ mb: 2 }} variant="filled">
               {error}
             </Alert>
           )}
@@ -446,6 +457,7 @@ const ReviewsEditForm = () => {
                   label="Batch"
                   name="batch"
                   variant="outlined"
+                  type="number"
                   required
                   value={batch}
                   onChange={(e) => handleChange(e)}
@@ -551,7 +563,7 @@ const ReviewsEditForm = () => {
                     onChange={handleVideoChange}
                     acceptedFiles={["video/*"]}
                     filesLimit={1}
-                    maxFileSize={10 * 1024 * 1024} // 10MB
+                    maxFileSize={40 * 1024 * 1024} // 10MB
                     showPreviews={false}
                     showPreviewsInDropzone={true}
                     dropzoneText="Upload a Video (Max: 10MB)"

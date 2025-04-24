@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import {
   Paper,
   Table,
@@ -9,7 +8,6 @@ import {
   TableHead,
   TableRow,
   Typography,
-  IconButton,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -17,7 +15,6 @@ import {
   Button,
   CircularProgress,
   Box,
-  Tooltip,
   TextField,
   TablePagination,
   useTheme,
@@ -28,65 +25,67 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import AddIcon from "@mui/icons-material/Add";
 import SearchIcon from "@mui/icons-material/Search";
-import LeftNavigationBar from "../../../navbars/LeftNavigationBar";
-import {
-  deleteExecutionHighlights,
-  fetchExecutionHighlights,
-} from "../../../redux/slices/services/executionHighlights/Execution_Highlights";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { deleteContactPage, getAllContactPages } from "../../redux/slices/contactPage/contactPage";
+import LeftNavigationBar from "../../navbars/LeftNavigationBar";
 
-const ExecutionHighlightsControl = () => {
+const ContactPageControl = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const executionHighlights = useSelector(
-    (state) => state.executionHighlights.executionHighlights
-  );
+  const contactPages = useSelector((state) => state.contactPage.contactPages) || [];
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
-  const [deleteIndex, setDeleteIndex] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [deleteId, setDeleteId] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [loading, setLoading] = useState(true);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   useEffect(() => {
-    dispatch(fetchExecutionHighlights())
-      .then(() => setLoading(false))
-      .catch(() => setLoading(false));
+    const fetchData = async () => {
+      try {
+        await dispatch(getAllContactPages());
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching contact pages:", error);
+        setLoading(false);
+      }
+    };
+    fetchData();
   }, [dispatch]);
 
-  const handleEdit = (executionHighlightId) => {
-    navigate(`/Execution_Highlights-edit/${executionHighlightId}`);
+  const handleEdit = (id) => {
+    navigate(`/contact-page-edit/${id}`);
   };
 
-  const handleConfirmDeleteOpen = (index) => {
+  const handleConfirmDeleteOpen = (id) => {
+    setDeleteId(id);
     setConfirmDeleteOpen(true);
-    setDeleteIndex(index);
   };
 
   const handleConfirmDeleteClose = () => {
     setConfirmDeleteOpen(false);
-    setDeleteIndex(null);
+    setDeleteId(null);
   };
 
   const handleDelete = () => {
-    if (deleteIndex !== null) {
-      const executionHighlightId = executionHighlights[deleteIndex]._id;
-      dispatch(deleteExecutionHighlights(executionHighlightId))
+    if (deleteId) {
+      dispatch(deleteContactPage(deleteId))
         .then(() => {
-          dispatch(fetchExecutionHighlights());
+          dispatch(getAllContactPages());
           handleConfirmDeleteClose();
         })
         .catch((error) => {
-          console.error("Error deleting execution highlights:", error);
+          console.error("Error deleting contact page:", error);
           handleConfirmDeleteClose();
         });
     }
   };
 
-  const filteredExecutionHighlights = executionHighlights.filter((highlight) =>
-    highlight.stack.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredContactPages = contactPages.filter(contactPage =>
+    contactPage.contact && contactPage.contact.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleChangePage = (event, newPage) => {
@@ -102,12 +101,7 @@ const ExecutionHighlightsControl = () => {
     return (
       <LeftNavigationBar
         Content={
-          <Box
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-            minHeight="80vh"
-          >
+          <Box display="flex" justifyContent="center" alignItems="center" minHeight="80vh">
             <CircularProgress size={60} thickness={4} />
           </Box>
         }
@@ -121,47 +115,47 @@ const ExecutionHighlightsControl = () => {
         <Box sx={{ p: isMobile ? 1 : 3 }}>
           {/* Header Section */}
           <Box sx={{ mb: 4 }}>
-            <Typography
-              variant="h4"
-              sx={{
-                position: "relative",
-                padding: 0,
-                margin: 0,
-                fontWeight: 700,
-                textAlign: "center",
-                fontWeight: 300,
-                fontSize: { xs: "32px", sm: "40px" },
-                color: "#747474",
-                textAlign: "center",
-                textTransform: "uppercase",
-                paddingBottom: "5px",
-                mb: 3,
-                mt: -4,
-                "&::before": {
-                  content: '""',
-                  width: "28px",
-                  height: "5px",
-                  display: "block",
-                  position: "absolute",
-                  bottom: "3px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
-                "&::after": {
-                  content: '""',
-                  width: "100px",
-                  height: "1px",
-                  display: "block",
-                  position: "relative",
-                  marginTop: "5px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
-              }}
-            >
-              Execution Highlights Control <br></br> (by Client)
+           <Typography
+                        variant="h4"
+                        sx={{
+                          position: "relative",
+                          padding: 0,
+                          margin: 0,
+                          fontWeight: 700,
+                          textAlign: "center",
+                          fontWeight: 300,
+                          fontSize: { xs: "32px", sm: "40px" },
+                          color: "#747474",
+                          textAlign: "center",
+                          textTransform: "uppercase",
+                          paddingBottom: "5px",
+                          mb: 3,
+                          mt: -4,
+                          "&::before": {
+                            content: '""',
+                            width: "28px",
+                            height: "5px",
+                            display: "block",
+                            position: "absolute",
+                            bottom: "3px",
+                            left: "50%",
+                            transform: "translateX(-50%)",
+                            backgroundColor: "#747474",
+                          },
+                          "&::after": {
+                            content: '""',
+                            width: "100px",
+                            height: "1px",
+                            display: "block",
+                            position: "relative",
+                            marginTop: "5px",
+                            left: "50%",
+                            transform: "translateX(-50%)",
+                            backgroundColor: "#747474",
+                          },
+                        }}
+                      >
+              Contact Page Control Panel
             </Typography>
             <Grid container spacing={2} alignItems="center">
               <Grid item xs={12} md={6}>
@@ -169,7 +163,7 @@ const ExecutionHighlightsControl = () => {
                   fullWidth
                   variant="outlined"
                   size="small"
-                  placeholder="Search execution highlights..."
+                  placeholder="Search contact pages..."
                   InputProps={{
                     startAdornment: (
                       <SearchIcon color="action" sx={{ mr: 1 }} />
@@ -192,7 +186,7 @@ const ExecutionHighlightsControl = () => {
                 <Button
                   variant="contained"
                   startIcon={<AddIcon />}
-                  onClick={() => navigate("/Execution_Highlights-add")}
+                  onClick={() => navigate("/contact-page-add")}
                   sx={{
                     backgroundColor: theme.palette.primary.main,
                     color: "white",
@@ -203,7 +197,7 @@ const ExecutionHighlightsControl = () => {
                     width: { xs: "100%", md: "auto" },
                   }}
                 >
-                  Add Execution Highlights
+                  Add Contact Page
                 </Button>
               </Grid>
             </Grid>
@@ -218,7 +212,7 @@ const ExecutionHighlightsControl = () => {
                     sx={{ backgroundColor: theme.palette.primary.main }}
                   >
                     <TableCell sx={{ color: "white", fontWeight: 600, textAlign: "center" }}>
-                      Stack Name
+                      Contact
                     </TableCell>
                     <TableCell sx={{ color: "white", fontWeight: 600, textAlign: "center" }}>
                       Image
@@ -229,43 +223,42 @@ const ExecutionHighlightsControl = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {filteredExecutionHighlights.length > 0 ? (
-                    filteredExecutionHighlights
-                      .slice(
-                        page * rowsPerPage,
-                        page * rowsPerPage + rowsPerPage
-                      )
-                      .map((executionHighlight, index) => (
-                        <TableRow key={executionHighlight._id}>
-                          <TableCell sx={{ textAlign: "center" }}>{executionHighlight.stack}</TableCell>
+                  {filteredContactPages.length > 0 ? (
+                    filteredContactPages
+                      .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                      .map((contactPage) => (
+                        <TableRow key={contactPage._id}>
+                          <TableCell sx={{ textAlign: "center" }}>{contactPage.contact}</TableCell>
                           <TableCell sx={{ textAlign: "center" }}>
                             <img
-                              src={executionHighlight.image}
-                              alt={executionHighlight.stack}
-                              style={{ maxWidth: "100px", maxHeight: "100px" }}
+                              src={contactPage.image}
+                              alt={contactPage.contact}
+                              style={{
+                                maxWidth: "100px",
+                                maxHeight: "100px",
+                                padding: "10px",
+                                background:
+                                  "linear-gradient(135deg, rgb(44, 46, 84) 10%, rgb(26, 28, 51) 90%)",
+                              }}
                             />
                           </TableCell>
                           <TableCell sx={{ textAlign: "center" }}>
-                            <Box sx={{  gap: 1 }}>
-                              <Button
-                                variant="outlined"
-                                onClick={() =>
-                                  handleEdit(executionHighlight._id)
-                                }
-                                color="primary"
-                                aria-label="edit"
-                              >
-                                <EditIcon />
-                              </Button>
-                              <Button
-                                variant="outlined"
-                                onClick={() => handleConfirmDeleteOpen(index)}
-                                color="error"
-                                aria-label="delete"
-                              >
-                                <DeleteIcon />
-                              </Button>
-                            </Box>
+                            <Button
+                              variant="outlined"
+                              onClick={() => handleEdit(contactPage._id)}
+                              color="primary"
+                              aria-label="edit"
+                            >
+                              <EditIcon />
+                            </Button>
+                            <Button
+                              variant="outlined"
+                              color="error"
+                              onClick={() => handleConfirmDeleteOpen(contactPage._id)}
+                              sx={{ ml: 1 }}
+                            >
+                              <DeleteIcon />
+                            </Button>
                           </TableCell>
                         </TableRow>
                       ))
@@ -273,7 +266,7 @@ const ExecutionHighlightsControl = () => {
                     <TableRow>
                       <TableCell colSpan={3} align="center" sx={{ py: 4 }}>
                         <Typography variant="h6" color="text.secondary">
-                          No execution highlights found
+                          No contact pages found
                         </Typography>
                       </TableCell>
                     </TableRow>
@@ -283,11 +276,11 @@ const ExecutionHighlightsControl = () => {
             </TableContainer>
 
             {/* Pagination */}
-            {filteredExecutionHighlights.length > 0 && (
+            {filteredContactPages.length > 0 && (
               <TablePagination
                 rowsPerPageOptions={[5, 10, 25]}
                 component="div"
-                count={filteredExecutionHighlights.length}
+                count={filteredContactPages.length}
                 rowsPerPage={rowsPerPage}
                 page={page}
                 onPageChange={handleChangePage}
@@ -306,7 +299,7 @@ const ExecutionHighlightsControl = () => {
           {/* Delete Confirmation Dialog */}
           <Dialog
             open={confirmDeleteOpen}
-            onClose={handleConfirmDeleteClose}
+            onClose={ handleConfirmDeleteClose}
             PaperProps={{
               sx: {
                 borderRadius: 2,
@@ -325,8 +318,7 @@ const ExecutionHighlightsControl = () => {
             </DialogTitle>
             <DialogContent sx={{ py: 3 }}>
               <Typography variant="body1">
-                Are you sure you want to delete this execution highlight? This
-                action cannot be undone.
+                Are you sure you want to delete this contact page? This action cannot be undone.
               </Typography>
             </DialogContent>
             <DialogActions sx={{ px: 3, pb: 2 }}>
@@ -361,4 +353,4 @@ const ExecutionHighlightsControl = () => {
   );
 };
 
-export default ExecutionHighlightsControl;
+export default ContactPageControl;

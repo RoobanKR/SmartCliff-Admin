@@ -155,7 +155,6 @@ const CollegeControl = () => {
                                 position: "relative",
                                 padding: 0,
                                 margin: 0,
-                                fontFamily: 'Merriweather, serif',
                                 fontWeight: 700, textAlign: 'center',
                                 fontWeight: 300,
                                 fontSize: { xs: "32px", sm: "40px" },
@@ -237,15 +236,15 @@ const CollegeControl = () => {
                             <Table>
                                 <TableHead>
                                     <TableRow sx={{ backgroundColor: theme.palette.primary.main }}>
-                                        <TableCell sx={{ color: 'white', fontWeight: 600 }}>Logo</TableCell>
-                                        <TableCell sx={{ color: 'white', fontWeight: 600 }}>College Name</TableCell>
-                                        {!isMobile && (
-                                            <>
-                                                <TableCell sx={{ color: 'white', fontWeight: 600 }}>Slug</TableCell>
-                                                <TableCell sx={{ color: 'white', fontWeight: 600 }}>Description</TableCell>
-                                            </>
-                                        )}
-                                        <TableCell sx={{ color: 'white', fontWeight: 600 }}>Actions</TableCell>
+                                        <TableCell sx={{ color: 'white', fontWeight: 600, textAlign: "center" }}>Logo</TableCell>
+                                        <TableCell sx={{ color: 'white', fontWeight: 600, textAlign: "center" }}>College Name</TableCell>
+                                        {/* {!isMobile && (
+                                            <> */}
+                                        <TableCell sx={{ color: 'white', fontWeight: 600, textAlign: "center" }}>Slug</TableCell>
+                                        <TableCell sx={{ color: 'white', fontWeight: 600, textAlign: "center" }}>Description</TableCell>
+                                        {/* </>
+                                        )} */}
+                                        <TableCell sx={{ color: 'white', fontWeight: 600, textAlign: "center" }}>Actions</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
@@ -264,7 +263,7 @@ const CollegeControl = () => {
                                                             '&:last-child td, &:last-child th': { border: 0 }
                                                         }}
                                                     >
-                                                        <TableCell>
+                                                        <TableCell sx={{ textAlign: "center" }}>
                                                             <Avatar
                                                                 src={college.logo}
                                                                 alt={college.collegeName || 'College logo'}
@@ -277,7 +276,7 @@ const CollegeControl = () => {
                                                                 {!college.logo && college.collegeName?.charAt(0)}
                                                             </Avatar>
                                                         </TableCell>
-                                                        <TableCell>
+                                                        <TableCell sx={{ textAlign: "center" }}>
                                                             <Typography fontWeight={500}>
                                                                 {college.collegeName || 'N/A'}
                                                             </Typography>
@@ -291,32 +290,32 @@ const CollegeControl = () => {
                                                                 </Typography>
                                                             )}
                                                         </TableCell>
-                                                        {!isMobile && (
-                                                            <>
-                                                                <TableCell>
-                                                                    <Chip
-                                                                        label={college.slug || 'N/A'}
-                                                                        size="small"
-                                                                        color="secondary"
-                                                                    />
-                                                                </TableCell>
-                                                                <TableCell>
-                                                                    <Typography
-                                                                        variant="body2"
-                                                                        sx={{
-                                                                            display: '-webkit-box',
-                                                                            WebkitLineClamp: 2,
-                                                                            WebkitBoxOrient: 'vertical',
-                                                                            overflow: 'hidden',
-                                                                            textOverflow: 'ellipsis'
-                                                                        }}
-                                                                    >
-                                                                        {college.description || 'No description'}
-                                                                    </Typography>
-                                                                </TableCell>
-                                                            </>
-                                                        )}
-                                                        <TableCell>
+                                                        {/* {!isMobile && (
+                                                            <> */}
+                                                        <TableCell sx={{ textAlign: "center" }}>
+                                                            <Chip
+                                                                label={college.slug || 'N/A'}
+                                                                size="small"
+                                                                color="secondary"
+                                                            />
+                                                        </TableCell>
+                                                        <TableCell sx={{ textAlign: "center" }}>
+                                                            <Typography
+                                                                variant="body2"
+                                                                sx={{
+                                                                    display: '-webkit-box',
+                                                                    WebkitLineClamp: 2,
+                                                                    WebkitBoxOrient: 'vertical',
+                                                                    overflow: 'hidden',
+                                                                    textOverflow: 'ellipsis'
+                                                                }}
+                                                            >
+                                                                {college.description || 'No description'}
+                                                            </Typography>
+                                                        </TableCell>
+                                                        {/* </>
+                                                        )} */}
+                                                        <TableCell sx={{ textAlign: "center" }}>
                                                             <Box sx={{ display: 'flex', gap: 1 }}>
                                                                 <Tooltip title="Edit">
                                                                     <Button

@@ -173,8 +173,9 @@ const HomeExecutionHighlightsAddForm = () => {
             open={submitSuccess}
             autoHideDuration={2000}
             onClose={() => setSubmitSuccess(false)}
+            anchorOrigin={{ vertical: "top", horizontal: "right" }}
           >
-            <Alert severity="success">
+            <Alert severity="success" variant="filled">
               {typeof isSuccess === "object"
                 ? JSON.stringify(isSuccess)
                 : isSuccess || "Service highlight created successfully"}

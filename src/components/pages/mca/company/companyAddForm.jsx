@@ -36,6 +36,11 @@ const CompanyAddForm = () => {
   const [errors, setErrors] = useState({});
   const { loading, error, isSuccess } = useSelector((state) => state.companies);
 
+
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+
   const [selectedService, setSelectedService] = useState(null);
   const [selectedBusinessService, setSelectedBusinessService] = useState(null);
   const serviceData = useSelector((state) => state.service.serviceData);
@@ -119,9 +124,18 @@ const CompanyAddForm = () => {
 
     try {
       await dispatch(createCompany(formData)).unwrap();
+      setSnackbarMessage("Company added successfully!");
+      setSnackbarSeverity("success");
+      setSnackbarOpen(true);
     } catch (err) {
       console.error("Failed to create company:", err);
+      setSnackbarMessage("Failed to add company. Please try again.");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
     }
+  };
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false);
   };
 
   const handleBack = () => {
@@ -324,6 +338,21 @@ const CompanyAddForm = () => {
                 Submit Company
               </Button>
             </form>
+            <Snackbar
+              open={snackbarOpen}
+              autoHideDuration={6000}
+              onClose={handleSnackbarClose}
+              anchorOrigin={{ vertical: "top", horizontal: "right" }}
+            >
+              <Alert
+                onClose={handleSnackbarClose}
+                severity={snackbarSeverity}
+                sx={{ width: "100%" }}
+                variant="filled"
+              >
+                {snackbarMessage}
+              </Alert>
+            </Snackbar>
           </Paper >
         </Container >
       } />

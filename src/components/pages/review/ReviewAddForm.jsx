@@ -257,8 +257,9 @@ const ReviewAddForm = () => {
             open={submitSuccess}
             autoHideDuration={2000}
             onClose={() => setSubmitSuccess(false)}
+            anchorOrigin={{ vertical: "top", horizontal: "right" }}
           >
-            <Alert severity="success">Review created successfully</Alert>
+            <Alert severity="success" variant="filled">Review created successfully</Alert>
           </Snackbar>
 
           <Box
@@ -372,6 +373,7 @@ const ReviewAddForm = () => {
                   fullWidth
                   label="Batch"
                   name="batch"
+                  type="number"
                   value={batch}
                   onChange={handleChange}
                   variant="outlined"

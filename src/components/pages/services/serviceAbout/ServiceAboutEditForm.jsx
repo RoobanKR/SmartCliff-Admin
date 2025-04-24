@@ -13,8 +13,9 @@ import {
   Autocomplete,
   Grid,
   Box,
+  Tooltip,
 } from "@mui/material";
-import { Add, Delete } from "@mui/icons-material";
+import { Add, Delete, Clear } from "@mui/icons-material";
 import { DropzoneArea } from "material-ui-dropzone";
 import LeftNavigationBar from "../../../navbars/LeftNavigationBar";
 import {
@@ -26,6 +27,7 @@ import { getAllBussinessServices } from "../../../redux/slices/services/bussines
 import { fetchServices } from "../../../redux/slices/services/services/Services";
 import { useDispatch, useSelector } from "react-redux";
 import { useCookies } from "react-cookie";
+import { HelpOutline } from "@material-ui/icons";
 
 const ServiceAboutEditForm = () => {
   const { id } = useParams();
@@ -103,12 +105,12 @@ const ServiceAboutEditForm = () => {
       setFeatures(
         selectedServiceAbout.feature && selectedServiceAbout.feature.length > 0
           ? selectedServiceAbout.feature.map((f) => ({
-              title: f.title || "",
-              description: f.description || "",
-              icon: f.icon || null,
-              iconChanged: false,
-              existingIcon: f.icon || null,
-            }))
+            title: f.title || "",
+            description: f.description || "",
+            icon: f.icon || null,
+            iconChanged: false,
+            existingIcon: f.icon || null,
+          }))
           : [{ title: "", description: "", icon: null, iconChanged: false }]
       );
 
@@ -173,21 +175,28 @@ const ServiceAboutEditForm = () => {
     setNewImages(files);
   };
 
+  // New function to remove an existing image
+  const removeExistingImage = (index) => {
+    const updatedImages = [...existingImages];
+    updatedImages.splice(index, 1);
+    setExistingImages(updatedImages);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     const data = new FormData();
     data.append("heading", formData.heading);
     data.append("subHeading", formData.subHeading);
-  
+
     if (selectedBusinessService) {
       data.append("business_service", selectedBusinessService._id);
     }
-  
+
     if (selectedService) {
       data.append("service", selectedService._id);
     }
-  
+
     // Create a features array that only includes title and description
     // We'll handle icons separately to preserve binary data
     const formattedFeatures = features.map((f, index) => {
@@ -200,21 +209,21 @@ const ServiceAboutEditForm = () => {
         icon: f.iconChanged ? null : f.existingIcon
       };
     });
-    
+
     data.append("feature", JSON.stringify(formattedFeatures));
-  
+
     // Only append icon files for features that have changed
     features.forEach((f, index) => {
       if (f.iconChanged && f.icon instanceof File) {
         data.append(`icon_${index}`, f.icon);
       }
     });
-  
+
     // Append the existing images that should be kept
     if (existingImages.length > 0) {
       data.append("existingImages", JSON.stringify(existingImages));
     }
-  
+
     // Append any new images that were uploaded
     if (newImages.length > 0) {
       newImages.forEach((img) => {
@@ -223,11 +232,10 @@ const ServiceAboutEditForm = () => {
         }
       });
     }
-  
+
     dispatch(updateServiceAbout({ token: cookies.token, id, formData: data }));
   };
 
-  
   useEffect(() => {
     if (updateSuccess) {
       setTimeout(() => {
@@ -236,11 +244,15 @@ const ServiceAboutEditForm = () => {
       }, 2000);
     }
   }, [updateSuccess, navigate, dispatch]);
-  
+
   if (loading) {
     return <Typography>Loading...</Typography>;
   }
-  
+
+  const handleBack = () => {
+    navigate(-1);
+  };
+
   return (
     <LeftNavigationBar
       Content={
@@ -249,8 +261,9 @@ const ServiceAboutEditForm = () => {
             open={updateSuccess}
             autoHideDuration={2000}
             onClose={() => dispatch(clearUpdateStatus())}
-            anchorOrigin={{ vertical: "top", horizontal: "right" }}          >
-            <Alert severity="success">{successMessage}</Alert>
+            anchorOrigin={{ vertical: "top", horizontal: "right" }}
+          >
+            <Alert severity="success" variant="filled">{successMessage}</Alert>
           </Snackbar>
 
           {updateError && (
@@ -258,292 +271,370 @@ const ServiceAboutEditForm = () => {
               {updateError}
             </Alert>
           )}
+          <Box
+            display="flex"
+            alignItems="center"
+            justifyContent="space-between"
+            gap={1}
+            mt={3}
+            mb={2}
+          >
+            <Button
+              variant="outlined"
+              color="primary"
+              onClick={handleBack}
+            >
+              Back
+            </Button>
 
-          <Paper elevation={3} sx={{ padding: 3, maxWidth: 800, margin: "auto" }}>
-            <Typography
-              variant="h4"
+            <Box
               sx={{
-                position: "relative",
-                padding: 0,
-                margin: 0,
-                fontFamily: 'Merriweather, serif',
-                fontWeight: 700, textAlign: 'center',
-                fontWeight: 300,
-                fontSize: { xs: "32px", sm: "40px" },
-                color: "#747474",
-                textAlign: "center",
-                textTransform: "uppercase",
-                paddingBottom: "5px",
-                mb: 5,
-                "&::before": {
-                  content: '""',
-                  width: "28px",
-                  height: "5px",
-                  display: "block",
-                  position: "absolute",
-                  bottom: "3px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
-                "&::after": {
-                  content: '""',
-                  width: "100px",
-                  height: "1px",
-                  display: "block",
-                  position: "relative",
-                  marginTop: "5px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "center",
+                flex: 1,
               }}
             >
-              Edit Service About
-            </Typography>
-            <form onSubmit={handleSubmit} encType="multipart/form-data">
-              <Grid container spacing={3}>
-                <Grid item xs={12}>
-                  <FormControl fullWidth>
-                    <Autocomplete
-                      id="business-services"
-                      options={businessServiceData || []}
-                      getOptionLabel={(option) => option?.name || ""}
-                      value={selectedBusinessService}
-                      onChange={handleBusinessServiceChange}
-                      isOptionEqualToValue={(option, value) =>
-                        option && value && option._id === value._id
-                      }
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          variant="outlined"
-                          label="Business Services"
-                          fullWidth
-                          error={Boolean(errors.business_service)}
-                          helperText={
-                            touchedFields.business_service && errors.business_service
-                          }
-                        />
-                      )}
-                    />
-                  </FormControl>
-                </Grid>
-                
-                <Grid item xs={12}>
-                  <FormControl fullWidth>
-                    <Autocomplete
-                      id="service"
-                      options={filteredServices || []}
-                      getOptionLabel={(option) => option?.title || ""}
-                      value={selectedService}
-                      onChange={handleServiceChange}
-                      isOptionEqualToValue={(option, value) =>
-                        option && value && option._id === value._id
-                      }
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          variant="outlined"
-                          label="Service"
-                          fullWidth
-                          required
-                          error={touchedFields.service && Boolean(errors.service)}
-                          helperText={touchedFields.service && errors.service}
-                          onBlur={() =>
-                            setTouchedFields((prev) => ({ ...prev, service: true }))
-                          }
-                        />
-                      )}
-                    />
-                  </FormControl>
-                </Grid>
+              <Typography
+                variant="h4"
+                sx={{
+                  position: "relative",
+                  padding: 0,
+                  margin: 0,
+                  fontWeight: 300,
+                  fontSize: { xs: "28px", sm: "36px" },
+                  color: "#747474",
+                  textAlign: "center",
+                  textTransform: "uppercase",
+                  paddingBottom: "5px",
+                  "&::before": {
+                    content: '""',
+                    width: "28px",
+                    height: "5px",
+                    display: "block",
+                    position: "absolute",
+                    bottom: "3px",
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    backgroundColor: "#747474",
+                  },
+                  "&::after": {
+                    content: '""',
+                    width: "100px",
+                    height: "1px",
+                    display: "block",
+                    position: "relative",
+                    marginTop: "5px",
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    backgroundColor: "#747474",
+                  },
+                }}
+              >
+                Service About Edit Form
+              </Typography>
 
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    label="Heading"
-                    name="heading"
-                    value={formData.heading}
-                    onChange={handleChange}
-                    required
+              <Tooltip
+                title="Edit the about us content and image here"
+                arrow
+                placement="top"
+              >
+                <HelpOutline
+                  sx={{
+                    color: "#747474",
+                    fontSize: "24px",
+                    cursor: "pointer",
+                    ml: 1,
+                  }}
+                />
+              </Tooltip>
+            </Box>
+          </Box>
+
+          <form
+            style={{
+              border: "2px dotted #D3D3D3",
+              padding: "20px",
+              borderRadius: "8px",
+            }}
+            onSubmit={handleSubmit} encType="multipart/form-data">
+            <Grid container spacing={3}>
+              <Grid item xs={12}>
+                <FormControl fullWidth>
+                  <Autocomplete
+                    id="business-services"
+                    options={businessServiceData || []}
+                    getOptionLabel={(option) => option?.name || ""}
+                    value={selectedBusinessService}
+                    onChange={handleBusinessServiceChange}
+                    isOptionEqualToValue={(option, value) =>
+                      option && value && option._id === value._id
+                    }
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        variant="outlined"
+                        label="Business Services"
+                        fullWidth
+                        error={Boolean(errors.business_service)}
+                        helperText={
+                          touchedFields.business_service && errors.business_service
+                        }
+                      />
+                    )}
                   />
-                </Grid>
-                
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    label="Sub Heading"
-                    name="subHeading"
-                    value={formData.subHeading}
-                    onChange={handleChange}
-                  />
-                </Grid>
-
-                <Grid item xs={12}>
-                  <Typography variant="h6" gutterBottom>
-                    Features
-                  </Typography>
-                  
-                  {features.map((feature, index) => (
-                    <Paper
-                      key={index}
-                      elevation={2}
-                      sx={{ p: 2, mb: 2, position: "relative" }}
-                    >
-                      <IconButton
-                        onClick={() => removeFeature(index)}
-                        color="error"
-                        size="small"
-                        sx={{ position: "absolute", top: 5, right: 5 }}
-                      >
-                        <Delete />
-                      </IconButton>
-                      
-                      <Grid container spacing={2}>
-                        <Grid item xs={12}>
-                          <Typography variant="subtitle1">
-                            Feature #{index + 1}
-                          </Typography>
-                        </Grid>
-                        
-                        <Grid item xs={12}>
-                          <TextField
-                            fullWidth
-                            label="Feature Title"
-                            name="title"
-                            value={feature.title}
-                            onChange={(e) => handleFeatureChange(index, e)}
-                            required
-                          />
-                        </Grid>
-                        
-                        <Grid item xs={12}>
-                          <TextField
-                            fullWidth
-                            label="Feature Description"
-                            name="description"
-                            value={feature.description}
-                            onChange={(e) => handleFeatureChange(index, e)}
-                            required
-                            multiline
-                            rows={3}
-                          />
-                        </Grid>
-                        
-                        <Grid item xs={12}>
-                          {!feature.iconChanged && feature.existingIcon && (
-                            <Box mb={2}>
-                              <Typography variant="subtitle2" gutterBottom>
-                                Current Icon:
-                              </Typography>
-                              <img 
-                                src={feature.existingIcon} 
-                                alt="Feature Icon" 
-                                style={{ 
-                                  width: "80px", 
-                                  height: "auto", 
-                                  marginBottom: "10px",
-                                  border: "1px solid #eee",
-                                  borderRadius: "4px",
-                                  padding: "5px"
-                                }} 
-                              />
-                            </Box>
-                          )}
-                          
-                          <Typography variant="subtitle2" gutterBottom>
-                            {feature.existingIcon ? "Change Icon (Optional)" : "Add Icon"}
-                          </Typography>
-                          <DropzoneArea
-                            acceptedFiles={["image/*"]}
-                            filesLimit={1}
-                            dropzoneText={feature.existingIcon 
-                              ? "Drag and drop a new icon here or click" 
-                              : "Drag and drop an icon here or click"
-                            }
-                            onChange={(files) => handleFeatureIconChange(index, files)}
-                            showPreviewsInDropzone={true}
-                            showFileNamesInPreview={true}
-                            maxFileSize={5000000}
-                          />
-                        </Grid>
-                      </Grid>
-                    </Paper>
-                  ))}
-                  
-                  <Button 
-                    startIcon={<Add />} 
-                    onClick={addFeature}
-                    variant="outlined"
-                    sx={{ mb: 3 }}
-                  >
-                    Add Feature
-                  </Button>
-                </Grid>
-
-                <Grid item xs={12}>
-                  <Typography variant="h6" gutterBottom>
-                    Existing Images
-                  </Typography>
-                  {existingImages.length > 0 ? (
-                    <Box 
-                      display="flex" 
-                      flexWrap="wrap" 
-                      gap={1} 
-                      mb={2}
-                      sx={{ border: "1px solid #eee", borderRadius: "4px", p: 1 }}
-                    >
-                      {existingImages.map((img, i) => (
-                        <Box key={i} position="relative">
-                          <img
-                            src={img}
-                            alt={`Existing image ${i+1}`}
-                            style={{ 
-                              width: "100px", 
-                              height: "100px", 
-                              objectFit: "cover", 
-                              borderRadius: "4px" 
-                            }}
-                          />
-                        </Box>
-                      ))}
-                    </Box>
-                  ) : (
-                    <Typography variant="body2" color="text.secondary" mb={2}>
-                      No existing images
-                    </Typography>
-                  )}
-                  
-                  <Typography variant="h6" gutterBottom>
-                    Add New Images
-                  </Typography>
-                  <DropzoneArea
-                    acceptedFiles={["image/*"]}
-                    filesLimit={10}
-                    dropzoneText="Drag and drop new images here or click"
-                    onChange={handleNewImagesChange}
-                    showPreviewsInDropzone={true}
-                    showFileNamesInPreview={true}
-                    maxFileSize={5000000}
-                  />
-                </Grid>
-
-                <Grid item xs={12}>
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    color="primary"
-                    fullWidth
-                    sx={{ mt: 2 }}
-                    disabled={updateLoading}
-                  >
-                    {updateLoading ? "Updating..." : "Update"}
-                  </Button>
-                </Grid>
+                </FormControl>
               </Grid>
-            </form>
-          </Paper>
+
+              <Grid item xs={12}>
+                <FormControl fullWidth>
+                  <Autocomplete
+                    id="service"
+                    options={filteredServices || []}
+                    getOptionLabel={(option) => option?.title || ""}
+                    value={selectedService}
+                    onChange={handleServiceChange}
+                    isOptionEqualToValue={(option, value) =>
+                      option && value && option._id === value._id
+                    }
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        variant="outlined"
+                        label="Service"
+                        fullWidth
+                        required
+                        error={touchedFields.service && Boolean(errors.service)}
+                        helperText={touchedFields.service && errors.service}
+                        onBlur={() =>
+                          setTouchedFields((prev) => ({ ...prev, service: true }))
+                        }
+                      />
+                    )}
+                  />
+                </FormControl>
+              </Grid>
+
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  label="Heading"
+                  name="heading"
+                  value={formData.heading}
+                  onChange={handleChange}
+                  required
+                />
+              </Grid>
+
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  label="Sub Heading"
+                  name="subHeading"
+                  value={formData.subHeading}
+                  onChange={handleChange}
+                />
+              </Grid>
+
+              <Grid item xs={12}>
+                <Typography variant="h6" gutterBottom>
+                  Features
+                </Typography>
+
+                {features.map((feature, index) => (
+                  <Paper
+                    key={index}
+                    elevation={2}
+                    sx={{ p: 2, mb: 2, position: "relative" }}
+                  >
+                    <IconButton
+                      onClick={() => removeFeature(index)}
+                      color="error"
+                      size="small"
+                      sx={{ position: "absolute", top: 5, right: 5 }}
+                    >
+                      <Delete />
+                    </IconButton>
+
+                    <Grid container spacing={2}>
+                      <Grid item xs={12}>
+                        <Typography variant="subtitle1">
+                          Feature #{index + 1}
+                        </Typography>
+                      </Grid>
+
+                      <Grid item xs={12}>
+                        <TextField
+                          fullWidth
+                          label="Feature Title"
+                          name="title"
+                          value={feature.title}
+                          onChange={(e) => handleFeatureChange(index, e)}
+                          required
+                        />
+                      </Grid>
+
+                      <Grid item xs={12}>
+                        <TextField
+                          fullWidth
+                          label="Feature Description"
+                          name="description"
+                          value={feature.description}
+                          onChange={(e) => handleFeatureChange(index, e)}
+                          required
+                          multiline
+                          rows={3}
+                        />
+                      </Grid>
+
+                      <Grid item xs={12}>
+                        {!feature.iconChanged && feature.existingIcon && (
+                          <Box mb={2}>
+                            <Typography variant="subtitle2" gutterBottom>
+                              Current Icon:
+                            </Typography>
+                            <img
+                              src={feature.existingIcon}
+                              alt="Feature Icon"
+                              style={{
+                                width: "80px",
+                                height: "auto",
+                                marginBottom: "10px",
+                                border: "1px solid #eee",
+                                borderRadius: "4px",
+                                padding: "5px"
+                              }}
+                            />
+                          </Box>
+                        )}
+
+                        <Typography variant="subtitle2" gutterBottom>
+                          {feature.existingIcon ? "Change Icon (Optional)" : "Add Icon"}
+                        </Typography>
+                        <DropzoneArea
+                          acceptedFiles={["image/*"]}
+                          filesLimit={1}
+                          dropzoneText={feature.existingIcon
+                            ? "Drag and drop a new icon here or click"
+                            : "Drag and drop an icon here or click"
+                          }
+                          onChange={(files) => handleFeatureIconChange(index, files)}
+                          showPreviewsInDropzone={true}
+                          showFileNamesInPreview={true}
+                          maxFileSize={5000000}
+                        />
+                      </Grid>
+                    </Grid>
+                  </Paper>
+                ))}
+
+                <Button
+                  startIcon={<Add />}
+                  onClick={addFeature}
+                  variant="outlined"
+                  sx={{ mb: 3 }}
+                >
+                  Add Feature
+                </Button>
+              </Grid>
+
+              <Grid item xs={12}>
+                <Typography variant="h6" gutterBottom>
+                  Existing Images
+                </Typography>
+                {existingImages.length > 0 ? (
+                  <Box sx={{ mb: 3 }}>
+                    <Grid container spacing={2}>
+                      {existingImages.map((img, index) => (
+                        <Grid item xs={12} sm={6} md={4} key={index}>
+                          <Box
+                            sx={{
+                              position: 'relative',
+                              border: '1px solid #eee',
+                              borderRadius: '8px',
+                              overflow: 'hidden',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              alignItems: 'center',
+                              p: 2,
+                            }}
+                          >
+                            <IconButton
+                              onClick={() => removeExistingImage(index)}
+                              color="error"
+                              size="small"
+                              sx={{
+                                position: 'absolute',
+                                top: 5,
+                                right: 5,
+                                bgcolor: 'rgba(255,255,255,0.7)',
+                                '&:hover': {
+                                  bgcolor: 'rgba(255,255,255,0.9)',
+                                }
+                              }}
+                            >
+                              <Clear />
+                            </IconButton>
+                            <img
+                              src={img}
+                              alt={`Image ${index + 1}`}
+                              style={{
+                                width: '100%',
+                                height: '150px',
+                                objectFit: 'cover',
+                                borderRadius: '4px',
+                              }}
+                            />
+                            <Typography variant="caption" sx={{ mt: 1 }}>
+                              Image {index + 1}
+                            </Typography>
+                          </Box>
+                        </Grid>
+                      ))}
+                    </Grid>
+                  </Box>
+                ) : (
+                  <Typography variant="body2" color="text.secondary" mb={2}>
+                    No existing images
+                  </Typography>
+                )}
+
+                <Typography variant="h6" gutterBottom>
+                  Add New Images
+                </Typography>
+                <DropzoneArea
+                  acceptedFiles={["image/*"]}
+                  filesLimit={10}
+                  dropzoneText="Drag and drop new images here or click"
+                  onChange={handleNewImagesChange}
+                  showPreviewsInDropzone={true}
+                  showFileNamesInPreview={true}
+                  maxFileSize={5000000}
+                />
+              </Grid>
+
+              <Grid item xs={12}>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  style={{
+                    display: "block",
+                    margin: "24px auto 0", // centers the button horizontally
+                    backgroundColor: " #ff6d00", // green
+                    color: "#fff",
+                    padding: "5px 10px",
+                    borderRadius: "4px",
+                    textTransform: "uppercase",
+                    cursor: "pointer",
+                  }}
+                  disabled={updateLoading}
+                >
+                  {updateLoading ? "Updating..." : "Update Service"}
+                </Button>
+              </Grid>
+            </Grid>
+          </form>
         </Container>
       }
     />

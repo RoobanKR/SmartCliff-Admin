@@ -288,7 +288,6 @@ const DegreeProgramEditForm = () => {
                     position: "relative",
                     padding: 0,
                     margin: 0,
-                    fontFamily: "Merriweather, serif",
                     fontWeight: 300,
                     fontSize: { xs: "32px", sm: "40px" },
                     color: "#747474",
@@ -524,7 +523,7 @@ const DegreeProgramEditForm = () => {
               onClose={handleSnackbarClose}
               anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
             >
-              <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
+              <Alert onClose={handleSnackbarClose} variant="filled" severity={snackbarSeverity} sx={{ width: '100%' }}>
                 {snackbarMessage}
               </Alert>
             </Snackbar>

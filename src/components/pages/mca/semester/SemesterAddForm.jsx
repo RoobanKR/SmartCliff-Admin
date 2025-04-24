@@ -144,6 +144,9 @@ function SemesterAddForm() {
       await dispatch(createSemester(cleanFormData));
       setSnackbarMessage("Semester created successfully!");
       setSnackbarOpen(true);
+      setTimeout(() => {
+        navigate("/Semester-control");
+      }, 1500);
     } catch (error) {
       console.error("Error submitting form:", error);
       setSnackbarMessage("Error submitting form. Please try again.");
@@ -153,7 +156,6 @@ function SemesterAddForm() {
 
   const handleSnackbarClose = () => {
     setSnackbarOpen(false);
-    navigate("/Semester-control");
   };
 
   const handleBack = () => {
@@ -192,7 +194,6 @@ function SemesterAddForm() {
                     position: "relative",
                     padding: 0,
                     margin: 0,
-                    fontFamily: "Merriweather, serif",
                     fontWeight: 300,
                     fontSize: { xs: "32px", sm: "40px" },
                     color: "#747474",
@@ -426,7 +427,7 @@ function SemesterAddForm() {
             onClose={handleSnackbarClose}
             anchorOrigin={{ vertical: "top", horizontal: "right" }}
           >
-            <Alert onClose={handleSnackbarClose} severity="success">
+            <Alert onClose={handleSnackbarClose} variant="filled" severity="success">
               {snackbarMessage}
             </Alert>
           </Snackbar>

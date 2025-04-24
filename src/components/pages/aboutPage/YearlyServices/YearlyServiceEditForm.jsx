@@ -1,15 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import axios from "axios";
 import {
   Box,
   Button,
   TextField,
   Typography,
-  Card,
-  CardContent,
-  IconButton,
   Paper,
   Grid,
   CircularProgress,
@@ -19,6 +15,8 @@ import {
   Snackbar,
   Tooltip,
   useTheme,
+  Container,
+  IconButton,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -45,7 +43,7 @@ const YearlyServiceEditForm = () => {
 
   const yearlyService = useSelector(
     (state) => state.yearlyService.selectedService
-  ); // Get the current yearly service from the Redux store
+  );
 
   const [formData, setFormData] = useState({
     year: "",
@@ -57,7 +55,7 @@ const YearlyServiceEditForm = () => {
     if (isEditMode) {
       const fetchYearlyService = async () => {
         try {
-          await dispatch(getYearlyServiceById(id)); // Fetch yearly service by ID
+          await dispatch(getYearlyServiceById(id));
           setLoading(false);
         } catch (error) {
           console.error("Error fetching yearly service:", error);
@@ -79,13 +77,32 @@ const YearlyServiceEditForm = () => {
   // Set form data when yearly service is fetched
   useEffect(() => {
     if (yearlyService) {
-      setFormData({
-        year: yearlyService.year || "",
-        services: yearlyService.services.map((s) => ({
-          businessService: s.businessService || "",
-          service: s.service || [],
-        })),
-      });
+      try {
+        // Safely extract data from yearlyService with strict type checking
+        const year = yearlyService.year ? yearlyService.year.toString() : "";
+
+        // Ensure services is an array and properly formatted with string conversion
+        const services = Array.isArray(yearlyService.services)
+          ? yearlyService.services.map(s => ({
+            businessService: typeof s.businessService === 'string' ? s.businessService : "",
+            service: Array.isArray(s.service)
+              ? s.service.map(subS => typeof subS === 'string' ? subS : "")
+              : []
+          }))
+          : [];
+
+        setFormData({
+          year,
+          services
+        });
+      } catch (error) {
+        console.error("Error processing yearly service data:", error);
+        // Set default values if there's an error
+        setFormData({
+          year: "",
+          services: []
+        });
+      }
     }
   }, [yearlyService]);
 
@@ -97,7 +114,7 @@ const YearlyServiceEditForm = () => {
   const handleServiceChange = (index, field, value) => {
     setFormData((prev) => {
       const updatedServices = [...prev.services];
-      updatedServices[index] = { ...updatedServices[index], [field]: value };
+      updatedServices[index] = { ...updatedServices[index], [field]: value.toString() };
       return { ...prev, services: updatedServices };
     });
   };
@@ -120,7 +137,11 @@ const YearlyServiceEditForm = () => {
   const handleAddSubService = (index) => {
     setFormData((prev) => {
       const updatedServices = [...prev.services];
-      updatedServices[index].service.push("");
+      // Create a new service object with a new service array
+      updatedServices[index] = {
+        ...updatedServices[index],
+        service: [...(updatedServices[index].service || []), ""]
+      };
       return { ...prev, services: updatedServices };
     });
   };
@@ -128,7 +149,21 @@ const YearlyServiceEditForm = () => {
   const handleSubServiceChange = (index, subIndex, value) => {
     setFormData((prev) => {
       const updatedServices = [...prev.services];
-      updatedServices[index].service[subIndex] = value;
+      // Ensure service array exists
+      if (!Array.isArray(updatedServices[index].service)) {
+        updatedServices[index].service = [];
+      }
+
+      // Create a new service array
+      const updatedService = [...updatedServices[index].service];
+      updatedService[subIndex] = value.toString();
+
+      // Update the service object with the new service array
+      updatedServices[index] = {
+        ...updatedServices[index],
+        service: updatedService
+      };
+
       return { ...prev, services: updatedServices };
     });
   };
@@ -149,10 +184,10 @@ const YearlyServiceEditForm = () => {
     // Validate each service
     for (let i = 0; i < formData.services.length; i++) {
       const service = formData.services[i];
-      if (!service.businessService || !service.service.length) {
+      if (!service.businessService || !Array.isArray(service.service) || service.service.length === 0) {
         setSnackbar({
           open: true,
-          message: `Business service and service are required for all services`,
+          message: `Business service and at least one service are required for all services`,
           severity: "error",
         });
         return;
@@ -162,16 +197,21 @@ const YearlyServiceEditForm = () => {
     setSubmitting(true);
 
     try {
+      // Create a simplified formData that ensures all values are strings
+      const simplifiedFormData = {
+        year: formData.year.toString(),
+        services: formData.services.map(s => ({
+          businessService: s.businessService.toString(),
+          service: Array.isArray(s.service) ? s.service.map(subS =>
+            typeof subS === 'string' ? subS : subS.toString()
+          ) : []
+        }))
+      };
+
+      // Create FormData object for submission
       const form = new FormData();
-      form.append("year", formData.year);
-
-      // Prepare services for submission
-      const servicesForSubmit = formData.services.map((s) => ({
-        businessService: s.businessService,
-        service: s.service,
-      }));
-
-      form.append("services", JSON.stringify(servicesForSubmit));
+      form.append("year", simplifiedFormData.year);
+      form.append("services", JSON.stringify(simplifiedFormData.services));
 
       // Dispatch the updateYearlyService action
       const successMessage = await dispatch(
@@ -180,11 +220,11 @@ const YearlyServiceEditForm = () => {
 
       setSnackbar({
         open: true,
-        message: successMessage,
+        message: successMessage || "Service updated successfully",
         severity: "success",
       });
 
-      // Redirect after successful submission
+      // Redirect after successful submission with a slight delay
       setTimeout(() => {
         navigate("/about/yearly-service-control");
       }, 1500);
@@ -220,209 +260,229 @@ const YearlyServiceEditForm = () => {
     );
   }
 
+  const handleBack = () => {
+    navigate(-1); // Navigate to the previous page
+  };
+
   return (
     <LeftNavigationBar
       Content={
-        <>
-          <Box
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-            gap={1}
-            mt={2}
-            mb={1}
-          >
-            <Typography
-              variant="h4"
-              sx={{
-                position: "relative",
-                padding: 0,
-                margin: 0,
-                fontFamily: "Merriweather, serif",
-                fontWeight: 300,
-                fontSize: { xs: "32px", sm: "40px" },
-                color: "#747474",
-                textAlign: "center",
-                textTransform: "uppercase",
-                paddingBottom: "5px",
-                "&::before": {
-                  content: '""',
-                  width: "28px",
-                  height: "5px",
-                  display: "block",
-                  position: "absolute",
-                  bottom: "3px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
-                "&::after": {
-                  content: '""',
-                  width: "100px",
-                  height: "1px",
-                  display: "block",
+        <Container component="main" maxWidth="md">
+          <Paper elevation={0}>
+            <Box
+              display="flex"
+              alignItems="center"
+              justifyContent="space-between"
+              gap={1}
+              mt={2}
+              mb={2}
+            >
+              <Button variant="outlined" color="primary" onClick={handleBack}>
+                Back
+              </Button>
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "center",
                   position: "relative",
-                  marginTop: "5px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
-              }}
-            >
-              History Data <br></br> Edit Form
-            </Typography>
-
-            <Tooltip
-              title="This is where you can add the execution count for the service."
-              arrow
-            >
-              <HelpOutline
-                sx={{ color: "#747474", fontSize: "24px", cursor: "pointer" }}
-              />
-            </Tooltip>
-          </Box>
-          <Box sx={{ maxWidth: 1200, mx: "auto", p: 2 }}>
-            <Paper elevation={0}>
-              <form
-                onSubmit={handleSubmit}
-                style={{
-                  border: "2px dotted #D3D3D3",
-                  padding: "20px",
-                  marginTop: "20px",
-                  borderRadius: "8px",
+                  flex: 1,
                 }}
               >
-                <Grid container spacing={3}>
-                  {/* Main Details */}
-                  <Grid item xs={12} md={6}>
-                    <TextField
-                      fullWidth
-                      label="Year"
-                      name="year"
-                      value={formData.year}
-                      onChange={handleChange}
-                      required
-                      margin="normal"
-                    />
-                  </Grid>
+                <Typography
+                  variant="h4"
+                  sx={{
+                    position: "relative",
+                    padding: 0,
+                    margin: 0,
+                    fontWeight: 300,
+                    fontSize: { xs: "32px", sm: "40px" },
+                    color: "#747474",
+                    textAlign: "center",
+                    textTransform: "uppercase",
+                    paddingBottom: "5px",
+                    "&::before": {
+                      content: '""',
+                      width: "28px",
+                      height: "5px",
+                      display: "block",
+                      position: "absolute",
+                      bottom: "3px",
+                      left: "50%",
+                      transform: "translateX(-50%)",
+                      backgroundColor: "#747474",
+                    },
+                    "&::after": {
+                      content: '""',
+                      width: "100px",
+                      height: "1px",
+                      display: "block",
+                      position: "relative",
+                      marginTop: "5px",
+                      left: "50%",
+                      transform: "translateX(-50%)",
+                      backgroundColor: "#747474",
+                    },
+                  }}
+                >
+                  History Data Edit Form
+                </Typography>
+                <Tooltip
+                  title="This is where you can add the execution count for the service."
+                  arrow
+                >
+                  <HelpOutline
+                    sx={{
+                      color: "#747474",
+                      fontSize: "24px",
+                      cursor: "pointer",
+                    }}
+                  />
+                </Tooltip>
+              </Box>
+            </Box>
 
-                  {/* Services */}
-                  <Grid item xs={12}>
-                    <Stack
-                      direction="row"
-                      justifyContent="space-between"
-                      alignItems="center"
+            <form
+              onSubmit={handleSubmit}
+              style={{
+                border: "2px dotted #D3D3D3",
+                padding: "20px",
+                marginTop: "20px",
+                borderRadius: "8px",
+              }}
+            >
+              <Grid container spacing={3}>
+                {/* Main Details */}
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    fullWidth
+                    label="Year"
+                    name="year"
+                    value={formData.year}
+                    onChange={handleChange}
+                    required
+                    margin="normal"
+                  />
+                </Grid>
+
+                {/* Services */}
+                <Grid item xs={12}>
+                  <Stack
+                    direction="row"
+                    justifyContent="space-between"
+                    alignItems="center"
+                  >
+                    <Typography variant="h5" gutterBottom>
+                      Services
+                    </Typography>
+                    <Button
+                      variant="outlined"
+                      startIcon={<AddIcon />}
+                      onClick={handleAddService}
+                      sx={{ mb: 2 }}
                     >
-                      <Typography variant="h5" gutterBottom>
-                        Services
-                      </Typography>
-                      <Button
-                        variant="outlined"
-                        startIcon={<AddIcon />}
-                        onClick={handleAddService}
-                        sx={{ mb: 2 }}
-                      >
-                        Add Service
-                      </Button>
-                    </Stack>
+                      Add Service
+                    </Button>
+                  </Stack>
 
-                    {formData.services.map((service, index) => (
-                      <Paper
-                        key={index}
-                        elevation={2}
-                        sx={{ p: 2, mb: 3, background: "#F5F5F5" }}
-                      >
-                        <Grid container spacing={2}>
-                          <Grid item xs={12}>
-                            <Box
-                              sx={{
-                                display: "flex",
-                                justifyContent: "space-between",
-                              }}
+                  {formData.services.map((service, index) => (
+                    <Paper
+                      key={index}
+                      elevation={2}
+                      sx={{ p: 2, mb: 3, background: "#F5F5F5" }}
+                    >
+                      <Grid container spacing={2}>
+                        <Grid item xs={12}>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                            }}
+                          >
+                            <Typography variant="h6">
+                              Service #{index + 1}
+                            </Typography>
+                            <IconButton
+                              onClick={() => handleRemoveService(index)}
+                              color="error"
                             >
-                              <Typography variant="h6">
-                                Service #{index + 1}
-                              </Typography>
-                              <IconButton
-                                onClick={() => handleRemoveService(index)}
-                                color="error"
-                              >
-                                <DeleteIcon />
-                              </IconButton>
-                            </Box>
-                            <Divider sx={{ my: 1 }} />
-                          </Grid>
+                              <DeleteIcon />
+                            </IconButton>
+                          </Box>
+                          <Divider sx={{ my: 1 }} />
+                        </Grid>
 
-                          <Grid item xs={12} md={6}>
+                        <Grid item xs={12} md={6}>
+                          <TextField
+                            fullWidth
+                            label="Business Service"
+                            value={typeof service.businessService === 'string' ? service.businessService : ""}
+                            onChange={(e) =>
+                              handleServiceChange(
+                                index,
+                                "businessService",
+                                e.target.value
+                              )
+                            }
+                            required
+                            margin="normal"
+                          />
+
+                          <Button
+                            variant="outlined"
+                            startIcon={<AddIcon />}
+                            onClick={() => handleAddSubService(index)}
+                            sx={{ mt: 2 }}
+                          >
+                            Add Sub-Service
+                          </Button>
+
+                          {Array.isArray(service.service) && service.service.map((subService, subIndex) => (
                             <TextField
+                              key={subIndex}
                               fullWidth
-                              label="Business Service"
-                              value={service.businessService}
+                              label={`Sub-Service ${subIndex + 1}`}
+                              value={typeof subService === 'string' ? subService : ""}
                               onChange={(e) =>
-                                handleServiceChange(
+                                handleSubServiceChange(
                                   index,
-                                  "businessService",
+                                  subIndex,
                                   e.target.value
                                 )
                               }
-                              required
                               margin="normal"
                             />
-
-                            <Button
-                              variant="outlined"
-                              startIcon={<AddIcon />}
-                              onClick={() => handleAddSubService(index)}
-                              sx={{ mt: 2 }}
-                            >
-                              Add Sub-Service
-                            </Button>
-
-                            {service.service.map((subService, subIndex) => (
-                              <TextField
-                                key={subIndex}
-                                fullWidth
-                                label={`Sub-Service ${subIndex + 1}`}
-                                value={subService}
-                                onChange={(e) =>
-                                  handleSubServiceChange(
-                                    index,
-                                    subIndex,
-                                    e.target.value
-                                  )
-                                }
-                                margin="normal"
-                              />
-                            ))}
-                          </Grid>
+                          ))}
                         </Grid>
-                      </Paper>
-                    ))}
-                  </Grid>
+                      </Grid>
+                    </Paper>
+                  ))}
                 </Grid>
+              </Grid>
 
-                {/* Submit Button */}
-                <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    sx={{
-                      backgroundColor: theme.palette.warning.main,
-                      color: theme.palette.warning.contrastText,
-                      display: "block",
-                      marginLeft: "auto",
-                      marginRight: "auto",
-                      mt: 3, // optional: top margin
-                      "&:hover": {
-                        backgroundColor: theme.palette.warning.dark,
-                      },
-                    }}
-                  >
-                    Update Testimonial Data
-                  </Button>
-                </Box>
-              </form>
-            </Paper>
+              {/* Submit Button */}
+              <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  disabled={submitting}
+                  sx={{
+                    backgroundColor: theme.palette.warning.main,
+                    color: theme.palette.warning.contrastText,
+                    display: "block",
+                    marginLeft: "auto",
+                    marginRight: "auto",
+                    mt: 3,
+                    "&:hover": {
+                      backgroundColor: theme.palette.warning.dark,
+                    },
+                  }}
+                >
+                  {submitting ? <CircularProgress size={24} /> : "Update Yearly Service"}
+                </Button>
+              </Box>
+            </form>
 
             <Snackbar
               open={snackbar.open}
@@ -439,8 +499,8 @@ const YearlyServiceEditForm = () => {
                 {snackbar.message}
               </Alert>
             </Snackbar>
-          </Box>
-        </>
+          </Paper>
+        </Container>
       }
     />
   );

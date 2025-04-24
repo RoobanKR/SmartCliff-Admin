@@ -22,6 +22,7 @@ import {
   useMediaQuery,
   Grid,
   DialogContent,
+  Tooltip,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
@@ -110,7 +111,6 @@ const PlacementTrainingTrackControl = () => {
                 position: "relative",
                 padding: 0,
                 margin: 0,
-                fontFamily: "Merriweather, serif",
                 fontWeight: 700,
                 textAlign: "center",
                 fontWeight: 300,
@@ -145,7 +145,7 @@ const PlacementTrainingTrackControl = () => {
                 },
               }}
             >
-              Training Track <br></br> Control Panel
+              Training Track Panel
             </Typography>
             <Grid container spacing={2} alignItems="center">
               <Grid item xs={12} md={6}>
@@ -201,20 +201,20 @@ const PlacementTrainingTrackControl = () => {
                   <TableRow
                     sx={{ backgroundColor: theme.palette.primary.main }}
                   >
-                    <TableCell sx={{ color: "white", fontWeight: 600 }} />
-                    <TableCell sx={{ color: "white", fontWeight: 600 }}>
+                    <TableCell sx={{ color: "white", fontWeight: 600, textAlign: "center" }} />
+                    <TableCell sx={{ color: "white", fontWeight: 600, textAlign: "center" }}>
                       Track Name
                     </TableCell>
-                    <TableCell sx={{ color: "white", fontWeight: 600 }}>
+                    <TableCell sx={{ color: "white", fontWeight: 600, textAlign: "center" }}>
                       Proposed Hours
                     </TableCell>
-                    <TableCell sx={{ color: "white", fontWeight: 600 }}>
+                    <TableCell sx={{ color: "white", fontWeight: 600, textAlign: "center" }}>
                       No of Days
                     </TableCell>
-                    <TableCell sx={{ color: "white", fontWeight: 600 }}>
+                    <TableCell sx={{ color: "white", fontWeight: 600, textAlign: "center" }}>
                       Target Semester
                     </TableCell>
-                    <TableCell sx={{ color: "white", fontWeight: 600 }}>
+                    <TableCell sx={{ color: "white", fontWeight: 600, textAlign: "center" }}>
                       Actions
                     </TableCell>
                   </TableRow>
@@ -229,7 +229,7 @@ const PlacementTrainingTrackControl = () => {
                       .map((track, index) => (
                         <React.Fragment key={track._id}>
                           <TableRow>
-                            <TableCell>
+                            <TableCell sx={{ textAlign: "center" }}>
                               <IconButton
                                 onClick={() =>
                                   setOpenRow(openRow === index ? null : index)
@@ -242,40 +242,45 @@ const PlacementTrainingTrackControl = () => {
                                 )}
                               </IconButton>
                             </TableCell>
-                            <TableCell>{track.trackName}</TableCell>
-                            <TableCell sx={{ color: "#A62C2C" }}>
+                            <TableCell sx={{ textAlign: "center" }}>{track.trackName}</TableCell>
+                            <TableCell sx={{ color: "#A62C2C", textAlign: "center" }}>
                               {" "}
                               <b> {track.proposedHour}</b>
                             </TableCell>
-                            <TableCell sx={{ color: "#CB6040" }}>
+                            <TableCell sx={{ color: "#CB6040", textAlign: "center" }}>
                               <b>{track.noOfDays}</b>
                             </TableCell>
-                            <TableCell>
+                            <TableCell sx={{ textAlign: "center" }}>
                               {track.targetSemester &&
-                              Array.isArray(track.targetSemester)
+                                Array.isArray(track.targetSemester)
                                 ? track.targetSemester.join(", ")
                                 : "N/A"}
                             </TableCell>
                             <TableCell>
-                              <Button
-                                onClick={() =>
-                                  navigate(
-                                    `/Placement-Training-Track-edit/${track._id}`
-                                  )
-                                }
-                                variant="outlined"
-                                color="primary"
-                              >
-                                <EditIcon />
-                              </Button>
-                              <Button
-                                sx={{ mt: 1 }}
-                                onClick={() => handleDeleteClick(track._id)}
-                                color="error"
-                                variant="outlined"
-                              >
-                                <DeleteIcon />
-                              </Button>
+                              <Box sx={{ display: 'flex', gap: 1 }}>
+                                <Tooltip title="Edit">
+                                  <Button
+                                    onClick={() =>
+                                      navigate(
+                                        `/Placement-Training-Track-edit/${track._id}`
+                                      )
+                                    }
+                                    variant="outlined"
+                                    color="primary"
+                                  >
+                                    <EditIcon />
+                                  </Button>
+                                </Tooltip>
+                                <Tooltip title="Delete">
+                                  <Button
+                                    onClick={() => handleDeleteClick(track._id)}
+                                    color="error"
+                                    variant="outlined"
+                                  >
+                                    <DeleteIcon />
+                                  </Button>
+                                </Tooltip>
+                              </Box>
                             </TableCell>
                           </TableRow>
                           <TableRow>

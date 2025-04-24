@@ -201,7 +201,6 @@ const CollegeEditForm = () => {
                                         position: "relative",
                                         padding: 0,
                                         margin: 0,
-                                        fontFamily: "Merriweather, serif",
                                         fontWeight: 300,
                                         fontSize: { xs: "32px", sm: "40px" },
                                         color: "#747474",
@@ -245,7 +244,6 @@ const CollegeEditForm = () => {
                                 </Tooltip>
                             </Box>
                         </Box>
-                        <br />
                         <form
                             style={{
                                 border: "2px dotted #D3D3D3",
@@ -357,6 +355,7 @@ const CollegeEditForm = () => {
                                 onClose={handleSnackbarClose}
                                 severity={snackbarSeverity}
                                 sx={{ width: "100%" }}
+                                variant="filled"
                             >
                                 {snackbarMessage}
                             </Alert>

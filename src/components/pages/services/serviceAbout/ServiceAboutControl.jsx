@@ -165,7 +165,6 @@ const ServiceAboutControl = () => {
                 position: "relative",
                 padding: 0,
                 margin: 0,
-                fontFamily: "Merriweather, serif",
                 fontWeight: 700,
                 textAlign: "center",
                 fontWeight: 300,
@@ -200,7 +199,7 @@ const ServiceAboutControl = () => {
                 },
               }}
             >
-              Service About Management
+              Service About Panel
             </Typography>
 
             <Grid container spacing={2} alignItems="center">

@@ -194,6 +194,10 @@ const ExecutionHighlightsAddForm = () => {
     }
   }, [submitSuccess, navigate, dispatch]);
 
+  const handleBack = () => {
+    navigate(-1);
+  };
+
   return (
     <LeftNavigationBar
       Content={
@@ -202,191 +206,145 @@ const ExecutionHighlightsAddForm = () => {
             open={submitSuccess}
             autoHideDuration={2000}
             onClose={() => setSubmitSuccess(false)}
+            anchorOrigin={{ vertical: "top", horizontal: "right" }}
           >
-            <Alert severity="success">
+            <Alert severity="success" variant="filled">
               {typeof isSuccess === "object"
                 ? JSON.stringify(isSuccess)
                 : isSuccess || "Service highlight created successfully"}
             </Alert>
           </Snackbar>
 
-          <Box
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-            gap={1}
-            mt={2}
-            mb={1}
-          >
-            <Typography
-              variant="h4"
-              sx={{
-                position: "relative",
-                padding: 0,
-                margin: 0,
-                fontFamily: "Merriweather, serif",
-                fontWeight: 300,
-                fontSize: { xs: "32px", sm: "40px" },
-                color: "#747474",
-                textAlign: "center",
-                textTransform: "uppercase",
-                paddingBottom: "5px",
-                "&::before": {
-                  content: '""',
-                  width: "28px",
-                  height: "5px",
-                  display: "block",
-                  position: "absolute",
-                  bottom: "3px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
-                "&::after": {
-                  content: '""',
-                  width: "100px",
-                  height: "1px",
-                  display: "block",
-                  position: "relative",
-                  marginTop: "5px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
-              }}
-            >
-              Execution Highlights
-              <br /> Add Form
-            </Typography>
-
-            <Tooltip
-              title="This is where you can add the execution count for the service."
-              arrow
-            >
-              <HelpOutline
-                sx={{ color: "#747474", fontSize: "24px", cursor: "pointer" }}
-              />
-            </Tooltip>
+          <Box display="flex" alignItems="center" justifyContent="space-between" gap={1} mt={2} mb={2}>
+            <Button variant="outlined" color="primary" onClick={handleBack}>
+              Back
+            </Button>
+            <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', position: 'relative', flex: 1 }}>
+              <Typography variant="h4" sx={{ position: "relative", padding: 0, margin: 0, fontWeight: 300, fontSize: { xs: "32px", sm: "40px" }, color: "#747474", textAlign: "center", textTransform: "uppercase", paddingBottom: "5px", "&::before": { content: '""', width: "28px", height: "5px", display: "block", position: "absolute", bottom: "3px", left: "50%", transform: "translateX(-50%)", backgroundColor: "#747474", }, "&::after ": { content: '""', width: "100px", height: "1px", display: "block", position: "relative", marginTop: "5px", left: "50%", transform: "translateX(-50%)", backgroundColor: "#747474", }, }}>
+                Execution Highlights Add Form
+              </Typography>
+              <Tooltip title="This is where you can add the execution count for the service." arrow>
+                <HelpOutline sx={{ color: "#747474", fontSize: "24px", cursor: "pointer" }} />
+              </Tooltip>
+            </Box>
           </Box>
-          <Paper elevation={0} sx={{ padding: 1 }}>
-            <form
-              onSubmit={handleSubmit}
-              style={{
-                border: "2px dotted #D3D3D3",
-                padding: "20px",
-                borderRadius: "8px",
+          <form
+            onSubmit={handleSubmit}
+            style={{
+              border: "2px dotted #D3D3D3",
+              padding: "20px",
+              borderRadius: "8px",
+            }}
+          >
+            <FormControl fullWidth>
+              <Autocomplete
+                id="Business Services"
+                options={businessServiceData || []}
+                getOptionLabel={(option) => option?.name || ""}
+                value={selectedBusinessService}
+                onChange={handleBussinessServiceChange}
+                isOptionEqualToValue={(option, value) =>
+                  option._id === value._id
+                } // ✅ Fix: Proper comparison
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    variant="outlined"
+                    label="Business Services"
+                    fullWidth
+                    error={Boolean(errors.service)}
+                    helperText={touchedFields.service && errors.service}
+                  />
+                )}
+              />
+            </FormControl>
+            <br /> <br />
+            <FormControl fullWidth>
+              <Autocomplete
+                id="service"
+                options={filteredServices || []} // Use filteredServices here
+                getOptionLabel={(option) => option?.title || ""}
+                value={selectedService}
+                onChange={handleServiceChange}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    variant="outlined"
+                    label="Service"
+                    fullWidth
+                    required
+                    error={touchedFields.service && Boolean(errors.service)}
+                    helperText={touchedFields.service && errors.service}
+                    onBlur={() =>
+                      setTouchedFields((prev) => ({ ...prev, service: true }))
+                    }
+                  />
+                )}
+              />
+            </FormControl>{" "}
+            <br /> <br />
+            <DropzoneArea
+              onChange={handleImageChange}
+              acceptedFiles={["image/*"]}
+              filesLimit={5}
+              showPreviews={false}
+              showPreviewsInDropzone={true}
+              dropzoneText="Drag and drop images here or click"
+            />
+            {touchedFields.image && errors.image && (
+              <Typography variant="body2" color="error">
+                {errors.image}
+              </Typography>
+            )}
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              id="stack"
+              label="Stack"
+              name="stack"
+              value={stack}
+              onChange={handleChange}
+              error={Boolean(errors.stack)}
+              helperText={touchedFields.stack && errors.stack}
+              onBlur={() =>
+                setTouchedFields((prev) => ({ ...prev, stack: true }))
+              }
+            />
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              id="count"
+              label="Count"
+              name="count"
+              type="number"
+              value={count}
+              onChange={handleChange}
+              error={Boolean(errors.count)}
+              helperText={touchedFields.count && errors.count}
+              onBlur={() =>
+                setTouchedFields((prev) => ({ ...prev, count: true }))
+              }
+            />
+            <Button
+              type="submit"
+              variant="contained"
+              sx={{
+                backgroundColor: theme.palette.primary.main,
+                color: theme.palette.primary.contrastText,
+                display: "block",
+                marginLeft: "auto",
+                marginRight: "auto",
+                mt: 3, // optional: top margin
+                "&:hover": {
+                  backgroundColor: theme.palette.primary.dark,
+                },
               }}
             >
-              <FormControl fullWidth>
-                <Autocomplete
-                  id="Business Services"
-                  options={businessServiceData || []}
-                  getOptionLabel={(option) => option?.name || ""}
-                  value={selectedBusinessService}
-                  onChange={handleBussinessServiceChange}
-                  isOptionEqualToValue={(option, value) =>
-                    option._id === value._id
-                  } // ✅ Fix: Proper comparison
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      variant="outlined"
-                      label="Business Services"
-                      fullWidth
-                      error={Boolean(errors.service)}
-                      helperText={touchedFields.service && errors.service}
-                    />
-                  )}
-                />
-              </FormControl>
-              <br /> <br />
-              <FormControl fullWidth>
-                <Autocomplete
-                  id="service"
-                  options={filteredServices || []} // Use filteredServices here
-                  getOptionLabel={(option) => option?.title || ""}
-                  value={selectedService}
-                  onChange={handleServiceChange}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      variant="outlined"
-                      label="Service"
-                      fullWidth
-                      required
-                      error={touchedFields.service && Boolean(errors.service)}
-                      helperText={touchedFields.service && errors.service}
-                      onBlur={() =>
-                        setTouchedFields((prev) => ({ ...prev, service: true }))
-                      }
-                    />
-                  )}
-                />
-              </FormControl>{" "}
-              <br /> <br />
-              <DropzoneArea
-                onChange={handleImageChange}
-                acceptedFiles={["image/*"]}
-                filesLimit={5}
-                showPreviews={false}
-                showPreviewsInDropzone={true}
-                dropzoneText="Drag and drop images here or click"
-              />
-              {touchedFields.image && errors.image && (
-                <Typography variant="body2" color="error">
-                  {errors.image}
-                </Typography>
-              )}
-              <TextField
-                margin="normal"
-                required
-                fullWidth
-                id="stack"
-                label="Stack"
-                name="stack"
-                value={stack}
-                onChange={handleChange}
-                error={Boolean(errors.stack)}
-                helperText={touchedFields.stack && errors.stack}
-                onBlur={() =>
-                  setTouchedFields((prev) => ({ ...prev, stack: true }))
-                }
-              />
-              <TextField
-                margin="normal"
-                required
-                fullWidth
-                id="count"
-                label="Count"
-                name="count"
-                type="number"
-                value={count}
-                onChange={handleChange}
-                error={Boolean(errors.count)}
-                helperText={touchedFields.count && errors.count}
-                onBlur={() =>
-                  setTouchedFields((prev) => ({ ...prev, count: true }))
-                }
-              />
-              <Button
-                type="submit"
-                variant="contained"
-                sx={{
-                  backgroundColor: theme.palette.primary.main,
-                  color: theme.palette.primary.contrastText,
-                  display: "block",
-                  marginLeft: "auto",
-                  marginRight: "auto",
-                  mt: 3, // optional: top margin
-                  "&:hover": {
-                    backgroundColor: theme.palette.primary.dark,
-                  },
-                }}
-              >
-                Submit Highlights Data
-              </Button>
-            </form>
-          </Paper>
+              Submit Highlights Data
+            </Button>
+          </form>
         </Container>
       }
     />

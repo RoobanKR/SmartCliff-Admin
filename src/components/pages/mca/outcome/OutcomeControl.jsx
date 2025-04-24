@@ -166,7 +166,6 @@ const OutcomeControl = () => {
                 position: "relative",
                 padding: 0,
                 margin: 0,
-                fontFamily: "Merriweather, serif",
                 fontWeight: 700,
                 textAlign: "center",
                 fontWeight: 300,
@@ -201,7 +200,7 @@ const OutcomeControl = () => {
                 },
               }}
             >
-              Outcomes Panel
+              Out comes Panel
             </Typography>
 
             <Grid container spacing={2} alignItems="center">

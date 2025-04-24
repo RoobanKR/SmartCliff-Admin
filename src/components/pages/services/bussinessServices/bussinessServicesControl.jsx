@@ -174,7 +174,6 @@ const BussinessServicesControl = () => {
                 position: "relative",
                 padding: 0,
                 margin: 0,
-                fontFamily: "Merriweather, serif",
                 fontWeight: 300,
                 fontSize: { xs: "32px", sm: "40px" },
                 color: "#747474",
@@ -205,18 +204,8 @@ const BussinessServicesControl = () => {
                 },
               }}
             >
-              Business Service
-              <br /> Control Pannel
+              Business Service Panel
             </Typography>
-
-            <Tooltip
-              title="This is where you can add the execution count for the service."
-              arrow
-            >
-              <HelpOutline
-                sx={{ color: "#747474", fontSize: "24px", cursor: "pointer" }}
-              />
-            </Tooltip>
           </Box>
           <Box sx={{ p: isMobile ? 1 : 3 }}>
             <Box sx={{ mb: 4 }}>
@@ -351,19 +340,51 @@ const BussinessServicesControl = () => {
               )}
             </Paper>
 
-            <Dialog open={confirmDialogOpen} onClose={handleCloseDialog}>
-              <DialogTitle>Confirm Deletion</DialogTitle>
-              <DialogContent>
-                <Typography>
-                  Are you sure you want to delete this service? This action
-                  cannot be undone.
+            {/* Delete Confirmation Dialog */}
+            <Dialog
+              open={confirmDialogOpen}
+              onClose={handleCloseDialog}
+              PaperProps={{
+                sx: {
+                  borderRadius: 2,
+                  minWidth: isMobile ? '90%' : 400
+                }
+              }}
+            >
+              <DialogTitle sx={{
+                backgroundColor: theme.palette.error.light,
+                color: 'white',
+                fontWeight: 600
+              }}>
+                Confirm Deletion
+              </DialogTitle>
+              <DialogContent sx={{ py: 3 }}>
+                <Typography variant="body1">
+                  Are you sure you want to delete this service? This action cannot be undone.
                 </Typography>
               </DialogContent>
-              <DialogActions>
-                <Button onClick={handleCloseDialog} color="primary">
+              <DialogActions sx={{ px: 3, pb: 2 }}>
+                <Button
+                  onClick={handleCloseDialog}
+                  variant="outlined"
+                  sx={{
+                    borderColor: theme.palette.grey[400],
+                    color: theme.palette.text.primary
+                  }}
+                >
                   Cancel
                 </Button>
-                <Button onClick={handleConfirmDelete} color="error">
+                <Button
+                  onClick={handleConfirmDelete}
+                  variant="contained"
+                  color="error"
+                  sx={{
+                    backgroundColor: theme.palette.error.main,
+                    '&:hover': {
+                      backgroundColor: theme.palette.error.dark
+                    }
+                  }}
+                >
                   Delete
                 </Button>
               </DialogActions>
