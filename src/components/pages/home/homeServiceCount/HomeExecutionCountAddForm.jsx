@@ -90,10 +90,6 @@ const HomeServiceCountAddForm = () => {
         navigate("/home/service-count-control"); // Adjust the navigation path as necessary
       }, 1500);
 
-      // Reset form fields after successful submission
-      setCount("");
-      setService("");
-      setSlug("");
     } catch (error) {
       console.error("Error submitting form:", error);
 
@@ -240,6 +236,7 @@ const HomeServiceCountAddForm = () => {
                 id="count"
                 label="Count"
                 name="count"
+                type="number"
                 value={count}
                 onChange={(e) => setCount(e.target.value)}
               />
@@ -283,6 +280,7 @@ const HomeServiceCountAddForm = () => {
                 onClose={handleSnackbarClose}
                 severity={snackbarSeverity}
                 sx={{ width: "100%" }}
+                variant="filled"
               >
                 {snackbarMessage}
               </Alert>

@@ -57,6 +57,7 @@ import {
   FormatQuoteRounded,
   BrowseGallery,
   PowerSettingsNewOutlined,
+  ContactPage,
 } from "@mui/icons-material";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import { useNavigate } from "react-router-dom";
@@ -79,6 +80,7 @@ import {
   BusinessCenterSharp,
   CheckCircle,
   LocalPostOfficeOutlined,
+  Notifications,
   PriorityHighTwoTone,
 } from "@material-ui/icons";
 import StepsIcon from "@material-ui/icons/ViewList";
@@ -256,6 +258,11 @@ export default function LeftNavigationBar({ Content }) {
           text: "Why Choose Us",
           link: "home/wcu",
           icon: <EmojiEventsIcon style={orangeIconStyle} />,
+        },
+        {
+          text: "Pop Up Notification",
+          link: "popup-notification",
+          icon: <Notifications style={orangeIconStyle} />,
         },
       ],
     },
@@ -484,6 +491,11 @@ export default function LeftNavigationBar({ Content }) {
           text: "Gallery",
           link: "gallery",
           icon: <BrowseGallery style={orangeIconStyle} />,
+        },
+        {
+          text: "Contact",
+          link: "contact-page",
+          icon: <ContactPage style={orangeIconStyle} />,
         },
       ],
     },

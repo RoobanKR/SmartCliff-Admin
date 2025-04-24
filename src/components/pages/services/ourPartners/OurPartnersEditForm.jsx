@@ -14,7 +14,7 @@ import { fetchOurPartnerById, updateOurPartners } from "../../../redux/slices/se
 import LeftNavigationBar from "../../../navbars/LeftNavigationBar";
 import { HelpOutline } from "@material-ui/icons";
 import ClearIcon from "@mui/icons-material/Clear";
- 
+
 const useStyles = makeStyles((theme) => ({
   paper: {
     maxWidth: 600,
@@ -52,13 +52,13 @@ const useStyles = makeStyles((theme) => ({
     right: 0,
   },
 }));
- 
+
 const OurPartnersEditForm = () => {
   const classes = useStyles();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { id } = useParams(); // Get the ID from the URL
- 
+
   const [companyName, setCompany] = useState("");
   const [websiteLink, setWebsiteLink] = useState("");
   const [selectedImages, setSelectedImages] = useState([]);
@@ -67,7 +67,7 @@ const OurPartnersEditForm = () => {
   const [selectedProgram, setSelectedProgram] = useState(null);
   const [existingImage, setExistingImage] = useState(null); // URL of existing image
   const [imagePreview, setImagePreview] = useState(null); // For new image preview
- 
+
   const serviceData = useSelector((state) => state.service.serviceData);
   const businessServiceData = useSelector(
     (state) => state.businessService.businessServiceData
@@ -75,11 +75,11 @@ const OurPartnersEditForm = () => {
   const degreeProgramData = useSelector(
     (state) => state.degreeProgram.degreeProgramData
   );
- 
+
   const [filteredServices, setFilteredServices] = useState([]);
   const [filteredDegreePrograms, setFilteredDegreePrograms] = useState([]);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
- 
+
   useEffect(() => {
     const fetchData = async () => {
       dispatch(fetchServices());
@@ -93,7 +93,7 @@ const OurPartnersEditForm = () => {
       setSelectedBusinessService(partnerData.business_service);
       setSelectedService(partnerData.service);
       setSelectedProgram(partnerData.degree_program);
- 
+
       // Set existing image - ensure it's a full URL or handle relative paths
       if (partnerData.image) {
         const fullImageUrl = partnerData.image.startsWith('http')
@@ -104,7 +104,7 @@ const OurPartnersEditForm = () => {
     };
     fetchData();
   }, [dispatch, id]);
- 
+
   useEffect(() => {
     // Filter services based on selected business service
     if (selectedBusinessService) {
@@ -116,7 +116,7 @@ const OurPartnersEditForm = () => {
       setFilteredServices([]);
     }
   }, [selectedBusinessService, serviceData]);
- 
+
   useEffect(() => {
     // Filter degree programs based on selected service
     if (selectedService) {
@@ -128,22 +128,22 @@ const OurPartnersEditForm = () => {
       setFilteredDegreePrograms(degreeProgramData);
     }
   }, [selectedService, degreeProgramData]);
- 
+
   const handleServiceChange = (_, newValue) => {
     setSelectedService(newValue);
   };
- 
+
   const handleBussinessServiceChange = (_, newValue) => {
     setSelectedBusinessService(newValue);
   };
- 
+
   const handleProgramChange = (_, newValue) => {
     setSelectedProgram(newValue);
   };
- 
+
   const handleImageChange = (files) => {
     setSelectedImages(files);
- 
+
     // Create preview for new image
     if (files[0]) {
       const reader = new FileReader();
@@ -153,16 +153,16 @@ const OurPartnersEditForm = () => {
       reader.readAsDataURL(files[0]);
     }
   };
- 
+
   const handleRemoveImage = () => {
     setExistingImage(null);
     setImagePreview(null);
     setSelectedImages([]);
   };
- 
+
   const handleSubmit = async (e) => {
     e.preventDefault();
- 
+
     const formData = new FormData();
     formData.append("companyName", companyName);
     formData.append("websiteLink", websiteLink);
@@ -175,7 +175,7 @@ const OurPartnersEditForm = () => {
     if (selectedProgram) {
       formData.append("degree_program", selectedProgram._id);
     }
- 
+
     // Append each selected image to the FormData
     if (selectedImages.length > 0) {
       selectedImages.forEach((image) => {
@@ -185,7 +185,7 @@ const OurPartnersEditForm = () => {
       // If no image is present, send a flag to remove the existing image
       formData.append("removeImage", "true");
     }
- 
+
     try {
       await dispatch(updateOurPartners({ id, formData })).unwrap();
       setSnackbar({
@@ -203,15 +203,15 @@ const OurPartnersEditForm = () => {
       setSnackbar({ open: true, message: errorMessage, severity: 'error' });
     }
   };
- 
+
   const handleCloseSnackbar = () => {
     setSnackbar({ ...snackbar, open: false });
   };
- 
+
   const handleBack = () => {
     navigate(-1); // Navigate to the previous page
   };
- 
+
   return (
     <LeftNavigationBar
       Content={
@@ -246,7 +246,6 @@ const OurPartnersEditForm = () => {
                     position: "relative",
                     padding: 0,
                     margin: 0,
-                    fontFamily: "Merriweather, serif",
                     fontWeight: 300,
                     fontSize: { xs: "32px", sm: "40px" },
                     color: "#747474",
@@ -279,7 +278,7 @@ const OurPartnersEditForm = () => {
                 >
                   Our Partner Edit Form
                 </Typography>
- 
+
                 <Tooltip
                   title="This is where you can edit degree program details and images."
                   arrow
@@ -355,7 +354,7 @@ const OurPartnersEditForm = () => {
                   )}
                 />
               </FormControl>
- 
+
               <TextField
                 variant="outlined"
                 margin="normal"
@@ -374,7 +373,7 @@ const OurPartnersEditForm = () => {
                 value={websiteLink}
                 onChange={(e) => setWebsiteLink(e.target.value)}
               />
- 
+
               {/* Image Preview Section */}
               {(existingImage || imagePreview) && (
                 <div className={classes.logoContainer}>
@@ -393,7 +392,7 @@ const OurPartnersEditForm = () => {
                   </IconButton>
                 </div>
               )}
- 
+
               <DropzoneArea
                 acceptedFiles={["image/*"]}
                 filesLimit={1}
@@ -402,7 +401,7 @@ const OurPartnersEditForm = () => {
                 showPreviews={false}
                 showPreviewsInDropzone={true}
               />
- 
+
               <Button
                 type="submit"
                 variant="contained"
@@ -440,6 +439,5 @@ const OurPartnersEditForm = () => {
       } />
   );
 };
- 
+
 export default OurPartnersEditForm;
- 

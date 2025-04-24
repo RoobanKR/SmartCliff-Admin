@@ -4,7 +4,7 @@ import { getAPIURL } from "../../../../../utils/utils";
 
 export const addExecutionHighlights = createAsyncThunk(
   "executionHighlights/addExecutionHighlights",
-  async ({formData,token}) => {
+  async ({ formData, token }) => {
     try {
       const response = await Axios.post(
         `${getAPIURL()}/create/execution_highlight`,
@@ -60,7 +60,7 @@ export const updateExecutionHighlights = createAsyncThunk(
         `${getAPIURL()}/update/execution_highlight/${executionHighlightId}`,
         formData
       );
-      return response.data.executionHighlight;
+      return response.data;
     } catch (error) {
       throw Error("Error updating ExecutionHighlights");
     }
@@ -157,11 +157,11 @@ const executionHighlightsSlice = createSlice({
     });
     builder.addCase(updateExecutionHighlights.fulfilled, (state, action) => {
       state.isLoading = false;
-      state.executionHighlight = action.payload; // Update state with new data
+      state.executionHighlight = action.payload?.executionHighlight || action.payload; // Update state with new data
       state.updateSuccess = true;
-      state.successMessage = action.payload.message || "Update successful";
+      state.successMessage = "Execution Highlight updated successfully"; // Set a default message
     });
-        builder.addCase(updateExecutionHighlights.rejected, (state, action) => {
+    builder.addCase(updateExecutionHighlights.rejected, (state, action) => {
       state.isLoading = false;
       state.error = action.error.message;
       state.updateSuccess = false;
@@ -188,7 +188,7 @@ const executionHighlightsSlice = createSlice({
   },
 });
 
-export const { resetExecutionHighlights,clearUpdateStatus } = executionHighlightsSlice.actions;
+export const { resetExecutionHighlights, clearUpdateStatus } = executionHighlightsSlice.actions;
 
 export const selectExecutionHighlightsState = (state) =>
   state.executionHighlight;

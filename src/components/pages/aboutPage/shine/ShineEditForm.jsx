@@ -16,7 +16,9 @@ import {
   Divider,
   Stack,
   Alert,
-  Snackbar
+  Snackbar,
+  Container,
+  Tooltip
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -24,6 +26,7 @@ import PhotoCamera from '@mui/icons-material/PhotoCamera';
 import { HexColorPicker } from 'react-colorful';
 import LeftNavigationBar from '../../../navbars/LeftNavigationBar';
 import { fetchShineById, updateShine } from '../../../redux/slices/aboutpage/shine/shine';
+import { HelpOutline } from '@material-ui/icons';
 
 const ShineEditForm = () => {
   const { id } = useParams();
@@ -52,7 +55,7 @@ const ShineEditForm = () => {
       return { ...prev, shineDefinition: updatedDefinitions };
     });
   };
-  
+
   // Fetch shine data if in edit mode
   useEffect(() => {
     if (isEditMode) {
@@ -70,7 +73,7 @@ const ShineEditForm = () => {
           setLoading(false);
         }
       };
-      
+
       fetchShine();
     }
   }, [id, isEditMode, dispatch]);
@@ -152,7 +155,7 @@ const ShineEditForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Validation
     if (!formData.title) {
       setSnackbar({
@@ -162,7 +165,7 @@ const ShineEditForm = () => {
       });
       return;
     }
-    
+
     if (!formData.image && !formData.imagePreview) {
       setSnackbar({
         open: true,
@@ -171,7 +174,7 @@ const ShineEditForm = () => {
       });
       return;
     }
-    
+
     // Validate each shine definition
     for (let i = 0; i < formData.shineDefinition.length; i++) {
       const def = formData.shineDefinition[i];
@@ -186,37 +189,37 @@ const ShineEditForm = () => {
     }
 
     setSubmitting(true);
-    
+
     try {
       const form = new FormData();
       form.append('title', formData.title);
       form.append('description', formData.description);
-      
+
       if (formData.image) {
         form.append('image', formData.image);
       }
-      
+
       // Prepare shine definitions for submission
       const shineDefinitionsForSubmit = formData.shineDefinition.map((def, index) => {
         const { icon, iconPreview, ...dataFields } = def;
-        
+
         // Include information about whether we're using an existing icon
         if (!icon && iconPreview && typeof iconPreview === 'string') {
           // This indicates we're keeping an existing icon
           dataFields.existingIcon = iconPreview;
         }
-        
+
         return dataFields;
       });
-      
+
       form.append('shineDefinition', JSON.stringify(shineDefinitionsForSubmit));
-      
+
       // Add icon files if present
       formData.shineDefinition.forEach((def, index) => {
         if (def.icon) {
           form.append(`icon_${index}`, def.icon);
         }
-      });      
+      });
       // Dispatch the updateShine action
       const successMessage = await dispatch(updateShine({ id, formData: form })).unwrap();
 
@@ -225,12 +228,12 @@ const ShineEditForm = () => {
         message: successMessage,
         severity: 'success'
       });
-      
+
       // Redirect after successful submission
       setTimeout(() => {
         navigate('/about/shine-control');
       }, 1500);
-      
+
     } catch (error) {
       console.error('Error submitting form:', error);
       // Extract error message from the response
@@ -257,56 +260,96 @@ const ShineEditForm = () => {
     );
   }
 
+  const handleBack = () => {
+    navigate(-1); // Navigate to the previous page
+  };
+
   return (
     <LeftNavigationBar
       Content={
-        <Box sx={{ maxWidth: 1200, mx: 'auto', p: 2 }}>
-          <Paper elevation={3} sx={{ p: 3 }}>
-            <Typography
-              variant="h4"
-              sx={{
-                position: "relative",
-                padding: 0,
-                margin: 0,
-                fontFamily: 'Merriweather, serif',
-                fontWeight: 700, textAlign: 'center',
-                fontWeight: 300,
-                fontSize: { xs: "32px", sm: "40px" },
-                color: "#747474",
-                textAlign: "center",
-                textTransform: "uppercase",
-                paddingBottom: "5px",
-                mb: 5,
-                "&::before": {
-                  content: '""',
-                  width: "28px",
-                  height: "5px",
-                  display: "block",
-                  position: "absolute",
-                  bottom: "3px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
-                "&::after": {
-                  content: '""',
-                  width: "100px",
-                  height: "1px",
-                  display: "block",
-                  position: "relative",
-                  marginTop: "5px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
-              }}
+        <Container component="main" maxWidth="md">
+          <Paper elevation={0}>
+            <Box
+              display="flex"
+              alignItems="center"
+              justifyContent="space-between"
+              gap={1}
+              mt={2}
+              mb={2}
             >
-              {isEditMode ? 'Edit Shine' : 'Create Shine'}
-            </Typography>
-            
-            <Divider sx={{ mb: 3 }} />
-            
-            <form onSubmit={handleSubmit}>
+              <Button variant="outlined" color="primary" onClick={handleBack}>
+                Back
+              </Button>
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  position: "relative",
+                  flex: 1,
+                }}
+              >
+                <Typography
+                  variant="h4"
+                  sx={{
+                    position: "relative",
+                    padding: 0,
+                    margin: 0,
+                    fontWeight: 300,
+                    fontSize: { xs: "32px", sm: "40px" },
+                    color: "#747474",
+                    textAlign: "center",
+                    textTransform: "uppercase",
+                    paddingBottom: "5px",
+                    "&::before": {
+                      content: '""',
+                      width: "28px",
+                      height: "5px",
+                      display: "block",
+                      position: "absolute",
+                      bottom: "3px",
+                      left: "50%",
+                      transform: "translateX(-50%)",
+                      backgroundColor: "#747474",
+                    },
+                    "&::after": {
+                      content: '""',
+                      width: "100px",
+                      height: "1px",
+                      display: "block",
+                      position: "relative",
+                      marginTop: "5px",
+                      left: "50%",
+                      transform: "translateX(-50%)",
+                      backgroundColor: "#747474",
+                    },
+                  }}
+                >
+                  Shine Edit Form
+                </Typography>
+                <Tooltip
+                  title="This is where you can add the execution count for the service."
+                  arrow
+                >
+                  <HelpOutline
+                    sx={{
+                      color: "#747474",
+                      fontSize: "24px",
+                      cursor: "pointer",
+                    }}
+                  />
+                </Tooltip>
+              </Box>
+            </Box>
+
+            <form
+              style={{
+                border: "2px dotted #D3D3D3",
+                padding: "20px",
+                borderRadius: "8px",
+              }}
+              onSubmit={handleSubmit}>
               <Grid container spacing={3}>
                 {/* Main Details */}
                 <Grid item xs={12} md={6}>
@@ -319,7 +362,7 @@ const ShineEditForm = () => {
                     required
                     margin="normal"
                   />
-                  
+
                   <TextField
                     fullWidth
                     label="Description"
@@ -331,7 +374,7 @@ const ShineEditForm = () => {
                     margin="normal"
                   />
                 </Grid>
-                
+
                 {/* Image Upload */}
                 <Grid item xs={12} md={6}>
                   <Card sx={{ mb: 2 }}>
@@ -341,12 +384,12 @@ const ShineEditForm = () => {
                       </Typography>
                       <Box sx={{ mb: 2, textAlign: 'center' }}>
                         {formData.imagePreview && (
-                          <Box 
-                            component="img" 
-                            src={formData.imagePreview} 
+                          <Box
+                            component="img"
+                            src={formData.imagePreview}
                             alt="Shine Preview"
-                            sx={{ 
-                              maxWidth: '100%', 
+                            sx={{
+                              maxWidth: '100%',
                               maxHeight: 200,
                               objectFit: 'contain',
                               mb: 2
@@ -354,7 +397,7 @@ const ShineEditForm = () => {
                           />
                         )}
                       </Box>
-                      
+
                       <Button
                         variant="contained"
                         component="label"
@@ -373,15 +416,15 @@ const ShineEditForm = () => {
                   </Card>
                 </Grid>
               </Grid>
-              
+
               {/* Shine Definitions */}
               <Box sx={{ mt: 4, mb: 2 }}>
                 <Stack direction="row" justifyContent="space-between" alignItems="center">
                   <Typography variant="h5" gutterBottom>
                     Shine Definitions
                   </Typography>
-                  <Button 
-                    variant="contained" 
+                  <Button
+                    variant="contained"
                     startIcon={<AddIcon />}
                     onClick={addDefinition}
                   >
@@ -389,13 +432,13 @@ const ShineEditForm = () => {
                   </Button>
                 </Stack>
               </Box>
-              
+
               {formData.shineDefinition.length === 0 && (
                 <Alert severity="info" sx={{ mb: 2 }}>
                   No shine definitions added. Click "Add Definition" to create one.
                 </Alert>
               )}
-              
+
               {formData.shineDefinition.map((def, index) => (
                 <Paper key={index} elevation={2} sx={{ p: 2, mb: 3 }}>
                   <Grid container spacing={2}>
@@ -408,7 +451,7 @@ const ShineEditForm = () => {
                       </Box>
                       <Divider sx={{ my: 1 }} />
                     </Grid>
-                    
+
                     <Grid item xs={12} md={6}>
                       <TextField
                         fullWidth
@@ -418,7 +461,7 @@ const ShineEditForm = () => {
                         required
                         margin="normal"
                       />
-                      
+
                       <TextField
                         fullWidth
                         label="Description"
@@ -430,28 +473,28 @@ const ShineEditForm = () => {
                         margin="normal"
                       />
                     </Grid>
-                    
+
                     <Grid item xs={12} md={6}>
                       {/* Icon Upload */}
                       <Typography variant="subtitle1" gutterBottom>
                         Icon
                       </Typography>
-                      
+
                       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                         {def.iconPreview && (
-                          <Box 
-                            component="img" 
-                            src={def.iconPreview} 
+                          <Box
+                            component="img"
+                            src={def.iconPreview}
                             alt="Icon Preview"
-                            sx={{ 
-                              width: 50, 
+                            sx={{
+                              width: 50,
                               height: 50,
                               objectFit: 'contain',
                               mr: 2
                             }}
                           />
                         )}
-                        
+
                         <Button
                           variant="outlined"
                           component="label"
@@ -466,7 +509,7 @@ const ShineEditForm = () => {
                           />
                         </Button>
                       </Box>
-                      
+
                       {/* Color Picker */}
                       <Typography variant="subtitle1" gutterBottom>
                         Color
@@ -522,38 +565,46 @@ const ShineEditForm = () => {
                   </Grid>
                 </Paper>
               ))}
-              
+
               {/* Submit Button */}
               <Box sx={{ mt: 4, display: 'flex', justifyContent: 'flex-end' }}>
-                <Button 
-                  variant="contained" 
-                  color="primary" 
-                  type="submit" 
+                <Button
+                  variant="contained"
+                  type="submit"
                   disabled={submitting}
-                  sx={{ minWidth: 120 }}
+                  style={{
+                    display: "block",
+                    margin: "24px auto 0", // centers the button horizontally
+                    backgroundColor: " #ff6d00", // green
+                    color: "#fff",
+                    padding: "5px 10px",
+                    borderRadius: "4px",
+                    textTransform: "uppercase",
+                    cursor: "pointer",
+                  }}
                 >
-                  {submitting ? <CircularProgress size={24} /> : isEditMode ? 'Update' : 'Create'}
+                  {submitting ? <CircularProgress size={24} /> : isEditMode ? 'Update Shine' : ' Create'}
                 </Button>
               </Box>
             </form>
           </Paper>
-          
-          <Snackbar 
-            open={snackbar.open} 
-            autoHideDuration={6000} 
+
+          <Snackbar
+            open={snackbar.open}
+            autoHideDuration={6000}
             onClose={handleCloseSnackbar}
-            anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
           >
-            <Alert 
-              onClose={handleCloseSnackbar} 
-              severity={snackbar.severity} 
+            <Alert
+              onClose={handleCloseSnackbar}
+              severity={snackbar.severity}
               variant="filled"
               sx={{ width: '100%' }}
             >
               {snackbar.message}
             </Alert>
           </Snackbar>
-        </Box>
+        </Container>
       }
     />
   );

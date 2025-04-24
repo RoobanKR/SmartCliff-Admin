@@ -261,6 +261,7 @@ const HomeServiceCountEditForm = () => {
                 label="Count"
                 name="count"
                 value={formData.count}
+                type="number"
                 onChange={handleChange}
                 required
                 margin="normal"
@@ -299,7 +300,7 @@ const HomeServiceCountEditForm = () => {
               open={snackbar.open}
               autoHideDuration={6000}
               onClose={handleCloseSnackbar}
-              anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+              anchorOrigin={{ vertical: "top", horizontal: "right" }}
             >
               <Alert
                 onClose={handleCloseSnackbar}

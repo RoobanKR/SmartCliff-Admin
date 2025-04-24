@@ -472,7 +472,7 @@ function SemesterEditForm() {
             onClose={handleSnackbarClose}
             anchorOrigin={{ vertical: "top", horizontal: "right" }}
           >
-            <Alert onClose={handleSnackbarClose} severity="success">
+            <Alert onClose={handleSnackbarClose} variant="filled" severity="success">
               {snackbarMessage}
             </Alert>
           </Snackbar>

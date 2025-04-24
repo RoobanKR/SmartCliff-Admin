@@ -184,6 +184,12 @@ import HowItWorksEditForm from "./components/pages/business/howItsWork/HowItWork
 import FooterAddForm from "./components/pages/footer/FooterAddForm";
 import FooterEditForm from "./components/pages/footer/FooterEditFrom";
 import FooterControlPage from "./components/pages/footer/FooterControlPage";
+import PopUpNotificationAddForm from "./components/pages/home/popUpNotification/PopUpNotificationAddForm";
+import PopUpNotificationControl from "./components/pages/home/popUpNotification/PopUpNotificationControl";
+import PopUpNotificationEditForm from "./components/pages/home/popUpNotification/PopUpNotificationEditForm";
+import ContactPageAddForm from "./components/pages/contactPage/ContactPageAddForm";
+import ContactPageControl from "./components/pages/contactPage/ContactpageControl";
+import ContactPageEditForm from "./components/pages/contactPage/ContactPageEditForm";
 
 function App() {
   const router = createBrowserRouter(
@@ -698,6 +704,15 @@ function App() {
         <Route path="footer-add" element={<FooterAddForm />} />
         <Route path="footer-control" element={<FooterControlPage />} />
         <Route path="footer-edit/:id" element={<FooterEditForm />} />
+
+        <Route path="popup-notification-add" element={<PopUpNotificationAddForm />} />
+        <Route path="popup-notification-control" element={<PopUpNotificationControl />} />
+        <Route path="popup-notification-edit/:id" element={<PopUpNotificationEditForm />} />
+
+        <Route path="contact-page-add" element={<ContactPageAddForm />} />
+        <Route path="contact-page-control" element={<ContactPageControl />} />
+        <Route path="contact-page-edit/:id" element={<ContactPageEditForm />} />
+
       </Route>
     )
   );

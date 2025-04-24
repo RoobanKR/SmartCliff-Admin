@@ -12,12 +12,14 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Snackbar,
-  Alert,
   CircularProgress,
   TextField,
   TablePagination,
   Grid,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
 import LeftNavigationBar from "../../../navbars/LeftNavigationBar";
 import {
@@ -32,15 +34,50 @@ const YearlyServiceControlPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { services, loading } = useSelector((state) => state.yearlyService);
-  const [snackbar, setSnackbar] = useState({
-    open: false,
-    message: "",
-    severity: "success",
-  });
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
-  const theme = useTheme(); // Ensure theme is retrieved correctly
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [deleteId, setDeleteId] = useState(null);
+  const theme = useTheme();
+  const [localServices, setLocalServices] = useState([]);
+
+  // Enhanced data transformation to prevent rendering objects
+  useEffect(() => {
+    if (Array.isArray(services)) {
+      try {
+        // Transform the services to ensure we only have primitive values
+        const transformedServices = services.map(service => {
+          // Handle the service year
+          const year = service.year ? service.year.toString() : "";
+
+          // Handle the services array
+          const transformedServiceList = Array.isArray(service.services) ?
+            service.services.map(s => ({
+              businessService: typeof s.businessService === 'string' ? s.businessService : "",
+              service: Array.isArray(s.service) ?
+                s.service.map(subService => typeof subService === 'string' ? subService : '')
+                : []
+            }))
+            : [];
+
+          return {
+            _id: service._id || "",
+            year,
+            services: transformedServiceList,
+            __v: service.__v !== undefined ? service.__v : 0
+          };
+        });
+
+        setLocalServices(transformedServices);
+      } catch (error) {
+        console.error("Error transforming services data:", error);
+        setLocalServices([]);
+      }
+    } else {
+      setLocalServices([]);
+    }
+  }, [services]);
 
   useEffect(() => {
     dispatch(getAllYearlyServices());
@@ -50,36 +87,35 @@ const YearlyServiceControlPage = () => {
     navigate(`/about/yearly-service-edit/${id}`);
   };
 
-  const handleDelete = async (id) => {
-    if (
-      window.confirm("Are you sure you want to delete this yearly service?")
-    ) {
+  const handleDelete = (id) => {
+    setDeleteId(id);
+    setConfirmDialogOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (deleteId) {
       try {
-        const resultAction = await dispatch(deleteYearlyService(id));
-        if (deleteYearlyService.fulfilled.match(resultAction)) {
-          setSnackbar({
-            open: true,
-            message: "Yearly service deleted successfully!",
-            severity: "success",
-          });
-        }
+        await dispatch(deleteYearlyService(deleteId));
+        // Fetch updated services
+        dispatch(getAllYearlyServices());
       } catch (error) {
-        setSnackbar({
-          open: true,
-          message: "Failed to delete yearly service",
-          severity: "error",
-        });
+        console.error("Failed to delete yearly service", error);
+      } finally {
+        setConfirmDialogOpen(false);
+        setDeleteId(null);
       }
     }
   };
 
-  const handleCloseSnackbar = () => {
-    setSnackbar((prev) => ({ ...prev, open: false }));
+  const handleCloseDialog = () => {
+    setConfirmDialogOpen(false);
+    setDeleteId(null);
   };
 
-  const filteredServices = services.filter(
+  // Filter services based on search term
+  const filteredServices = localServices.filter(
     (service) =>
-      service.year.toString().includes(searchTerm) ||
+      service.year.includes(searchTerm) ||
       service.services.some((s) =>
         s.businessService.toLowerCase().includes(searchTerm.toLowerCase())
       )
@@ -92,6 +128,26 @@ const YearlyServiceControlPage = () => {
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
+  };
+
+  // Updated helper function to safely render services as text content
+  const renderServiceList = (serviceArray) => {
+    if (!Array.isArray(serviceArray) || serviceArray.length === 0) {
+      return "No services available";
+    }
+
+    return (
+      <>
+        {serviceArray.map((s, index) => (
+          <div key={index}>
+            <strong>{typeof s.businessService === 'string' ? s.businessService : "Unknown Service"}</strong>:{" "}
+            {Array.isArray(s.service)
+              ? s.service.filter(item => typeof item === 'string').join(", ")
+              : "No sub-services available"}
+          </div>
+        ))}
+      </>
+    );
   };
 
   if (loading) {
@@ -118,9 +174,6 @@ const YearlyServiceControlPage = () => {
                 position: "relative",
                 padding: 0,
                 margin: 0,
-                fontFamily: "Merriweather, serif",
-                fontWeight: 700,
-                textAlign: "center",
                 fontWeight: 300,
                 fontSize: { xs: "32px", sm: "40px" },
                 color: "#747474",
@@ -153,10 +206,10 @@ const YearlyServiceControlPage = () => {
                 },
               }}
             >
-              About History <br></br> Control Pannel{" "}
+              About History Panel
             </Typography>
           </Box>
-          <Box sx={{ maxWidth: 1200, mx: "auto", }}>
+          <Box sx={{ maxWidth: 1200, mx: "auto" }}>
             <Grid container spacing={2} alignItems="center" sx={{ mb: 2 }}>
               <Grid item xs={12} md={6}>
                 <TextField
@@ -220,40 +273,17 @@ const YearlyServiceControlPage = () => {
                   </TableHead>
                   <TableBody>
                     {filteredServices
-                      .slice(
-                        page * rowsPerPage,
-                        page * rowsPerPage + rowsPerPage
-                      )
+                      .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                       .map((service) => (
                         <TableRow key={service._id}>
-                          <TableCell
-                            style={{
-                              textAlign: "center",
-                            }}
-                          >
-                            {service.year}
+                          <TableCell style={{ textAlign: "center" }}>
+                            {typeof service.year === 'string' ? service.year : ""}
                           </TableCell>
-                          <TableCell
-                            style={{
-                              textAlign: "center",
-                            }}
-                          >
-                            {service.services.map((s, index) => (
-                              <div key={index}>
-                                <strong>{s.businessService}</strong>:{" "}
-                                {s.service.join(", ")}
-                              </div>
-                            ))}
+                          <TableCell style={{ textAlign: "center" }}>
+                            {renderServiceList(service.services)}
                           </TableCell>
-                          <TableCell
-                            style={{
-                              textAlign: "center",
-                            }}
-                          >
-                            <Button
-                              variant="outlined"
-                              onClick={() => handleEdit(service._id)}
-                            >
+                          <TableCell style={{ textAlign: "center" }}>
+                            <Button variant="outlined" onClick={() => handleEdit(service._id)}>
                               <Edit />
                             </Button>
                             <Button
@@ -280,23 +310,56 @@ const YearlyServiceControlPage = () => {
                 onRowsPerPageChange={handleChangeRowsPerPage}
               />
             </Paper>
-
-            <Snackbar
-              open={snackbar.open}
-              autoHideDuration={6000}
-              onClose={handleCloseSnackbar}
-              anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-            >
-              <Alert
-                onClose={handleCloseSnackbar}
-                severity={snackbar.severity}
-                variant="filled"
-                sx={{ width: "100%" }}
-              >
-                {snackbar.message}
-              </Alert>
-            </Snackbar>
           </Box>
+
+          <Dialog
+            open={confirmDialogOpen}
+            onClose={handleCloseDialog}
+            PaperProps={{
+              sx: {
+                borderRadius: 2,
+                minWidth: 400,
+              },
+            }}
+          >
+            <DialogTitle sx={{
+              backgroundColor: theme.palette.error.light,
+              color: 'white',
+              fontWeight: 600
+            }}>
+              Confirm Deletion
+            </DialogTitle>
+            <DialogContent sx={{ py: 3 }}>
+              <Typography variant="body1">
+                Are you sure you want to delete this yearly service? This action cannot be undone.
+              </Typography>
+            </DialogContent>
+            <DialogActions sx={{ px: 3, pb: 2 }}>
+              <Button
+                onClick={handleCloseDialog}
+                variant="outlined"
+                sx={{
+                  borderColor: theme.palette.grey[400],
+                  color: theme.palette.text.primary
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleConfirmDelete}
+                variant="contained"
+                color="error"
+                sx={{
+                  backgroundColor: theme.palette.error.main,
+                  '&:hover': {
+                    backgroundColor: theme.palette.error.dark
+                  }
+                }}
+              >
+                Delete
+              </Button>
+            </DialogActions>
+          </Dialog>
         </>
       }
     />

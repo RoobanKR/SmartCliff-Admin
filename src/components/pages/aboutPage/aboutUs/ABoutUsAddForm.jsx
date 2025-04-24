@@ -146,7 +146,7 @@ const AboutUsAddForm = () => {
                   <img
                     src={formData.preview}
                     alt="Preview"
-                    style={{ width: "100%", height: "auto", borderRadius: 8 }}
+                    style={{ width: "20%", height: "auto", borderRadius: 8 }}
                   />
                   <Button
                     variant="outlined"
@@ -187,7 +187,7 @@ const AboutUsAddForm = () => {
               onClose={() => setSnackbarOpen(false)}
               anchorOrigin={{ vertical: "top", horizontal: "right" }}
             >
-              <Alert onClose={() => setSnackbarOpen(false)} severity="success" sx={{ width: "100%" }}>
+              <Alert onClose={() => setSnackbarOpen(false)} variant="filled" severity="success" sx={{ width: "100%" }}>
                 Successfully added!
               </Alert>
             </Snackbar>

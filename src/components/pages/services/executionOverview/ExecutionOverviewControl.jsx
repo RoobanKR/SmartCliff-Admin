@@ -127,7 +127,6 @@ const ExecutionOverviewControl = () => {
                 position: "relative",
                 padding: 0,
                 margin: 0,
-                fontFamily: "Merriweather, serif",
                 fontWeight: 700,
                 textAlign: "center",
                 fontWeight: 300,
@@ -162,7 +161,7 @@ const ExecutionOverviewControl = () => {
                 },
               }}
             >
-              Execution Highlights Control <br></br> (by Domain)
+              Execution Highlights Panel <br></br> (by Domain)
             </Typography>
           </Box>
           <Box sx={{ mb: 4 }}>

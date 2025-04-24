@@ -13,6 +13,7 @@ import {
   Tooltip,
   Box,
   useTheme,
+  Container,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import LeftNavigationBar from "../../../navbars/LeftNavigationBar";
@@ -181,68 +182,88 @@ const ExecutionOverviewAddForm = () => {
     }
   };
 
+  const handleBack = () => {
+    navigate(-1); // Navigate to the previous page
+  };  // Extract unique job positions for dropdown filter
+
+
   return (
     <LeftNavigationBar
       Content={
-        <>
-          <Box
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-            gap={1}
-            mt={2}
-            mb={1}
-          >
-            <Typography
-              variant="h4"
-              sx={{
-                position: "relative",
-                padding: 0,
-                margin: 0,
-                fontFamily: "Merriweather, serif",
-                fontWeight: 300,
-                fontSize: { xs: "32px", sm: "40px" },
-                color: "#747474",
-                textAlign: "center",
-                textTransform: "uppercase",
-                paddingBottom: "5px",
-                "&::before": {
-                  content: '""',
-                  width: "28px",
-                  height: "5px",
-                  display: "block",
-                  position: "absolute",
-                  bottom: "3px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
-                "&::after": {
-                  content: '""',
-                  width: "100px",
-                  height: "1px",
-                  display: "block",
-                  position: "relative",
-                  marginTop: "5px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
-              }}
+        <Container component="main" maxWidth="md">
+          <Paper elevation={0}>
+            <Box
+              display="flex"
+              alignItems="center"
+              justifyContent="space-between"
+              gap={1}
+              mt={2}
+              mb={2}
             >
-              Domain Execution <br /> Add Form
-            </Typography>
+              <Button
+                variant="outlined"
+                color="primary"
+                onClick={handleBack}
+              >
+                Back
+              </Button>
+              <Box sx={{
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'center',
+                position: 'relative',
+                flex: 1
+              }}>
+                <Typography
+                  variant="h4"
+                  sx={{
+                    position: "relative",
+                    padding: 0,
+                    margin: 0,
+                    fontWeight: 300,
+                    fontSize: { xs: "32px", sm: "40px" },
+                    color: "#747474",
+                    textAlign: "center",
+                    textTransform: "uppercase",
+                    paddingBottom: "5px",
+                    "&::before": {
+                      content: '""',
+                      width: "28px",
+                      height: "5px",
+                      display: "block",
+                      position: "absolute",
+                      bottom: "3px",
+                      left: "50%",
+                      transform: "translateX(-50%)",
+                      backgroundColor: "#747474",
+                    },
+                    "&::after": {
+                      content: '""',
+                      width: "100px",
+                      height: "1px",
+                      display: "block",
+                      position: "relative",
+                      marginTop: "5px",
+                      left: "50%",
+                      transform: "translateX(-50%)",
+                      backgroundColor: "#747474",
+                    },
+                  }}
+                >
+                  Execution Domain Add Form
+                </Typography>
 
-            <Tooltip
-              title="This is where you can add the execution count for the service."
-              arrow
-            >
-              <HelpOutline
-                sx={{ color: "#747474", fontSize: "24px", cursor: "pointer" }}
-              />
-            </Tooltip>
-          </Box>
-          <Paper elevation={0} style={{ margin: "auto", maxWidth: 700 }}>
+                <Tooltip
+                  title="This is where you can add the execution count for the service."
+                  arrow
+                >
+                  <HelpOutline
+                    sx={{ color: "#747474", fontSize: "24px", cursor: "pointer" }}
+                  />
+                </Tooltip>
+              </Box>
+            </Box>
             <form
               onSubmit={handleSubmit}
               style={{
@@ -436,7 +457,7 @@ const ExecutionOverviewAddForm = () => {
               <Alert severity="success">{successMessage}</Alert>
             </Snackbar>
           </Paper>
-        </>
+        </Container>
       }
     />
   );

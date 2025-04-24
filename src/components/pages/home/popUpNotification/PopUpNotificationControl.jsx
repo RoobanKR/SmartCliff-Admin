@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import {
   Paper,
   Table,
@@ -23,71 +22,83 @@ import {
   useTheme,
   useMediaQuery,
   Grid,
+  Avatar,
+  Switch,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import AddIcon from "@mui/icons-material/Add";
 import SearchIcon from "@mui/icons-material/Search";
 import LeftNavigationBar from "../../../navbars/LeftNavigationBar";
+import { useDispatch, useSelector } from "react-redux";
 import {
-  deleteExecutionHighlights,
-  fetchExecutionHighlights,
-} from "../../../redux/slices/services/executionHighlights/Execution_Highlights";
+  deletePopUpNotification,
+  getAllPopUpNotifications,
+  togglePopUpStatus,
+} from "../../../redux/slices/home/popUpNotification/popupNotification";
 import { useNavigate } from "react-router-dom";
+import { useCookies } from "react-cookie";
 
-const ExecutionHighlightsControl = () => {
+const PopUpNotificationControl = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const executionHighlights = useSelector(
-    (state) => state.executionHighlights.executionHighlights
-  );
-  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
-  const [deleteIndex, setDeleteIndex] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [cookies] = useCookies(["token"]);
+  const notifications = useSelector((state) => state.popUpNotification.notifications) || [];
+  const [deleteId, setDeleteId] = useState(null);
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [loading, setLoading] = useState(true);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   useEffect(() => {
-    dispatch(fetchExecutionHighlights())
-      .then(() => setLoading(false))
-      .catch(() => setLoading(false));
+    const fetchData = async () => {
+      try {
+        await dispatch(getAllPopUpNotifications());
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching notifications:", error);
+        setLoading(false);
+      }
+    };
+    fetchData();
   }, [dispatch]);
 
-  const handleEdit = (executionHighlightId) => {
-    navigate(`/Execution_Highlights-edit/${executionHighlightId}`);
+  const handleEdit = (id) => {
+    navigate(`/popup-notification-edit/${id}`);
   };
 
-  const handleConfirmDeleteOpen = (index) => {
-    setConfirmDeleteOpen(true);
-    setDeleteIndex(index);
+  const handleDelete = (id) => {
+    setDeleteId(id);
+    setConfirmDialogOpen(true);
   };
 
-  const handleConfirmDeleteClose = () => {
-    setConfirmDeleteOpen(false);
-    setDeleteIndex(null);
+  const handleConfirmDelete = () => {
+    dispatch(deletePopUpNotification(deleteId))
+      .then(() => {
+        dispatch(getAllPopUpNotifications());
+        setConfirmDialogOpen(false);
+      })
+      .catch((error) => {
+        console.error("Error deleting notification:", error);
+      });
   };
 
-  const handleDelete = () => {
-    if (deleteIndex !== null) {
-      const executionHighlightId = executionHighlights[deleteIndex]._id;
-      dispatch(deleteExecutionHighlights(executionHighlightId))
-        .then(() => {
-          dispatch(fetchExecutionHighlights());
-          handleConfirmDeleteClose();
-        })
-        .catch((error) => {
-          console.error("Error deleting execution highlights:", error);
-          handleConfirmDeleteClose();
-        });
+  const handleCloseDialog = () => {
+    setConfirmDialogOpen(false);
+    setDeleteId(null);
+  };
+
+  const toggleNotificationStatus = async (notificationId) => {
+    try {
+      await dispatch(togglePopUpStatus(notificationId));
+      dispatch(getAllPopUpNotifications());
+    } catch (error) {
+      console.error("Error toggling notification status:", error);
     }
   };
-
-  const filteredExecutionHighlights = executionHighlights.filter((highlight) =>
-    highlight.stack.toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -98,16 +109,18 @@ const ExecutionHighlightsControl = () => {
     setPage(0);
   };
 
+  const filteredNotifications = notifications.filter(notification =>
+    notification && (
+      (notification.title && notification.title.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (notification.description && notification.description.toLowerCase().includes(searchTerm.toLowerCase()))
+    )
+  );
+
   if (loading) {
     return (
       <LeftNavigationBar
         Content={
-          <Box
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-            minHeight="80vh"
-          >
+          <Box display="flex" justifyContent="center" alignItems="center" minHeight="80vh">
             <CircularProgress size={60} thickness={4} />
           </Box>
         }
@@ -127,8 +140,6 @@ const ExecutionHighlightsControl = () => {
                 position: "relative",
                 padding: 0,
                 margin: 0,
-                fontWeight: 700,
-                textAlign: "center",
                 fontWeight: 300,
                 fontSize: { xs: "32px", sm: "40px" },
                 color: "#747474",
@@ -161,7 +172,7 @@ const ExecutionHighlightsControl = () => {
                 },
               }}
             >
-              Execution Highlights Control <br></br> (by Client)
+              Pop-Up Notification Panel
             </Typography>
             <Grid container spacing={2} alignItems="center">
               <Grid item xs={12} md={6}>
@@ -169,11 +180,9 @@ const ExecutionHighlightsControl = () => {
                   fullWidth
                   variant="outlined"
                   size="small"
-                  placeholder="Search execution highlights..."
+                  placeholder="Search notifications..."
                   InputProps={{
-                    startAdornment: (
-                      <SearchIcon color="action" sx={{ mr: 1 }} />
-                    ),
+                    startAdornment: <SearchIcon color="action" sx={{ mr: 1 }} />,
                   }}
                   sx={{
                     backgroundColor: "background.paper",
@@ -183,16 +192,11 @@ const ExecutionHighlightsControl = () => {
                   value={searchTerm}
                 />
               </Grid>
-              <Grid
-                item
-                xs={12}
-                md={6}
-                sx={{ textAlign: { xs: "left", md: "right" } }}
-              >
+              <Grid item xs={12} md={6} sx={{ textAlign: { xs: "left", md: "right" } }}>
                 <Button
                   variant="contained"
                   startIcon={<AddIcon />}
-                  onClick={() => navigate("/Execution_Highlights-add")}
+                  onClick={() => navigate("/popup-notification-add")}
                   sx={{
                     backgroundColor: theme.palette.primary.main,
                     color: "white",
@@ -203,77 +207,77 @@ const ExecutionHighlightsControl = () => {
                     width: { xs: "100%", md: "auto" },
                   }}
                 >
-                  Add Execution Highlights
+                  Add Notification
                 </Button>
               </Grid>
             </Grid>
           </Box>
 
           {/* Table Section */}
-          <Paper elevation={3} sx={{ borderRadius: 2, overflow: "hidden" }}>
+          <Paper elevation={3} sx={{ borderRadius: 2, overflow: 'hidden' }}>
             <TableContainer>
               <Table>
                 <TableHead>
-                  <TableRow
-                    sx={{ backgroundColor: theme.palette.primary.main }}
-                  >
-                    <TableCell sx={{ color: "white", fontWeight: 600, textAlign: "center" }}>
-                      Stack Name
-                    </TableCell>
-                    <TableCell sx={{ color: "white", fontWeight: 600, textAlign: "center" }}>
-                      Image
-                    </TableCell>
-                    <TableCell sx={{ color: "white", fontWeight: 600, textAlign: "center" }}>
-                      Actions
-                    </TableCell>
+                  <TableRow sx={{ backgroundColor: theme.palette.primary.main }}>
+                    <TableCell sx={{ color: "white", fontWeight: 600, textAlign: "center" }}>Title</TableCell>
+                    <TableCell sx={{ color: "white", fontWeight: 600, textAlign: "center" }}>Description</TableCell>
+                    <TableCell sx={{ color: "white", fontWeight: 600, textAlign: "center" }}>Image</TableCell>
+                    <TableCell sx={{ color: "white", fontWeight: 600, textAlign: "center" }}>Status</TableCell>
+                    <TableCell sx={{ color: "white", fontWeight: 600, textAlign: "center" }}>Actions</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {filteredExecutionHighlights.length > 0 ? (
-                    filteredExecutionHighlights
-                      .slice(
-                        page * rowsPerPage,
-                        page * rowsPerPage + rowsPerPage
-                      )
-                      .map((executionHighlight, index) => (
-                        <TableRow key={executionHighlight._id}>
-                          <TableCell sx={{ textAlign: "center" }}>{executionHighlight.stack}</TableCell>
+                  {filteredNotifications.length > 0 ? (
+                    filteredNotifications
+                      .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                      .map((notification) => (
+                        <TableRow key={notification._id}>
+                          <TableCell sx={{ textAlign: "center" }}>{notification.title}</TableCell>
+                          <TableCell sx={{ textAlign: "center" }}>{notification.description}</TableCell>
                           <TableCell sx={{ textAlign: "center" }}>
-                            <img
-                              src={executionHighlight.image}
-                              alt={executionHighlight.stack}
-                              style={{ maxWidth: "100px", maxHeight: "100px" }}
+                            <Avatar 
+                              src={notification.image} 
+                              alt={notification.title}
+                              sx={{
+                                margin: "0 auto",
+                                width: "70px",
+                                height: "70px",
+                                padding: "5px",
+                                background: "linear-gradient(135deg, rgb(44, 46, 84) 10%, rgb(26, 28, 51) 90%)",
+                              }}
                             />
                           </TableCell>
                           <TableCell sx={{ textAlign: "center" }}>
-                            <Box sx={{  gap: 1 }}>
-                              <Button
-                                variant="outlined"
-                                onClick={() =>
-                                  handleEdit(executionHighlight._id)
-                                }
-                                color="primary"
-                                aria-label="edit"
-                              >
-                                <EditIcon />
-                              </Button>
-                              <Button
-                                variant="outlined"
-                                onClick={() => handleConfirmDeleteOpen(index)}
-                                color="error"
-                                aria-label="delete"
-                              >
-                                <DeleteIcon />
-                              </Button>
-                            </Box>
+                            <Switch
+                              checked={notification.isOpen}
+                              onChange={() => toggleNotificationStatus(notification._id)}
+                            />
+                          </TableCell>
+                          <TableCell sx={{ textAlign: "center" }}>
+                            <Button
+                              variant="outlined"
+                              onClick={() => handleEdit(notification._id)}
+                              color="primary"
+                              aria-label="edit"
+                            >
+                              <EditIcon />
+                            </Button>
+                            <Button
+                              variant="outlined"
+                              color="error"
+                              onClick={() => handleDelete(notification._id)}
+                              sx={{ ml: 1 }}
+                            >
+                              <DeleteIcon />
+                            </Button>
                           </TableCell>
                         </TableRow>
                       ))
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={3} align="center" sx={{ py: 4 }}>
+                      <TableCell colSpan={5} align="center" sx={{ py: 4 }}>
                         <Typography variant="h6" color="text.secondary">
-                          No execution highlights found
+                          No notifications found
                         </Typography>
                       </TableCell>
                     </TableRow>
@@ -283,11 +287,11 @@ const ExecutionHighlightsControl = () => {
             </TableContainer>
 
             {/* Pagination */}
-            {filteredExecutionHighlights.length > 0 && (
+            {filteredNotifications.length > 0 && (
               <TablePagination
                 rowsPerPageOptions={[5, 10, 25]}
                 component="div"
-                count={filteredExecutionHighlights.length}
+                count={filteredNotifications.length}
                 rowsPerPage={rowsPerPage}
                 page={page}
                 onPageChange={handleChangePage}
@@ -305,8 +309,8 @@ const ExecutionHighlightsControl = () => {
 
           {/* Delete Confirmation Dialog */}
           <Dialog
-            open={confirmDeleteOpen}
-            onClose={handleConfirmDeleteClose}
+            open={confirmDialogOpen}
+            onClose={handleCloseDialog}
             PaperProps={{
               sx: {
                 borderRadius: 2,
@@ -325,13 +329,12 @@ const ExecutionHighlightsControl = () => {
             </DialogTitle>
             <DialogContent sx={{ py: 3 }}>
               <Typography variant="body1">
-                Are you sure you want to delete this execution highlight? This
-                action cannot be undone.
+                Are you sure you want to delete this notification? This action cannot be undone.
               </Typography>
             </DialogContent>
             <DialogActions sx={{ px: 3, pb: 2 }}>
               <Button
-                onClick={handleConfirmDeleteClose}
+                onClick={handleCloseDialog}
                 variant="outlined"
                 sx={{
                   borderColor: theme.palette.grey[400],
@@ -341,7 +344,7 @@ const ExecutionHighlightsControl = () => {
                 Cancel
               </Button>
               <Button
-                onClick={handleDelete}
+                onClick={handleConfirmDelete}
                 variant="contained"
                 color="error"
                 sx={{
@@ -361,4 +364,4 @@ const ExecutionHighlightsControl = () => {
   );
 };
 
-export default ExecutionHighlightsControl;
+export default PopUpNotificationControl;

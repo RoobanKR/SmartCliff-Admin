@@ -41,7 +41,7 @@ import {
 } from '@mui/icons-material';
 import LeftNavigationBar from '../../../navbars/LeftNavigationBar';
 import { deleteOurPartners, fetchAllOurPartners } from '../../../redux/slices/services/ourPartners/ourPartners';
- 
+
 const OurPartnersControlPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -54,24 +54,24 @@ const OurPartnersControlPage = () => {
   const [selectedPartnerId, setSelectedPartnerId] = useState(null);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
- 
+
   useEffect(() => {
     dispatch(fetchAllOurPartners());
   }, [dispatch]);
- 
+
   const handleEdit = (id) => {
     navigate(`/degreeprogram/our-partners-edit/${id}`);
   };
- 
+
   const handleView = (id) => {
     navigate(`/degreeprogram/our-partners-view/${id}`);
   };
- 
+
   const handleDeleteClick = (id) => {
     setSelectedPartnerId(id);
     setDeleteDialogOpen(true);
   };
- 
+
   const handleDeleteConfirm = async () => {
     try {
       const resultAction = await dispatch(deleteOurPartners(selectedPartnerId));
@@ -94,29 +94,29 @@ const OurPartnersControlPage = () => {
       setSelectedPartnerId(null);
     }
   };
- 
+
   const handleDeleteCancel = () => {
     setDeleteDialogOpen(false);
     setSelectedPartnerId(null);
   };
- 
+
   const handleCloseSnackbar = () => {
     setSnackbar((prev) => ({ ...prev, open: false }));
   };
- 
+
   const handleAddPartner = () => {
     navigate('/degreeprogram/our-partners-add');
   };
- 
+
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
- 
+
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
- 
+
   const filteredPartners = ourPartners.filter(partner =>
     partner && (
       (partner.company?.companyName && partner.company.companyName.toLowerCase().includes(searchTerm.toLowerCase())) ||
@@ -126,7 +126,7 @@ const OurPartnersControlPage = () => {
       (partner.degree_program?.program_name && partner.degree_program.program_name.toLowerCase().includes(searchTerm.toLowerCase()))
     )
   );
- 
+
   if (loading) {
     return (
       <LeftNavigationBar
@@ -138,7 +138,7 @@ const OurPartnersControlPage = () => {
       />
     );
   }
- 
+
   return (
     <LeftNavigationBar
       Content={
@@ -183,9 +183,9 @@ const OurPartnersControlPage = () => {
               },
             }}
           >
-            Partners Management
+            Our Partners Panel
           </Typography>
- 
+
           <Grid container spacing={2} alignItems="center" sx={{ mb: 3 }}>
             <Grid item xs={12} md={6}>
               <TextField
@@ -223,22 +223,18 @@ const OurPartnersControlPage = () => {
               </Button>
             </Grid>
           </Grid>
- 
+
           <Paper elevation={3} sx={{ borderRadius: 2, overflow: 'hidden' }}>
             <TableContainer>
               <Table>
                 <TableHead>
                   <TableRow sx={{ backgroundColor: theme.palette.primary.main }}>
-                    <TableCell sx={{ color: 'white', fontWeight: 600 }}>Company</TableCell>
-                    {!isMobile && (
-                      <>
-                        <TableCell sx={{ color: 'white', fontWeight: 600 }}>Website</TableCell>
-                        <TableCell sx={{ color: 'white', fontWeight: 600 }}>Service</TableCell>
-                        <TableCell sx={{ color: 'white', fontWeight: 600 }}>Business Service</TableCell>
-                        <TableCell sx={{ color: 'white', fontWeight: 600 }}>Degree Program</TableCell>
-                      </>
-                    )}
-                    <TableCell sx={{ color: 'white', fontWeight: 600 }} align="center">Actions</TableCell>
+                    <TableCell sx={{ color: 'white', fontWeight: 600, textAlign: "center" }}>Company</TableCell>
+                    <TableCell sx={{ color: 'white', fontWeight: 600, textAlign: "center" }}>Website</TableCell>
+                    <TableCell sx={{ color: 'white', fontWeight: 600, textAlign: "center" }}>Service</TableCell>
+                    <TableCell sx={{ color: 'white', fontWeight: 600, textAlign: "center" }}>Business Service</TableCell>
+                    <TableCell sx={{ color: 'white', fontWeight: 600, textAlign: "center" }}>Degree Program</TableCell>
+                    <TableCell sx={{ color: 'white', fontWeight: 600, textAlign: "center" }} align="center">Actions</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -256,54 +252,52 @@ const OurPartnersControlPage = () => {
                             '&:last-child td, &:last-child th': { border: 0 }
                           }}
                         >
-                          <TableCell>
+                          <TableCell sx={{ textAlign: "center" }}>
                             <Typography fontWeight={500}>
                               {partner.company?.companyName || 'N/A'}
                             </Typography>
                           </TableCell>
-                          {!isMobile && (
-                            <>
-                              <TableCell>
-                                {partner.websiteLink ? (
-                                  <Link
-                                    href={partner.websiteLink}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
-                                  >
-                                    <LinkIcon fontSize="small" />
-                                    <Typography variant="body2" noWrap>
-                                      {partner.websiteLink}
-                                    </Typography>
-                                  </Link>
-                                ) : 'N/A'}
-                              </TableCell>
-                              <TableCell>
-                                <Chip
-                                  label={partner.service?.title || 'N/A'}
-                                  size="small"
-                                  color="primary"
-                                  icon={<BusinessIcon fontSize="small" />}
-                                />
-                              </TableCell>
-                              <TableCell>
-                                <Chip
-                                  label={partner.business_service?.name || 'N/A'}
-                                  size="small"
-                                  color="secondary"
-                                />
-                              </TableCell>
-                              <TableCell>
-                                <Chip
-                                  label={partner.degree_program?.program_name || 'N/A'}
-                                  size="small"
-                                  icon={<SchoolIcon fontSize="small" />}
-                                />
-                              </TableCell>
-                            </>
-                          )}
-                          <TableCell align="center">
-                            <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1 }}>
+
+                          <TableCell sx={{ textAlign: "center" }}>
+                            {partner.websiteLink ? (
+                              <Link
+                                href={partner.websiteLink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
+                              >
+                                <LinkIcon fontSize="small" />
+                                <Typography variant="body2" noWrap>
+                                  {partner.websiteLink}
+                                </Typography>
+                              </Link>
+                            ) : 'N/A'}
+                          </TableCell>
+                          <TableCell sx={{ textAlign: "center" }}>
+                            <Chip
+                              label={partner.service?.title || 'N/A'}
+                              size="small"
+                              color="primary"
+                              icon={<BusinessIcon fontSize="small" />}
+                            />
+                          </TableCell>
+                          <TableCell sx={{ textAlign: "center" }}>
+                            <Chip
+                              label={partner.business_service?.name || 'N/A'}
+                              size="small"
+                              color="secondary"
+                            />
+                          </TableCell>
+                          <TableCell sx={{ textAlign: "center" }}>
+                            <Chip
+                              label={partner.degree_program?.program_name || 'N/A'}
+                              size="small"
+                              icon={<SchoolIcon fontSize="small" />}
+                            />
+                          </TableCell>
+
+                          <TableCell align="center" sx={{ textAlign: "center" }}>
+                            <Box sx={{ display: 'flex', gap: 1 }}>
                               <Tooltip title="Edit">
                                 <Button
                                   onClick={() => handleEdit(partner._id)}
@@ -348,7 +342,7 @@ const OurPartnersControlPage = () => {
                 </TableBody>
               </Table>
             </TableContainer>
- 
+
             {filteredPartners.length > 0 && (
               <TablePagination
                 rowsPerPageOptions={[5, 10, 25]}
@@ -368,7 +362,7 @@ const OurPartnersControlPage = () => {
               />
             )}
           </Paper>
- 
+
           {/* Delete Confirmation Dialog */}
           <Dialog
             open={deleteDialogOpen}
@@ -418,7 +412,7 @@ const OurPartnersControlPage = () => {
               </Button>
             </DialogActions>
           </Dialog>
- 
+
           {/* Snackbar for notifications */}
           <Snackbar
             open={snackbar.open}
@@ -440,6 +434,5 @@ const OurPartnersControlPage = () => {
     />
   );
 };
- 
+
 export default OurPartnersControlPage;
- 

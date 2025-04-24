@@ -13,6 +13,7 @@ import {
   useTheme,
   Tooltip,
   Box,
+  IconButton,
 } from "@mui/material";
 import { DropzoneArea } from "material-ui-dropzone";
 import { useNavigate, useParams } from "react-router-dom";
@@ -26,6 +27,7 @@ import { fetchServices } from "../../../redux/slices/services/services/Services"
 import LeftNavigationBar from "../../../navbars/LeftNavigationBar";
 import { getAllBussinessServices } from "../../../redux/slices/services/bussinessServices/BussinessSerives";
 import { HelpOutline } from "@mui/icons-material";
+import ClearIcon from "@mui/icons-material/Clear";
 
 const ExecutionHighlightsEditForm = () => {
   const { executionHighlightId } = useParams();
@@ -41,6 +43,8 @@ const ExecutionHighlightsEditForm = () => {
     (state) => state.businessService.businessServiceData
   );
   const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
 
   const [stack, setStack] = useState("");
   const [image, setImage] = useState(null);
@@ -118,24 +122,28 @@ const ExecutionHighlightsEditForm = () => {
       await dispatch(
         updateExecutionHighlights({ executionHighlightId, formData })
       );
-      navigate("/Execution_Highlights-control");
-
+      setSnackbarMessage(successMessage || "Update successful!");
+      setSnackbarSeverity("success");
       setOpenSnackbar(true);
-    } catch (error) {
-      console.error("Error updating execution highlights:", error);
-    }
-  };
-  useEffect(() => {
-    if (updateSuccess) {
-      setOpenSnackbar(true);
-      const timer = setTimeout(() => {
-        dispatch(clearUpdateStatus());
+      setTimeout(() => {
         navigate("/Execution_Highlights-control");
       }, 2000);
-
-      return () => clearTimeout(timer); // Cleanup the timer on unmount
+    } catch (error) {
+      setSnackbarMessage(error.message || "Error updating execution highlights");
+      setSnackbarSeverity("error");
+      setOpenSnackbar(true);
     }
-  }, [updateSuccess, navigate, dispatch]);
+  };
+
+  const handleBack = () => {
+    navigate(-1);
+  };
+
+  const handleRemoveImage = () => {
+    setExistingImages("");
+    setImage(null);
+  };
+
   return (
     <LeftNavigationBar
       Content={
@@ -143,77 +151,94 @@ const ExecutionHighlightsEditForm = () => {
           <Box
             display="flex"
             alignItems="center"
-            justifyContent="center"
+            justifyContent="space-between"
             gap={1}
-            mt={2}
-            mb={1}
+            mt={3}
+            mb={2}
           >
-            <Typography
-              variant="h4"
+            <Button
+              variant="outlined"
+              color="primary"
+              onClick={handleBack}
+            >
+              Back
+            </Button>
+
+            <Box
               sx={{
-                position: "relative",
-                padding: 0,
-                margin: 0,
-                fontFamily: "Merriweather, serif",
-                fontWeight: 300,
-                fontSize: { xs: "32px", sm: "40px" },
-                color: "#747474",
-                textAlign: "center",
-                textTransform: "uppercase",
-                paddingBottom: "5px",
-                "&::before": {
-                  content: '""',
-                  width: "28px",
-                  height: "5px",
-                  display: "block",
-                  position: "absolute",
-                  bottom: "3px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
-                "&::after": {
-                  content: '""',
-                  width: "100px",
-                  height: "1px",
-                  display: "block",
-                  position: "relative",
-                  marginTop: "5px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "center",
+                flex: 1,
               }}
             >
-              Execution Highlights
-              <br /> Edit Form
-            </Typography>
+              <Typography
+                variant="h4"
+                sx={{
+                  position: "relative",
+                  padding: 0,
+                  margin: 0,
+                  fontWeight: 300,
+                  fontSize: { xs: "28px", sm: "36px" },
+                  color: "#747474",
+                  textAlign: "center",
+                  textTransform: "uppercase",
+                  paddingBottom: "5px",
+                  "&::before": {
+                    content: '""',
+                    width: "28px",
+                    height: "5px",
+                    display: "block",
+                    position: "absolute",
+                    bottom: "3px",
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    backgroundColor: "#747474",
+                  },
+                  "&::after": {
+                    content: '""',
+                    width: "100px",
+                    height: "1px",
+                    display: "block",
+                    position: "relative",
+                    marginTop: "5px",
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    backgroundColor: "#747474",
+                  },
+                }}
+              >
+                Execution Highlights Edit Form
+              </Typography>
 
-            <Tooltip
-              title="This is where you can add the execution count for the service."
-              arrow
-            >
-              <HelpOutline
-                sx={{ color: "#747474", fontSize: "24px", cursor: "pointer" }}
-              />
-            </Tooltip>
+              <Tooltip
+                title="Edit the about us content and image here"
+                arrow
+                placement="top"
+              >
+                <HelpOutline
+                  sx={{
+                    color: "#747474",
+                    fontSize: "24px",
+                    cursor: "pointer",
+                    ml: 1,
+                  }}
+                />
+              </Tooltip>
+            </Box>
           </Box>
           <Paper elevation={0}>
             <Snackbar
               open={openSnackbar}
               autoHideDuration={2000}
               onClose={() => setOpenSnackbar(false)}
-              anchorOrigin={{ vertical: "top", horizontal: "center" }}
+              anchorOrigin={{ vertical: "top", horizontal: "right" }}
             >
-              <Alert severity="success" onClose={() => setOpenSnackbar(false)}>
-                {successMessage || "Update successful!"}
+              <Alert severity={snackbarSeverity} variant="filled" onClose={() => setOpenSnackbar(false)}>
+                {snackbarMessage}
               </Alert>
             </Snackbar>
-            {error && (
-              <Alert severity="error" sx={{ mb: 2 }}>
-                {error}
-              </Alert>
-            )}
             <form
               onSubmit={handleSubmit}
               style={{
@@ -295,9 +320,19 @@ const ExecutionHighlightsEditForm = () => {
                     Existing Image:
                   </Typography>
                   {existingImages && (
-                    <Typography style={{ marginLeft: "16px" }}>
-                      {existingImages.split("/").pop()}
-                    </Typography>
+                    <div style={{ position: 'relative', marginLeft: "16px" }}>
+                      <img
+                        src={existingImages}
+                        alt="Existing Execution Highlight"
+                        style={{ maxWidth: "100px", maxHeight: "100px", borderRadius: "4px" }}
+                      />
+                      <IconButton
+                        onClick={handleRemoveImage}
+                        style={{ position: 'absolute', top: 0, right: 0 }}
+                      >
+                        <ClearIcon color="secondary" />
+                      </IconButton>
+                    </div>
                   )}
                 </Grid>
                 <Grid item xs={12}>
@@ -321,7 +356,7 @@ const ExecutionHighlightsEditForm = () => {
                   display: "block",
                   marginLeft: "auto",
                   marginRight: "auto",
-                  mt: 3, // optional: top margin
+                  mt: 3,
                   "&:hover": {
                     backgroundColor: theme.palette.warning.dark,
                   },

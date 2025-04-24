@@ -33,6 +33,23 @@ export const deleteEnquiry = createAsyncThunk(
     }
   }
 );
+
+export const sendEmailToEnquiryApplicants = createAsyncThunk(
+  "enquiry/sendEmail",
+  async ({ subject, message, enquiryIds }) => {
+    try {
+      const response = await axios.post(`${getAPIURL()}/enquiry/response-mail/applicants`, {
+        subject,
+        message,
+        enquiryIds,
+      });
+      return response.data; // Return the response data
+    } catch (error) {
+      throw error;
+    }
+  }
+);
+
 const initialState = {
   loading: false,
   error: null,

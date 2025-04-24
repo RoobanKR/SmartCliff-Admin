@@ -14,7 +14,7 @@ import { useNavigate } from "react-router-dom";
 import { getAllCompanies } from "../../../redux/slices/mca/company/company";
 import LeftNavigationBar from "../../../navbars/LeftNavigationBar";
 import { HelpOutline } from "@material-ui/icons";
- 
+
 const useStyles = makeStyles((theme) => ({
   paper: {
     maxWidth: 600,
@@ -34,15 +34,15 @@ const useStyles = makeStyles((theme) => ({
     color: theme.palette.success.contrastText,
   },
 }));
- 
+
 const OurPartnersAddForm = () => {
   const classes = useStyles();
   const dispatch = useDispatch();
   const navigate = useNavigate();
- 
+
   const [companyName, setCompanyName] = useState("");
   const [type, setType] = useState("");
- 
+
   const [websiteLink, setWebsiteLink] = useState("");
   const [selectedImages, setSelectedImages] = useState([]);
   const [selectedService, setSelectedService] = useState(null);
@@ -50,7 +50,7 @@ const OurPartnersAddForm = () => {
   const [selectedProgram, setSelectedProgram] = useState(null);
   const [selectedCompany, setSelectedCompany] = useState(null);
   const companyData = useSelector((state) => state.companies.companies);
- 
+
   const serviceData = useSelector((state) => state.service.serviceData);
   const businessServiceData = useSelector(
     (state) => state.businessService.businessServiceData
@@ -58,23 +58,23 @@ const OurPartnersAddForm = () => {
   const degreeProgramData = useSelector(
     (state) => state.degreeProgram.degreeProgramData
   );
- 
+
   const [filteredServices, setFilteredServices] = useState([]);
   const [filteredDegreePrograms, setFilteredDegreePrograms] = useState([]);
- 
+
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
- 
+
   useEffect(() => {
     const fetchData = async () => {
       dispatch(fetchServices());
       dispatch(getAllBussinessServices());
       dispatch(fetchDegreeProgramData());
       dispatch(getAllCompanies());
- 
+
     };
     fetchData();
   }, [dispatch]);
- 
+
   useEffect(() => {
     if (selectedBusinessService) {
       const filtered = serviceData.filter(
@@ -85,7 +85,7 @@ const OurPartnersAddForm = () => {
       setFilteredServices([]);
     }
   }, [selectedBusinessService, serviceData]);
- 
+
   useEffect(() => {
     if (selectedService) {
       const filteredPrograms = degreeProgramData.filter(
@@ -96,33 +96,33 @@ const OurPartnersAddForm = () => {
       setFilteredDegreePrograms(degreeProgramData);
     }
   }, [selectedService, degreeProgramData]);
- 
+
   const handleServiceChange = (_, newValue) => {
     setSelectedService(newValue);
   };
- 
+
   const handleBussinessServiceChange = (_, newValue) => {
     setSelectedBusinessService(newValue);
   };
- 
+
   const handleProgramChange = (_, newValue) => {
     setSelectedProgram(newValue);
   };
- 
+
   const handleImageChange = (files) => {
     setSelectedImages(files);
   };
   const handleCompanyChange = (_, newValue) => {
     setSelectedCompany(newValue);
   };
- 
+
   const handleSubmit = async (e) => {
     e.preventDefault();
- 
+
     const formData = new FormData();
     formData.append("companyName", companyName);
     formData.append("type", type);
- 
+
     formData.append("websiteLink", websiteLink);
     if (selectedBusinessService) {
       formData.append("business_service", selectedBusinessService._id);
@@ -136,11 +136,11 @@ const OurPartnersAddForm = () => {
     if (selectedCompany && selectedCompany._id) {
       formData.append("company", selectedCompany._id);
     }
- 
+
     selectedImages.forEach((image) => {
       formData.append("image", image);
     });
- 
+
     try {
       const response = await dispatch(createOurPartners(formData)).unwrap();
       setSnackbar({ open: true, message: response.message[0].value, severity: 'success' });
@@ -153,15 +153,15 @@ const OurPartnersAddForm = () => {
       setSnackbar({ open: true, message: errorMessage, severity: 'error' });
     }
   };
- 
+
   const handleCloseSnackbar = () => {
     setSnackbar({ ...snackbar, open: false });
   };
- 
+
   const handleBack = () => {
     navigate(-1); // Navigate to the previous page
   };
- 
+
   return (<LeftNavigationBar
     Content={
       <Container component="main" maxWidth="md">
@@ -195,7 +195,6 @@ const OurPartnersAddForm = () => {
                   position: "relative",
                   padding: 0,
                   margin: 0,
-                  fontFamily: "Merriweather, serif",
                   fontWeight: 300,
                   fontSize: { xs: "32px", sm: "40px" },
                   color: "#747474",
@@ -228,7 +227,7 @@ const OurPartnersAddForm = () => {
               >
                 Our Partner Add Form
               </Typography>
- 
+
               <Tooltip
                 title="This is where you can add the execution count for the service."
                 arrow
@@ -326,8 +325,8 @@ const OurPartnersAddForm = () => {
                 )}
               />
             </FormControl>
- 
- 
+
+
             <TextField
               variant="outlined"
               margin="normal"
@@ -346,7 +345,7 @@ const OurPartnersAddForm = () => {
               value={type}
               onChange={(e) => setType(e.target.value)}
             />
- 
+
             <TextField
               variant="outlined"
               margin="normal"
@@ -398,6 +397,5 @@ const OurPartnersAddForm = () => {
     } />
   );
 };
- 
+
 export default OurPartnersAddForm;
- 

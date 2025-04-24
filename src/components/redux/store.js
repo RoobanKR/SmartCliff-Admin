@@ -67,6 +67,8 @@ import instituteReducer from "./slices/business/form/instituteForm";
 import wcuReducer from "./slices/home/wcu/WhyCU";
 import howItWorksReducer from "./slices/business/howItWorks/howItWorks";
 import footerReducer from "./slices/footer/footer";
+import popUpNotificationReducer from "./slices/home/popUpNotification/popupNotification";
+import contactPageReducer from "./slices/contactPage/contactPage";
 
 export default configureStore({
   reducer: {
@@ -141,5 +143,7 @@ export default configureStore({
     wcu: wcuReducer,
     howItWorks: howItWorksReducer,
     footer: footerReducer,
+    popUpNotification:popUpNotificationReducer,
+    contactPage:contactPageReducer,
   },
 });

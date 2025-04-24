@@ -410,25 +410,6 @@ const HomeServiceCountControlPage = () => {
               </Button>
             </DialogActions>
           </Dialog>
-
-          {/* Snackbar for notifications */}
-          <Snackbar
-            open={snackbar.open}
-            autoHideDuration={6000}
-            onClose={handleCloseSnackbar}
-            anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-          >
-            <Alert
-              onClose={handleCloseSnackbar}
-              severity={snackbar.severity}
-              variant="filled"
-              sx={{ width: "100%" }}
-            >
-              {typeof snackbar.message === "object"
-                ? JSON.stringify(snackbar.message)
-                : snackbar.message}
-            </Alert>
-          </Snackbar>
         </Box>
       }
     />
