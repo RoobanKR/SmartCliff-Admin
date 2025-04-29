@@ -12,7 +12,8 @@ import {
     InputLabel,
     Select,
     MenuItem,
-    FormHelperText
+    FormHelperText,
+    Tooltip
 } from "@mui/material";
 import { DropzoneArea } from "material-ui-dropzone";
 import { useDispatch, useSelector } from "react-redux";
@@ -21,6 +22,7 @@ import { useCookies } from "react-cookie";
 // import { clearMessages, createHowItWorks } from "../../../redux/features/business/howItWorks/howItWorksSlice"; // Adjust the import path as necessary
 import LeftNavigationBar from "../../../navbars/LeftNavigationBar";
 import { createHowItWorks, clearMessages } from "../../../redux/slices/business/howItWorks/howItWorks";
+import { HelpOutline } from "@mui/icons-material";
 
 const HowItWorksAddForm = () => {
     const dispatch = useDispatch();
@@ -94,67 +96,30 @@ const HowItWorksAddForm = () => {
         setSnackbarOpen(false);
     };
 
+    const    handleBack = () => {
+        navigate(-1);
+      };
+    
+
     return (
         <LeftNavigationBar
             Content={
-                <Container component="main" maxWidth="md">
-                    <Snackbar
-                        open={snackbarOpen}
-                        autoHideDuration={6000}
-                        onClose={handleSnackbarClose}
-                        anchorOrigin={{ vertical: "top", horizontal: "right" }}
-                    >
-                        <Alert
-                            onClose={handleSnackbarClose}
-                            severity={snackbarSeverity}
-                            sx={{ width: "100%" }}
-                            variant="filled"
-                        >
-                            {snackbarMessage}
-                        </Alert>
-                    </Snackbar>
-                    <Paper elevation={3} sx={{ padding: 4, marginTop: 4 }}>
-                        <Typography
-                            variant="h4"
-                            sx={{
-                                position: "relative",
-                                padding: 0,
-                                margin: 0,
-                                fontFamily: 'Merriweather, serif',
-                                fontWeight: 700,
-                                textAlign: 'center',
-                                fontSize: { xs: "32px", sm: "40px" },
-                                color: "#747474",
-                                textTransform: "uppercase",
-                                paddingBottom: "5px",
-                                mb: 5,
-                                "&::before": {
-                                    content: '""',
-                                    width: "28px",
-                                    height: "5px",
-                                    display: "block",
-                                    position: "absolute",
-                                    bottom: "3px",
-                                    left: "50%",
-                                    transform: "translateX(-50%)",
-                                    backgroundColor: "#747474",
-                                },
-                                "&::after": {
-                                    content: '""',
-                                    width: "100px",
-                                    height: "1px",
-                                    display: "block",
-                                    position: "relative",
-                                    marginTop: "5px",
-                                    left: "50%",
-                                    transform: "translateX(-50%)",
-                                    backgroundColor: "#747474",
-                                },
-                            }}
-                        >
-                            Add How It Works
-                        </Typography>
-                        <form onSubmit={handleSubmit}>
+ <Container component="main" maxWidth="md">
+          <Paper elevation={0}>
+            <Box display="flex" alignItems="center" justifyContent="space-between" gap={1} mt={2} mb={2}>
+              <Button variant="outlined" color="primary" onClick={handleBack}>
+                Back
+              </Button>
+              <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', position: 'relative', flex: 1 }}>
+                <Typography variant="h4" sx={{ position: "relative", padding: 0, margin: 0, fontWeight: 300, fontSize: { xs: "32px", sm: "40px" }, color: "#747474", textAlign: "center", textTransform: "uppercase", paddingBottom: "5px", "&::before": { content: '""', width: "28px", height: "5px", display: "block", position: "absolute", bottom: "3px", left: "50%", transform: "translateX(-50%)", backgroundColor: "#747474", }, "&::after ": { content: '""', width: "100px", height: "1px", display: "block", position: "relative", marginTop: "5px", left: "50%", transform: "translateX(-50%)", backgroundColor: "#747474", }, }}>
+                Add How It Works
+                </Typography>
+                <Tooltip title="This is where you can add the How It Works." arrow>
+                  <HelpOutline sx={{ color: "#747474", fontSize: "24px", cursor: "pointer" }} />
+                </Tooltip>
+              </Box>
+            </Box>            
+            <form onSubmit={handleSubmit} style={{ border: "2px dotted #D3D3D3", padding: "20px", borderRadius: "8px" }}>
                             <TextField
                                 margin="normal"
                                 required
@@ -210,13 +175,28 @@ const HowItWorksAddForm = () => {
                             <Button
                                 type="submit"
                                 variant="contained"
-                                style={{ backgroundColor: "#4CAF50", color: "white", marginTop: "20px" }}
+                                style={{color: "white", marginTop: "20px" }}
                                 fullWidth
                                 disabled={loading}
                             >
                                 {loading ? "Submitting..." : "Submit"}
                             </Button>
                         </form>
+                        <Snackbar
+                        open={snackbarOpen}
+                        autoHideDuration={6000}
+                        onClose={handleSnackbarClose}
+                        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+                    >
+                        <Alert
+                            onClose={handleSnackbarClose}
+                            severity={snackbarSeverity}
+                            sx={{ width: "100%" }}
+                            variant="filled"
+                        >
+                            {snackbarMessage}
+                        </Alert>
+                    </Snackbar>
                     </Paper>
                 </Container>
             }

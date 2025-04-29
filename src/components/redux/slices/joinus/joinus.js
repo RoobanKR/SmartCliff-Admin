@@ -22,17 +22,20 @@ export const fetchJobPositionById = createAsyncThunk("joinUs/fetchById", async (
     }
 });
 
-export const createJobPosition = createAsyncThunk("joinUs/create", async (jobData, { rejectWithValue }) => {
-    try {
-        const response = await axios.post(`${getAPIURL()}/create/joinus`, jobData,
-    
-    );
+export const createJobPosition = createAsyncThunk(
+    "joinUs/create", 
+    async (formData, { rejectWithValue }) => {
+      try {
+        const response = await axios.post(
+          `${getAPIURL()}/create/joinus`, 
+          formData  // Send formData directly without nesting
+        );
         return response.data;
-    } catch (error) {
+      } catch (error) {
         return rejectWithValue(error.response?.data || "Error creating job position");
+      }
     }
-});
-
+  );
 export const updateJobPosition = createAsyncThunk("joinUs/update", async ({ id, jobData }, { rejectWithValue }) => {
     try {
         const response = await axios.put(`${getAPIURL()}/update/joinus/${id}`, jobData);

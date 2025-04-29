@@ -6,6 +6,8 @@ import {
   Container,
   Paper,
   Grid,
+  Box,
+  Tooltip,
 } from "@mui/material";
 import { DropzoneArea } from "material-ui-dropzone";
 import { useDispatch, useSelector } from "react-redux";
@@ -19,6 +21,7 @@ import {
 } from "../../redux/slices/category/category";
 import { useCookies } from "react-cookie";
 import { resetSignIn, userVerify } from "../../redux/slices/user/Signin";
+import { HelpOutline } from "@mui/icons-material";
 
 const validationSchema = Yup.object({
   category_name: Yup.string().required("Category Name is required"),
@@ -68,61 +71,28 @@ const CategoryAddForm = () => {
 
     setSubmitting(false);
   };
+  const handleBack = () => {
+    navigate(-1);
+  };
 
   return (
     <LeftNavigationBar
       Content={
-        <Container component="main" maxWidth="xs">
-          <Paper
-            elevation={3}
-            sx={{
-              padding: 3,
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-            }}
-          >
-            <Typography
-              variant="h4"
-              sx={{
-                position: "relative",
-                padding: 0,
-                margin: 0,
-                fontFamily: 'Merriweather, serif',
-                fontWeight: 700, textAlign: 'center',
-                fontWeight: 300,
-                fontSize: { xs: "32px", sm: "40px" },
-                color: "#747474",
-                textAlign: "center",
-                textTransform: "uppercase",
-                paddingBottom: "5px",
-                mb: 5,
-                "&::before": {
-                  content: '""',
-                  width: "28px",
-                  height: "5px",
-                  display: "block",
-                  position: "absolute",
-                  bottom: "3px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
-                "&::after": {
-                  content: '""',
-                  width: "100px",
-                  height: "1px",
-                  display: "block",
-                  position: "relative",
-                  marginTop: "5px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
-              }}
-            >
-              Category Add Form
-            </Typography>
+        <Container component="main" maxWidth="md">
+          <Paper elevation={0}>
+            <Box display="flex" alignItems="center" justifyContent="space-between" gap={1} mt={2} mb={2}>
+              <Button variant="outlined" color="primary" onClick={handleBack}>
+                Back
+              </Button>
+              <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', position: 'relative', flex: 1 }}>
+                <Typography variant="h4" sx={{ position: "relative", padding: 0, margin: 0, fontWeight: 300, fontSize: { xs: "32px", sm: "40px" }, color: "#747474", textAlign: "center", textTransform: "uppercase", paddingBottom: "5px", "&::before": { content: '""', width: "28px", height: "5px", display: "block", position: "absolute", bottom: "3px", left: "50%", transform: "translateX(-50%)", backgroundColor: "#747474", }, "&::after ": { content: '""', width: "100px", height: "1px", display: "block", position: "relative", marginTop: "5px", left: "50%", transform: "translateX(-50%)", backgroundColor: "#747474", }, }}>
+                Category Add Form
+                </Typography>
+                <Tooltip title="This is where you can add the execution count for the service." arrow>
+                  <HelpOutline sx={{ color: "#747474", fontSize: "24px", cursor: "pointer" }} />
+                </Tooltip>
+              </Box>
+            </Box>
             <br />
             <Formik
               initialValues={{
@@ -141,7 +111,7 @@ const CategoryAddForm = () => {
                 errors,
                 touched,
               }) => (
-                <form onSubmit={handleSubmit} style={{ width: "100%" }}>
+                <form onSubmit={handleSubmit} style={{ border: "2px dotted #D3D3D3", padding: "20px", borderRadius: "8px" }}>
                   <Grid container spacing={2}>
                     <Grid item xs={12}>
                       <Field
@@ -196,14 +166,24 @@ const CategoryAddForm = () => {
 
                   </Grid>
 
-                  <Button
-                    type="submit"
-                    fullWidth
-                    variant="contained"
-                    color="success"
-                    sx={{ mt: 3 }}
-                    disabled={isSubmitting}
-                  >
+                               <Button
+                                 type="submit"
+                                 variant="contained"
+                                 sx={{
+                                   display: "block",
+                                   marginLeft: "auto",
+                                   marginRight: "auto",
+                                   mt: 3,
+                                   backgroundColor: "#1976d2",
+                                   color: "#fff",
+                                   "&:hover": {
+                                     backgroundColor: "#115293",
+                                   },
+                                 }}
+                                 disabled={isSubmitting}
+
+                               >
+                            
                     Submit
                   </Button>
                 </form>

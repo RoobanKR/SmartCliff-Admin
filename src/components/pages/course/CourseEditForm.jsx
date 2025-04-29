@@ -19,6 +19,7 @@ import {
   CircularProgress,
   Snackbar,
   Alert,
+  Tooltip,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -39,6 +40,7 @@ import {
   updateCourse,
 } from "../../redux/slices/course/course";
 import LeftNavigationBar from "../../navbars/LeftNavigationBar";
+import { HelpOutline } from "@mui/icons-material";
 
 // TabPanel component to handle tab content
 function TabPanel({ children, value, index, ...other }) {
@@ -129,7 +131,8 @@ const CourseEditForm = ({ onCancel }) => {
             courseOutline: courseData.courseOutline.modules.map((module) => ({
               module,
             })),
-            courseSummary: courseData.courseSummary,
+           // In your useEffect that fetches course data
+courseSummary: courseData.courseSummary ? courseData.courseSummary.map(item => ({ ...item })) : [],
             tool_software: courseData.tool_software || [],
           });
 
@@ -189,11 +192,14 @@ const CourseEditForm = ({ onCancel }) => {
   };
 
   const handleSummaryChange = (index, field, value) => {
-    const newSummary = [...formData.courseSummary];
-    newSummary[index][field] = value;
+    const newSummary = formData.courseSummary.map((item, i) => {
+      if (i === index) {
+        return { ...item, [field]: value };
+      }
+      return item;
+    });
     setFormData({ ...formData, courseSummary: newSummary });
   };
-
   const addSummary = () => {
     setFormData({
       ...formData,
@@ -309,6 +315,9 @@ const CourseEditForm = ({ onCancel }) => {
       setLoading(false);
     }
   };
+  const handleBack = () => {
+    navigate(-1);
+  };
 
   if (fetchingCourse) {
     return (
@@ -331,31 +340,27 @@ const CourseEditForm = ({ onCancel }) => {
   return (
     <LeftNavigationBar
       Content={
-        <Container maxWidth="lg" sx={{ mt: 3, mb: 3 }}>
-          <Paper sx={{ p: 2, borderRadius: 2 }}>
-            <Typography variant="h5" gutterBottom>
-              {isEditMode ? "Edit Course" : "Add New Course"}
-            </Typography>
-            {error && (
-              <Box
-                sx={{
-                  mb: 2,
-                  p: 2,
-                  bgcolor: "#ffebee",
-                  color: "#c62828",
-                  borderRadius: 1,
-                }}
-              >
-                {error}
+ <Container component="main" maxWidth="md">
+          <Paper elevation={0}>
+            <Box display="flex" alignItems="center" justifyContent="space-between" gap={1} mt={2} mb={2}>
+              <Button variant="outlined" color="primary" onClick={handleBack}>
+                Back
+              </Button>
+              <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', position: 'relative', flex: 1 }}>
+                <Typography variant="h4" sx={{ position: "relative", padding: 0, margin: 0, fontWeight: 300, fontSize: { xs: "32px", sm: "40px" }, color: "#747474", textAlign: "center", textTransform: "uppercase", paddingBottom: "5px", "&::before": { content: '""', width: "28px", height: "5px", display: "block", position: "absolute", bottom: "3px", left: "50%", transform: "translateX(-50%)", backgroundColor: "#747474", }, "&::after ": { content: '""', width: "100px", height: "1px", display: "block", position: "relative", marginTop: "5px", left: "50%", transform: "translateX(-50%)", backgroundColor: "#747474", }, }}>
+                Courses Edit Form
+                </Typography>
+                <Tooltip title="This is where you can edit the Courses ." arrow>
+                  <HelpOutline sx={{ color: "#747474", fontSize: "24px", cursor: "pointer" }} />
+                </Tooltip>
               </Box>
-            )}
-            <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+            </Box>            <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
               <Tabs value={activeTab} onChange={handleTabChange}>
                 <Tab label="Basic Information" />
                 <Tab label="Course Outline & Summary" />
               </Tabs>
             </Box>
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} style={{ border: "2px dotted #D3D3D3", padding: "20px", borderRadius: "8px" }}>
               {/* Basic Information Tab */}
               <TabPanel value={activeTab} index={0}>
                 <Grid container spacing={2}>
@@ -639,12 +644,22 @@ const CourseEditForm = ({ onCancel }) => {
                     onClick={() => setActiveTab(0)}
                     variant="outlined"
                   >
-                    Back
+                    Preview Tab
                   </Button>
                   <Button
                     type="submit"
                     variant="contained"
-                    color="primary"
+                      sx={{
+                        backgroundColor: "#ff6d00",
+                        color: "#fff",
+                        padding: "8px 24px",
+                        textTransform: "uppercase",
+                        borderRadius: "4px",
+                        mt: 2,
+                        "&:hover": {
+                          backgroundColor: "#e65100",
+                        },
+                      }}
                     disabled={loading}
                   >
                     {loading

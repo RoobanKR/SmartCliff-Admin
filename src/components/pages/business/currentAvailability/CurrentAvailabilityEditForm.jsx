@@ -3,11 +3,12 @@ import { makeStyles } from "@material-ui/core/styles";
 import Paper from "@material-ui/core/Paper";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
-import { Snackbar, Alert, Typography } from "@mui/material";
+import { Snackbar, Alert, Typography, Tooltip, Box, Container, Grid } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom"; // Import useParams
 import LeftNavigationBar from "../../../navbars/LeftNavigationBar";
 import { getCurrentAvailabilityById, updateCurrentAvailability } from "../../../redux/slices/business/currentAvailability/currentAvailability";
+import { HelpOutline } from "@mui/icons-material";
 
 const useStyles = makeStyles((theme) => ({
     paper: {
@@ -22,11 +23,11 @@ const useStyles = makeStyles((theme) => ({
         width: "100%",
         marginTop: theme.spacing(1),
     },
-    submit: {
-        margin: theme.spacing(3, 0, 2),
-        backgroundColor: theme.palette.success.main,
-        color: theme.palette.success.contrastText,
-    },
+    // submit: {
+    //     margin: theme.spacing(3, 0, 2),
+    //     backgroundColor: theme.palette.success.main,
+    //     color: theme.palette.success.contrastText,
+    // },
 }));
 
 const CurrentAvailabilityEditForm = () => {
@@ -89,7 +90,7 @@ const CurrentAvailabilityEditForm = () => {
                 setSnackbarMessage("Current availability updated successfully!");
                 setSnackbarSeverity("success");
                 setSnackbarOpen(true);
-                navigate("/business/current-availability-control");
+                setTimeout(() => navigate("/business/current-availability-control"), 1500);
             }
         } catch (error) {
             console.error("Error updating form:", error);
@@ -103,55 +104,30 @@ const CurrentAvailabilityEditForm = () => {
     const handleSnackbarClose = () => {
         setSnackbarOpen(false);
     };
+    const handleBack = () => {
+        navigate(-1);
+      };
 
     return (
         <LeftNavigationBar
             Content={
-                <Paper className={classes.paper} elevation={3}>
-            <Typography
-              variant="h4"
-              sx={{
-                position: "relative",
-                padding: 0,
-                margin: 0,
-                fontFamily: 'Merriweather, serif',
-                fontWeight: 700, textAlign: 'center',
-                fontWeight: 300,
-                fontSize: { xs: "32px", sm: "40px" },
-                color: "#747474",
-                textAlign: "center",
-                textTransform: "uppercase",
-                paddingBottom: "5px",
-                mb: 5,
-                "&::before": {
-                  content: '""',
-                  width: "28px",
-                  height: "5px",
-                  display: "block",
-                  position: "absolute",
-                  bottom: "3px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
-                "&::after": {
-                  content: '""',
-                  width: "100px",
-                  height: "1px",
-                  display: "block",
-                  position: "relative",
-                  marginTop: "5px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
-              }}
-            >
-                        Edit Current Availability
-                    </Typography>
-                    <br />
-                    <form className={classes.form} onSubmit={handleSubmit}>
-                        <TextField
+ <Container component="main" maxWidth="md">
+                <Paper elevation={0}>
+                  <Box display="flex" alignItems="center" justifyContent="space-between" gap={1} mt={2} mb={2}>
+                    <Button variant="outlined" color="primary" onClick={handleBack}>
+                      Back
+                    </Button>
+                    <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', position: 'relative', flex: 1 }}>
+                      <Typography variant="h4" sx={{ position: "relative", padding: 0, margin: 0, fontWeight: 300, fontSize: { xs: "32px", sm: "40px" }, color: "#747474", textAlign: "center", textTransform: "uppercase", paddingBottom: "5px", "&::before": { content: '""', width: "28px", height: "5px", display: "block", position: "absolute", bottom: "3px", left: "50%", transform: "translateX(-50%)", backgroundColor: "#747474", }, "&::after ": { content: '""', width: "100px", height: "1px", display: "block", position: "relative", marginTop: "5px", left: "50%", transform: "translateX(-50%)", backgroundColor: "#747474", }, }}>
+                      Current Availability Edit Form
+                      </Typography>
+                      <Tooltip title="This is where you can Edit the Current Availability." arrow>
+                        <HelpOutline sx={{ color: "#747474", fontSize: "24px", cursor: "pointer" }} />
+                      </Tooltip>
+                    </Box>
+                  </Box>
+                    <form onSubmit={handleSubmit} style={{ border: "2px dotted #D3D3D3", padding: "20px", borderRadius: "8px" }}>
+                                            <TextField
                             variant="outlined"
                             margin="normal"
                             required
@@ -219,16 +195,32 @@ const CurrentAvailabilityEditForm = () => {
                             value={remarks}
                             onChange={(e) => setRemarks(e.target.value)}
                         />
-                        <Button type="submit" variant="contained" className={classes.submit} fullWidth>
+                                          <Grid item xs={12} sx={{ mt: 2, textAlign: "center" }}>
+
+                        <Button  type="submit"
+                      variant="contained"
+                      sx={{
+                        backgroundColor: "#ff6d00",
+                        color: "#fff",
+                        padding: "8px 24px",
+                        textTransform: "uppercase",
+                        borderRadius: "4px",
+                        mt: 2,
+                        "&:hover": {
+                          backgroundColor: "#e65100",
+                        },
+                      }}>
                             Update
                         </Button>
+                    </Grid>
                     </form>
                     <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleSnackbarClose} anchorOrigin={{ vertical: "top", horizontal: "right" }}>
-                        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: "100%" }}>
+                        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} variant="filled" sx={{ width: "100%" }}>
                             {snackbarMessage}
                         </Alert>
                     </Snackbar>
                 </Paper>
+                </Container>
             }
         />
     );

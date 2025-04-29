@@ -10,11 +10,15 @@ import {
   Snackbar,
   Alert,
   MenuItem,
+  Container,
+  Paper,
+  Tooltip,
 } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { createGallery, resetState } from "../../redux/slices/gallery/gallery";
 import { useNavigate } from "react-router-dom";
 import LeftNavigationBar from "../../navbars/LeftNavigationBar";
+import { HelpOutline } from "@mui/icons-material";
 
 const months = [
   "January",
@@ -86,60 +90,29 @@ const GalleryAddForm = () => {
       }, 2000);
     }
   }, [success, dispatch, navigate]);
+  const handleBack = () => {
+    navigate(-1);
+  };
 
   return (
     <LeftNavigationBar
       Content={
-        <Box
-          sx={{
-            maxWidth: 500,
-            mx: "auto",
-            p: 3,
-            boxShadow: 3,
-            borderRadius: 2,
-          }}
-        >
-            <Typography
-              variant="h4"
-              sx={{
-                position: "relative",
-                padding: 0,
-                margin: 0,
-                fontFamily: 'Merriweather, serif',
-                fontWeight: 700, textAlign: 'center',
-                fontWeight: 300,
-                fontSize: { xs: "32px", sm: "40px" },
-                color: "#747474",
-                textAlign: "center",
-                textTransform: "uppercase",
-                paddingBottom: "5px",
-                mb: 5,
-                "&::before": {
-                  content: '""',
-                  width: "28px",
-                  height: "5px",
-                  display: "block",
-                  position: "absolute",
-                  bottom: "3px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
-                "&::after": {
-                  content: '""',
-                  width: "100px",
-                  height: "1px",
-                  display: "block",
-                  position: "relative",
-                  marginTop: "5px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
-              }}
-            >
-            Add Gallery
-          </Typography>
+        <Container component="main" maxWidth="md">
+          <Paper elevation={0}>
+            <Box display="flex" alignItems="center" justifyContent="space-between" gap={1} mt={2} mb={2}>
+              <Button variant="outlined" color="primary" onClick={handleBack}>
+                Back
+              </Button>
+              <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', position: 'relative', flex: 1 }}>
+                <Typography variant="h4" sx={{ position: "relative", padding: 0, margin: 0, fontWeight: 300, fontSize: { xs: "32px", sm: "40px" }, color: "#747474", textAlign: "center", textTransform: "uppercase", paddingBottom: "5px", "&::before": { content: '""', width: "28px", height: "5px", display: "block", position: "absolute", bottom: "3px", left: "50%", transform: "translateX(-50%)", backgroundColor: "#747474", }, "&::after ": { content: '""', width: "100px", height: "1px", display: "block", position: "relative", marginTop: "5px", left: "50%", transform: "translateX(-50%)", backgroundColor: "#747474", }, }}>
+                  Gallery Add Form
+                </Typography>
+                <Tooltip title="This is where you can add the My Gallery." arrow>
+                  <HelpOutline sx={{ color: "#747474", fontSize: "24px", cursor: "pointer" }} />
+                </Tooltip>
+              </Box>
+            </Box>
+            <div style={{ border: "2px dotted #D3D3D3", padding: "20px", borderRadius: "8px" }}>
 
           <TextField
             label="Name"
@@ -216,7 +189,7 @@ const GalleryAddForm = () => {
             </Box>
           )}
 
-          <Button
+<Button
             variant="contained"
             color="primary"
             onClick={handleSubmit}
@@ -232,16 +205,18 @@ const GalleryAddForm = () => {
               {error}
             </Typography>
           )}
-
+</div>
           {/* Snackbar Notification */}
           <Snackbar
             open={snackbarOpen}
             autoHideDuration={2000}
             onClose={() => setSnackbarOpen(false)}
+            anchorOrigin={{ vertical: "top", horizontal: "right" }}
           >
-            <Alert severity="success">Gallery Added Successfully!</Alert>
+            <Alert severity="success" variant="filled">Gallery Added Successfully!</Alert>
           </Snackbar>
-        </Box>
+        </Paper>
+        </Container>
       }
     />
   );

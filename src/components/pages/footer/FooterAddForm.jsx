@@ -4,10 +4,12 @@ import {
   IconButton, Divider, Card, CardContent, CardHeader, Avatar,
   List, ListItem, ListItemText, Dialog, DialogActions,
   DialogContent, DialogContentText, DialogTitle, FormControl,
-  InputLabel, MenuItem, Select
+  InputLabel, MenuItem, Select, Snackbar, Alert,
+  Tooltip
 } from '@mui/material';
-import { Add as AddIcon, Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
+import { Add as AddIcon, Delete as DeleteIcon, Edit as EditIcon, HelpOutline } from '@mui/icons-material';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import LeftNavigationBar from '../../navbars/LeftNavigationBar';
 import { createFooter } from '../../redux/slices/footer/footer';
 import { useDispatch } from 'react-redux';
@@ -15,7 +17,14 @@ import { useDispatch } from 'react-redux';
 const FooterAddForm = () => {
   const [logoFile, setLogoFile] = useState(null);
   const [logoPreview, setLogoPreview] = useState('');
-    const dispatch = useDispatch();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  
+  // Snackbar state
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+  const [loading, setLoading] = useState(false);
   
   // Form state
   const [formData, setFormData] = useState({
@@ -186,9 +195,18 @@ const FooterAddForm = () => {
     }));
   };
   
+  // Snackbar close handler
+  const handleCloseSnackbar = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setSnackbarOpen(false);
+  };
+  
   // Form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     
     try {
       const formDataToSend = new FormData();
@@ -207,63 +225,49 @@ const FooterAddForm = () => {
       
       // Dispatch the createFooter action
       await dispatch(createFooter(formDataToSend)).unwrap();
-      alert('Footer saved successfully!');
+      
+      // Show success message
+      setSnackbarMessage('Footer saved successfully!');
+      setSnackbarSeverity('success');
+      setSnackbarOpen(true);
+      
+      // Redirect after a delay
+      setTimeout(() => {
+        navigate('/footer-control');
+      }, 1500);
     } catch (error) {
       console.error('Error saving footer:', error);
-      alert('Error saving footer. Please try again.');
+      setSnackbarMessage('Error saving footer. Please try again.');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
+    } finally {
+      setLoading(false);
     }
   };
-    
+  const handleBack = () => {
+    navigate(-1);
+  };
+
   return (
         <LeftNavigationBar
           Content={
     
-    <Container maxWidth="lg">
-      <Paper elevation={3} sx={{ p: 4, mt: 4, mb: 4 }}>
-   <Typography
-            variant="h4"
-            sx={{
-              position: "relative",
-              padding: 0,
-              margin: 0,
-              fontFamily: "Merriweather, serif",
-              fontWeight: 700,
-              textAlign: "center",
-              fontWeight: 300,
-              fontSize: { xs: "32px", sm: "40px" },
-              color: "#747474",
-              textAlign: "center",
-              textTransform: "uppercase",
-              paddingBottom: "5px",
-              mb: 3,
-              mt: -1,
-              "&::before": {
-                content: '""',
-                width: "28px",
-                height: "5px",
-                display: "block",
-                position: "absolute",
-                bottom: "3px",
-                left: "50%",
-                transform: "translateX(-50%)",
-                backgroundColor: "#747474",
-              },
-              "&::after": {
-                content: '""',
-                width: "100px",
-                height: "1px",
-                display: "block",
-                position: "relative",
-                marginTop: "5px",
-                left: "50%",
-                transform: "translateX(-50%)",
-                backgroundColor: "#747474",
-              },
-            }}
-          >          Footer Add
-        </Typography>
-        
-        <form onSubmit={handleSubmit}>
+        <Container component="main" maxWidth="md">
+          <Paper elevation={0}>
+            <Box display="flex" alignItems="center" justifyContent="space-between" gap={1} mt={2} mb={2}>
+              <Button variant="outlined" color="primary" onClick={handleBack}>
+                Back
+              </Button>
+              <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', position: 'relative', flex: 1 }}>
+                <Typography variant="h4" sx={{ position: "relative", padding: 0, margin: 0, fontWeight: 300, fontSize: { xs: "32px", sm: "40px" }, color: "#747474", textAlign: "center", textTransform: "uppercase", paddingBottom: "5px", "&::before": { content: '""', width: "28px", height: "5px", display: "block", position: "absolute", bottom: "3px", left: "50%", transform: "translateX(-50%)", backgroundColor: "#747474", }, "&::after ": { content: '""', width: "100px", height: "1px", display: "block", position: "relative", marginTop: "5px", left: "50%", transform: "translateX(-50%)", backgroundColor: "#747474", }, }}>
+                  Footer Add Form
+                </Typography>
+                <Tooltip title="This is where you can add the Footer details and Links." arrow>
+                  <HelpOutline sx={{ color: "#747474", fontSize: "24px", cursor: "pointer" }} />
+                </Tooltip>
+              </Box>
+            </Box>
+            <form onSubmit={handleSubmit} style={{ border: "2px dotted #D3D3D3", padding: "20px", borderRadius: "8px" }}>
           {/* Logo Upload Section */}
           <Card sx={{ mb: 4 }}>
             <CardHeader title="Logo" />
@@ -521,8 +525,9 @@ const FooterAddForm = () => {
               variant="contained" 
               color="primary" 
               size="large"
+              disabled={loading}
             >
-              Save Footer
+              {loading ? 'Saving...' : 'Save Footer'}
             </Button>
           </Box>
         </form>
@@ -651,6 +656,23 @@ const FooterAddForm = () => {
           <Button onClick={handleAddBusinessLink} color="primary">Add</Button>
         </DialogActions>
       </Dialog>
+      
+      {/* Snackbar for notifications */}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={3000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      >
+        <Alert 
+          onClose={handleCloseSnackbar} 
+          severity={snackbarSeverity} 
+          variant="filled"
+          sx={{ width: '100%' }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Container>
           }/>
   );

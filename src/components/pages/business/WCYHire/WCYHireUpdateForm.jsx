@@ -19,13 +19,16 @@ import {
   MenuItem,
   Select,
   FormControl,
-  InputLabel
+  InputLabel,
+  Tooltip,
+  Container
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import PhotoCamera from '@mui/icons-material/PhotoCamera';
 import LeftNavigationBar from '../../../navbars/LeftNavigationBar';
 import { fetchWCYHireById, updateWCYHire } from '../../../redux/slices/business/WCYHire/WcyHire';
+import { HelpOutline } from '@mui/icons-material';
 
 const WCYHireUpdateForm = () => {
   const navigate = useNavigate();
@@ -126,8 +129,8 @@ const WCYHireUpdateForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Validation
+  
+    // Validation checks remain the same
     if (!formData.title) {
       setSnackbar({
         open: true,
@@ -136,7 +139,7 @@ const WCYHireUpdateForm = () => {
       });
       return;
     }
-
+  
     if (!formData.image && !formData.imagePreview) {
       setSnackbar({
         open: true,
@@ -145,7 +148,7 @@ const WCYHireUpdateForm = () => {
       });
       return;
     }
-
+  
     // Validate each WCY definition
     for (let i = 0; i < formData.wcyDefinition.length; i++) {
       const def = formData.wcyDefinition[i];
@@ -158,49 +161,65 @@ const WCYHireUpdateForm = () => {
         return;
       }
     }
-
+  
     setSubmitting(true);
-
+  
     try {
       const form = new FormData();
       form.append('title', formData.title);
       form.append('description', formData.description);
-      form.append('type', formData.type); // Include type in the form data
-
+      form.append('type', formData.type);
+  
       if (formData.image) {
         form.append('image', formData.image);
       }
-
-      // Prepare WCY definitions for submission
-      const wcyDefinitionsForSubmit = formData.wcyDefinition.map((def, index) => {
-        const { icon, iconPreview, ...dataFields } = def;
-        return dataFields;
+  
+      // Prepare WCY definitions for submission - excluding icon fields
+      const wcyDefinitionsForSubmit = formData.wcyDefinition.map((def) => {
+        const { title, description } = def;
+        return { title, description };
       });
-
+  
       form.append('wcyDefinition', JSON.stringify(wcyDefinitionsForSubmit));
-
-      // Add icon files if present
-      formData.wcyDefinition.forEach((def, index) => {
-        if (def.icon) {
-          form.append(`icon_${index}`, def.icon);
-        } else {
-        }
-      });
-
+  
+      // Handle icons - both new uploads and existing ones
+      const fetchExistingIcons = async () => {
+        const promises = formData.wcyDefinition.map(async (def, index) => {
+          if (def.icon instanceof File) {
+            // For newly uploaded icons, use the File object directly
+            form.append(`icon_${index}`, def.icon);
+          } else if (def.iconPreview) {
+            // For existing icons (not changed), fetch the binary data
+            try {
+              const response = await fetch(def.iconPreview);
+              const blob = await response.blob();
+              form.append(`icon_${index}`, blob);
+            } catch (error) {
+              console.error(`Failed to fetch icon for definition ${index}:`, error);
+              // If fetch fails, don't include this icon
+            }
+          }
+        });
+  
+        await Promise.all(promises);
+      };
+  
+      await fetchExistingIcons();
+  
       // Dispatch the updateWCYHire action
       const successMessage = await dispatch(updateWCYHire({ id, formData: form })).unwrap();
-
+  
       setSnackbar({
         open: true,
         message: successMessage,
         severity: 'success'
       });
-
+  
       // Redirect after successful submission
       setTimeout(() => {
-        navigate('/business/wcy-hire-control'); // Adjust the navigation path as necessary
+        navigate('/business/wcy-hire-control');
       }, 1500);
-
+  
     } catch (error) {
       console.error('Error submitting form:', error);
       const errorMessage = error.response?.data?.message?.[0]?.value || 'An error occurred';
@@ -213,11 +232,12 @@ const WCYHireUpdateForm = () => {
       setSubmitting(false);
     }
   };
-
   const handleCloseSnackbar = () => {
     setSnackbar(prev => ({ ...prev, open: false }));
   };
-
+  const handleBack = () => {
+    navigate(-1);
+  };
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="80vh">
@@ -229,54 +249,25 @@ const WCYHireUpdateForm = () => {
   return (
     <LeftNavigationBar
       Content={
-        <Box sx={{ maxWidth: 1200, mx: 'auto', p: 2 }}>
-          <Paper elevation={3} sx={{ p: 3 }}>
-            <Typography
-              variant="h4"
-              sx={{
-                position: "relative",
-                padding: 0,
-                margin: 0,
-                fontFamily: 'Merriweather, serif',
-                fontWeight: 700, textAlign: 'center',
-                fontWeight: 300,
-                fontSize: { xs: "32px", sm: "40px" },
-                color: "#747474",
-                textAlign: "center",
-                textTransform: "uppercase",
-                paddingBottom: "5px",
-                mb: 5,
-                "&::before": {
-                  content: '""',
-                  width: "28px",
-                  height: "5px",
-                  display: "block",
-                  position: "absolute",
-                  bottom: "3px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
-                "&::after": {
-                  content: '""',
-                  width: "100px",
-                  height: "1px",
-                  display: "block",
-                  position: "relative",
-                  marginTop: "5px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
-              }}
-            >
+        <Container component="main" maxWidth="md">
+        <Paper elevation={0}>
+          <Box display="flex" alignItems="center" justifyContent="space-between" gap={1} mt={2} mb={2}>
+            <Button variant="outlined" color="primary" onClick={handleBack}>
+              Back
+            </Button>
+            <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', position: 'relative', flex: 1 }}>
+              <Typography variant="h4" sx={{ position: "relative", padding: 0, margin: 0, fontWeight: 300, fontSize: { xs: "32px", sm: "40px" }, color: "#747474", textAlign: "center", textTransform: "uppercase", paddingBottom: "5px", "&::before": { content: '""', width: "28px", height: "5px", display: "block", position: "absolute", bottom: "3px", left: "50%", transform: "translateX(-50%)", backgroundColor: "#747474", }, "&::after ": { content: '""', width: "100px", height: "1px", display: "block", position: "relative", marginTop: "5px", left: "50%", transform: "translateX(-50%)", backgroundColor: "#747474", }, }}>
               Update WCY Hire
-            </Typography>
+              </Typography>
+              <Tooltip title="This is where you can Edit the Wcy." arrow>
+                <HelpOutline sx={{ color: "#747474", fontSize: "24px", cursor: "pointer" }} />
+              </Tooltip>
+            </Box>
+          </Box>
+                      <Divider sx={{ mb: 3 }} />
 
-            <Divider sx={{ mb: 3 }} />
-
-            <form onSubmit={handleSubmit}>
-              <Grid container spacing={3}>
+                      <form onSubmit={handleSubmit} style={{ border: "2px dotted #D3D3D3", padding: "20px", borderRadius: "8px" }}>
+                      <Grid container spacing={3}>
                 {/* Main Details */}
                 <Grid item xs={12} md={6}>
                   <TextField
@@ -458,11 +449,21 @@ const WCYHireUpdateForm = () => {
               {/* Submit Button */}
               <Box sx={{ mt: 4, display: 'flex', justifyContent: 'flex-end' }}>
                 <Button
-                  variant="contained"
-                  color="primary"
                   type="submit"
+                  variant="contained"
                   disabled={submitting}
-                  sx={{ minWidth: 120 }}
+                  sx={{
+                    backgroundColor: "#ff6d00",
+                    color: "#fff",
+                    padding: "8px 24px",
+                    textTransform: "uppercase",
+                    borderRadius: "4px",
+                    mt: 2,
+                    "&:hover": {
+                      backgroundColor: "#e65100",
+                    },
+                  }}
+
                 >
                   {submitting ? <CircularProgress size={24} /> : 'Update'}
                 </Button>
@@ -485,8 +486,8 @@ const WCYHireUpdateForm = () => {
               {snackbar.message}
             </Alert>
           </Snackbar>
-        </Box>
-      }
+
+</Container>      }
     />
   );
 };

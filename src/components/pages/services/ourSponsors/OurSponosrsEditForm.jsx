@@ -57,7 +57,7 @@ const OurSponsorsEditForm = () => {
   const navigate = useNavigate();
   const { id } = useParams();
 
-  const [company, setCompany] = useState("");
+  const [companyyName, setCompany] = useState("");
   const [type, setType] = useState("");
   const [category, setCategory] = useState("");
   const [contributions, setContributions] = useState([]);
@@ -87,7 +87,7 @@ const OurSponsorsEditForm = () => {
       dispatch(fetchDegreeProgramData());
       // Fetch the sponsor data by ID
       const sponsorData = await dispatch(fetchOurSponsorById(id)).unwrap();
-      setCompany(sponsorData.company);
+      setCompany(sponsorData.companyyName);
       setType(sponsorData.type);
       setCategory(sponsorData.category);
       setContributions(sponsorData.contributions || []); // Ensure contributions is an array
@@ -157,7 +157,7 @@ const OurSponsorsEditForm = () => {
     e.preventDefault();
 
     const formData = new FormData();
-    formData.append("company", company);
+    formData.append("companyyName", companyyName);
     formData.append("type", type);
     formData.append("category", category);
     formData.append("contributions", JSON.stringify(contributions)); // Store contributions as a JSON string
@@ -310,7 +310,7 @@ const OurSponsorsEditForm = () => {
               required
               fullWidth
               label="Company"
-              value={company}
+              value={companyyName}
               onChange={(e) => setCompany(e.target.value)}
             />
             <TextField

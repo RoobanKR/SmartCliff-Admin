@@ -9,12 +9,13 @@ import {
   Divider,
   InputLabel,
   Select,
+  Paper,
 } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
 import RemoveIcon from "@material-ui/icons/Remove";
 import { makeStyles } from "@material-ui/core/styles";
 import LeftNavigationBar from "../../navbars/LeftNavigationBar";
-import { Alert, Autocomplete, Grid, MenuItem, Snackbar, Tooltip } from "@mui/material";
+import { Alert, Autocomplete, Container, Grid, MenuItem, Snackbar, Tooltip } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { createFAQ } from "../../redux/slices/faq/faq";
 import {
@@ -32,6 +33,7 @@ import { fetchServices } from "../../redux/slices/services/services/Services";
 import { getAllBussinessServices } from "../../redux/slices/services/bussinessServices/BussinessSerives";
 import { getAllColleges } from "../../redux/slices/mca/college/college";
 import { useNavigate } from "react-router-dom";
+import { HelpOutline } from "@mui/icons-material";
 
 const useStyles = makeStyles((theme) => ({
   formContainer: {
@@ -149,23 +151,63 @@ const FAQAddForm = () => {
       setOpenSnackBar(true);
     }
   };
+  const handleBack = () => {
+    navigate(-1);
+  };
 
 
   return (
     <LeftNavigationBar
       Content={
-        <Box className={classes.formContainer}>
-          <form className={classes.form} onSubmit={handleSubmit}>
-            <Typography
-              gutterBottom
-              variant="h4"
-              align="center"
-              component="div"
-              style={{ fontFamily: "Serif" }}
-            >
-              FAQ Add Form
-            </Typography>
-            <br></br>
+        <Container component="main" maxWidth="md">
+          <Paper elevation={0}>
+            <Box display="flex" alignItems="center" justifyContent="space-between" gap={1} mt={2} mb={2}>
+              <Button variant="outlined" color="primary" onClick={handleBack}>
+                Back
+              </Button>
+              <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', position: 'relative', flex: 1 }}>
+                <Typography variant="h4" sx={{ 
+                  position: "relative", 
+                  padding: 0, 
+                  margin: 0, 
+                  fontWeight: 300, 
+                  fontSize: { xs: "32px", sm: "40px" }, 
+                  color: "#747474", 
+                  textAlign: "center", 
+                  textTransform: "uppercase", 
+                  paddingBottom: "5px", 
+                  "&::before": { 
+                    content: '""', 
+                    width: "28px", 
+                    height: "5px", 
+                    display: "block", 
+                    position: "absolute", 
+                    bottom: "3px", 
+                    left: "50%", 
+                    transform: "translateX(-50%)", 
+                    backgroundColor: "#747474", 
+                  }, 
+                  "&::after": { 
+                    content: '""', 
+                    width: "100px", 
+                    height: "1px", 
+                    display: "block", 
+                    position: "relative", 
+                    marginTop: "5px", 
+                    left: "50%", 
+                    transform: "translateX(-50%)", 
+                    backgroundColor: "#747474", 
+                  }, 
+                }}>
+                  FAQ Add Form
+                </Typography>
+                <Tooltip title="Add a new job position with title and description" arrow>
+                  <HelpOutline sx={{ color: "#747474", fontSize: "24px", cursor: "pointer" }} />
+                </Tooltip>
+              </Box>
+            </Box>
+            <form onSubmit={handleSubmit} style={{ border: "2px dotted #D3D3D3", padding: "20px", borderRadius: "8px" }}>
+
             {faqItems.map((item, index) => (
               <div key={index} className={classes.questionContainer}>
                 <TextField
@@ -333,13 +375,15 @@ const FAQAddForm = () => {
             <Button
               type="submit"
               variant="contained"
-              style={{ backgroundColor: "#4CAF50", color: "white" }}
+              style={{ color: "white" }}
+              color="primary"
               fullWidth
             >
               Submit
             </Button>
           </form>
-        </Box>
+        </Paper>
+      </Container>
       }
     />
   );

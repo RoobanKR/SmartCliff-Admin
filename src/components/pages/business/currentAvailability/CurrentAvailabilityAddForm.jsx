@@ -3,11 +3,12 @@ import { makeStyles } from "@material-ui/core/styles";
 import Paper from "@material-ui/core/Paper";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
-import { Snackbar, Alert, Typography } from "@mui/material";
+import { Snackbar, Alert, Typography, Tooltip, Box, Container } from "@mui/material";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
 import LeftNavigationBar from "../../../navbars/LeftNavigationBar";
 import { createCurrentAvailability } from "../../../redux/slices/business/currentAvailability/currentAvailability";
+import { HelpOutline } from "@mui/icons-material";
 
 const useStyles = makeStyles((theme) => ({
     paper: {
@@ -60,7 +61,7 @@ const CurrentAvailabilityAddForm = () => {
             setSnackbarMessage("Current availability created successfully!");
             setSnackbarSeverity("success");
             setSnackbarOpen(true);
-            navigate("/business/current-availability-control");
+            setTimeout(() => navigate("/business/current-availability-control"), 1500);
         } catch (error) {
             console.error("Error submitting form:", error);
             setSnackbarMessage("Failed to create current availability. Please try again.");
@@ -72,55 +73,30 @@ const CurrentAvailabilityAddForm = () => {
     const handleSnackbarClose = () => {
         setSnackbarOpen(false);
     };
-
+    const handleBack = () => {
+        navigate(-1);
+      };
+    
     return (
         <LeftNavigationBar
             Content={
-                <Paper className={classes.paper} elevation={3}>
-            <Typography
-              variant="h4"
-              sx={{
-                position: "relative",
-                padding: 0,
-                margin: 0,
-                fontFamily: 'Merriweather, serif',
-                fontWeight: 700, textAlign: 'center',
-                fontWeight: 300,
-                fontSize: { xs: "32px", sm: "40px" },
-                color: "#747474",
-                textAlign: "center",
-                textTransform: "uppercase",
-                paddingBottom: "5px",
-                mb: 5,
-                "&::before": {
-                  content: '""',
-                  width: "28px",
-                  height: "5px",
-                  display: "block",
-                  position: "absolute",
-                  bottom: "3px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
-                "&::after": {
-                  content: '""',
-                  width: "100px",
-                  height: "1px",
-                  display: "block",
-                  position: "relative",
-                  marginTop: "5px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
-              }}
-            >
-                        Add Current Availability
-                    </Typography>
-                    <br />
-                    <form className={classes.form} onSubmit={handleSubmit}>
-                        <TextField
+                <Container component="main" maxWidth="md">
+                <Paper elevation={0}>
+                  <Box display="flex" alignItems="center" justifyContent="space-between" gap={1} mt={2} mb={2}>
+                    <Button variant="outlined" color="primary" onClick={handleBack}>
+                      Back
+                    </Button>
+                    <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', position: 'relative', flex: 1 }}>
+                      <Typography variant="h4" sx={{ position: "relative", padding: 0, margin: 0, fontWeight: 300, fontSize: { xs: "32px", sm: "40px" }, color: "#747474", textAlign: "center", textTransform: "uppercase", paddingBottom: "5px", "&::before": { content: '""', width: "28px", height: "5px", display: "block", position: "absolute", bottom: "3px", left: "50%", transform: "translateX(-50%)", backgroundColor: "#747474", }, "&::after ": { content: '""', width: "100px", height: "1px", display: "block", position: "relative", marginTop: "5px", left: "50%", transform: "translateX(-50%)", backgroundColor: "#747474", }, }}>
+                      Current Availability Add Form
+                      </Typography>
+                      <Tooltip title="This is where you can add the execution count for the service." arrow>
+                        <HelpOutline sx={{ color: "#747474", fontSize: "24px", cursor: "pointer" }} />
+                      </Tooltip>
+                    </Box>
+                  </Box>
+                    <form onSubmit={handleSubmit} style={{ border: "2px dotted #D3D3D3", padding: "20px", borderRadius: "8px" }}>
+                    <TextField
                             variant="outlined"
                             margin="normal"
                             required
@@ -193,11 +169,12 @@ const CurrentAvailabilityAddForm = () => {
                         </Button>
                     </form>
                     <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleSnackbarClose} anchorOrigin={{ vertical: "top", horizontal: "right" }}>
-                        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: "100%" }}>
+                        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} variant="filled" sx={{ width: "100%" }}>
                             {snackbarMessage}
                         </Alert>
                     </Snackbar>
                 </Paper>
+                </Container>
             }
         />
     );

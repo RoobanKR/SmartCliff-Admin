@@ -7,17 +7,27 @@ import {
   TableHead,
   TableRow,
   Paper,
-  IconButton,
   Typography,
   Box,
+  Button,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
-  Button,
+  TextField,
+  Grid,
+  TablePagination,
+  CircularProgress,
+  useTheme,
+  useMediaQuery,
+  Tooltip,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
+import AddIcon from "@mui/icons-material/Add";
+import SearchIcon from "@mui/icons-material/Search";
 import LeftNavigationBar from "../../navbars/LeftNavigationBar";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -33,11 +43,21 @@ const CategoryControl = () => {
   const categoryData = useSelector((state) => state.category.categoryData);
   const status = useSelector((state) => state.category.status);
   const error = useSelector((state) => state.category.error);
+  const loading = status === "loading";
   const navigate = useNavigate();
   const [cookies, removeCookie] = useCookies(["token"]);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
+  // States for delete confirmation
   const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
   const [categoryIdToDelete, setCategoryIdToDelete] = useState(null);
+  
+  // States for search and pagination
+  const [searchTerm, setSearchTerm] = useState("");
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
 
   useEffect(() => {
     dispatch(fetchCategories());
@@ -50,7 +70,7 @@ const CategoryControl = () => {
     } else {
       dispatch(userVerify({ token: cookies.token }));
     }
-  }, [cookies]);
+  }, [cookies, dispatch, navigate]);
 
   const handleEdit = (id) => {
     navigate(`/category-edit/${id}`);
@@ -68,6 +88,7 @@ const CategoryControl = () => {
       )
         .then(() => {
           setDeleteConfirmationOpen(false);
+          setSnackbarOpen(true);
           dispatch(fetchCategories());
         })
         .catch((error) => {
@@ -81,139 +102,260 @@ const CategoryControl = () => {
     setDeleteConfirmationOpen(false);
   };
 
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false);
+  };
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
+  // Filter the categories based on search term
+  const filteredCategories = categoryData.filter(
+    (category) =>
+      category &&
+      category.category_name &&
+      category.category_name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  if (loading)
+    return (
+      <LeftNavigationBar
+        Content={
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            minHeight="80vh"
+          >
+            <CircularProgress size={60} thickness={4} />
+          </Box>
+        }
+      />
+    );
+
   return (
     <LeftNavigationBar
       Content={
-        <Box
-          display="flex"
-          flexDirection="column"
-          alignItems="center"
-          justifyContent="center"
-        >
-          <Box sx={{ mb: 4 }}>
-            <Typography
-              variant="h4"
-              sx={{
+        <Box sx={{ p: isMobile ? 1 : 3 }}>
+          <Typography
+            variant="h4"
+            sx={{
+              position: "relative",
+              padding: 0,
+              margin: 0,
+              fontWeight: 700,
+              textAlign: "center",
+              fontWeight: 300,
+              fontSize: { xs: "32px", sm: "40px" },
+              color: "#747474",
+              textAlign: "center",
+              textTransform: "uppercase",
+              paddingBottom: "5px",
+              mb: 3,
+              mt: -1,
+              "&::before": {
+                content: '""',
+                width: "28px",
+                height: "5px",
+                display: "block",
+                position: "absolute",
+                bottom: "3px",
+                left: "50%",
+                transform: "translateX(-50%)",
+                backgroundColor: "#747474",
+              },
+              "&::after": {
+                content: '""',
+                width: "100px",
+                height: "1px",
+                display: "block",
                 position: "relative",
-                padding: 0,
-                margin: 0,
-                fontFamily: "Merriweather, serif",
-                fontWeight: 700,
-                textAlign: "center",
-                fontWeight: 300,
-                fontSize: { xs: "32px", sm: "40px" },
-                color: "#747474",
-                textAlign: "center",
-                textTransform: "uppercase",
-                paddingBottom: "5px",
-                mt: 2,
-                "&::before": {
-                  content: '""',
-                  width: "28px",
-                  height: "5px",
-                  display: "block",
-                  position: "absolute",
-                  bottom: "3px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
-                "&::after": {
-                  content: '""',
-                  width: "100px",
-                  height: "1px",
-                  display: "block",
-                  position: "relative",
-                  marginTop: "5px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
-              }}
+                marginTop: "5px",
+                left: "50%",
+                transform: "translateX(-50%)",
+                backgroundColor: "#747474",
+              },
+            }}
+          >
+            Category Management Control
+          </Typography>
+
+          <Grid container spacing={2} alignItems="center" sx={{ mb: 2 }}>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                variant="outlined"
+                size="small"
+                placeholder="Search Categories..."
+                InputProps={{
+                  startAdornment: <SearchIcon color="action" sx={{ mr: 1 }} />,
+                }}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                value={searchTerm}
+              />
+            </Grid>
+            <Grid
+              item
+              xs={12}
+              md={6}
+              sx={{ textAlign: { xs: "left", md: "right" } }}
             >
-              Category Management Control
-            </Typography>
-          </Box>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={() => navigate("/category-add")}
+                startIcon={<AddIcon />}
+              >
+                Add Category
+              </Button>
+            </Grid>
+          </Grid>
+
           <TableContainer component={Paper} elevation={3}>
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell
-                    style={{ backgroundColor: "#1976d2", color: "white" }}
-                  >
-                    Category Name
-                  </TableCell>
-                  <TableCell
-                    style={{ backgroundColor: "#1976d2", color: "white" }}
-                  >
-                    Image
-                  </TableCell>
-                  <TableCell
-                    style={{ backgroundColor: "#1976d2", color: "white" }}
-                  >
-                    Description
-                  </TableCell>
-                  <TableCell
-                    style={{ backgroundColor: "#1976d2", color: "white" }}
-                  >
-                    Actions
-                  </TableCell>
+                  {["Category Name", "Image", "Description", "Actions"].map((head) => (
+                    <TableCell
+                      key={head}
+                      style={{
+                        backgroundColor: "#1976d2",
+                        color: "white",
+                        textAlign: "center",
+                      }}
+                    >
+                      {head}
+                    </TableCell>
+                  ))}
                 </TableRow>
               </TableHead>
               <TableBody>
-                {categoryData.map((category) => (
-                  <TableRow key={category._id}>
-                    <TableCell>{category.category_name}</TableCell>
-                    <TableCell>
-                      <img
-                        src={category.image}
-                        alt={category.category_name}
-                        style={{ maxWidth: "100px", maxHeight: "100px" }}
-                      />
-                    </TableCell>
-                    <TableCell>{category.description}</TableCell>
-                    <TableCell>
-                      <Button
-                        variant="outlined"
-                        onClick={() => handleEdit(category._id)}
-                        color="primary"
-                        aria-label="edit"
-                      >
-                        <EditIcon />
-                      </Button>
-                      <Button
-                        sx={{ mt: 2 }}
-                        variant="outlined"
-                        onClick={() => handleDeleteClick(category._id)}
-                        color="error"
-                        aria-label="delete"
-                      >
-                        <DeleteIcon />
-                      </Button>
+                {filteredCategories.length > 0 ? (
+                  filteredCategories
+                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                    .map((category) => (
+                      <TableRow key={category._id}>
+                        <TableCell sx={{ textAlign: "center" }}>{category.category_name}</TableCell>
+                        <TableCell sx={{ textAlign: "center" }}>
+                          <img
+                            src={category.image}
+                            alt={category.category_name}
+                            style={{ maxWidth: "50px", maxHeight: "50px" }}
+                          />
+                        </TableCell>
+                        <TableCell sx={{ textAlign: "center" }}>{category.description}</TableCell>
+                        <TableCell>
+                          <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
+                            <Tooltip title="Edit">
+                              <Button
+                                onClick={() => handleEdit(category._id)}
+                                color="primary"
+                                variant="outlined"
+                              >
+                                <EditIcon />
+                              </Button>
+                            </Tooltip>
+                            <Tooltip title="Delete">
+                              <Button
+                                onClick={() => handleDeleteClick(category._id)}
+                                color="error"
+                                variant="outlined"
+                              >
+                                <DeleteIcon />
+                              </Button>
+                            </Tooltip>
+                          </Box>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={4} align="center">
+                      <Typography>No categories found</Typography>
                     </TableCell>
                   </TableRow>
-                ))}
+                )}
               </TableBody>
             </Table>
           </TableContainer>
 
+          <TablePagination
+            rowsPerPageOptions={[5, 10, 25]}
+            component="div"
+            count={filteredCategories.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+          />
+
           {/* Confirmation Dialog */}
-          <Dialog open={deleteConfirmationOpen} onClose={handleDeleteCancel}>
-            <DialogTitle>Confirm Delete</DialogTitle>
-            <DialogContent>
-              <Typography>
-                Are you sure you want to delete this category?
+          <Dialog
+            open={deleteConfirmationOpen}
+            onClose={handleDeleteCancel}
+            PaperProps={{
+              sx: {
+                borderRadius: 2,
+                minWidth: isMobile ? '90%' : 400
+              }
+            }}
+          >
+            <DialogTitle sx={{
+              backgroundColor: theme.palette.error.light,
+              color: 'white',
+              fontWeight: 600
+            }}>
+              Confirm Deletion
+            </DialogTitle>
+            <DialogContent sx={{ py: 3 }}>
+              <Typography variant="body1">
+                Are you sure you want to delete this category? This action cannot be undone.
               </Typography>
             </DialogContent>
-            <DialogActions>
-              <Button onClick={handleDeleteCancel} color="primary">
+            <DialogActions sx={{ px: 3, pb: 2 }}>
+              <Button
+                onClick={handleDeleteCancel}
+                variant="outlined"
+                sx={{
+                  borderColor: theme.palette.grey[400],
+                  color: theme.palette.text.primary
+                }}
+              >
                 Cancel
               </Button>
-              <Button onClick={handleDeleteConfirm} color="error">
+              <Button
+                onClick={handleDeleteConfirm}
+                variant="contained"
+                color="error"
+                sx={{
+                  backgroundColor: theme.palette.error.main,
+                  '&:hover': {
+                    backgroundColor: theme.palette.error.dark
+                  }
+                }}
+              >
                 Delete
               </Button>
             </DialogActions>
           </Dialog>
+
+          {/* Success Snackbar */}
+          <Snackbar
+            open={snackbarOpen}
+            autoHideDuration={6000}
+            onClose={handleSnackbarClose}
+            anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+          >
+            <Alert onClose={handleSnackbarClose} severity="success" sx={{ width: "100%" }}>
+              Category successfully deleted!
+            </Alert>
+          </Snackbar>
         </Box>
       }
     />

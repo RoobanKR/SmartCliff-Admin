@@ -5,7 +5,8 @@ import {
   Box, Button, Container, Paper, Typography, Table, TableBody,
   TableCell, TableContainer, TableHead, TableRow, IconButton,
   Dialog, DialogActions, DialogContent, DialogContentText,
-  DialogTitle, CircularProgress, Chip, TablePagination
+  DialogTitle, CircularProgress, Chip, TablePagination,
+  Tooltip
 } from '@mui/material';
 import {
   Edit as EditIcon,
@@ -148,12 +149,36 @@ const FooterControl = () => {
                   <Table>
                     <TableHead>
                       <TableRow>
-                        <TableCell>Logo</TableCell>
-                        <TableCell>Social Links</TableCell>
-                        <TableCell>Quick Links</TableCell>
-                        <TableCell>Support Links</TableCell>
-                        <TableCell>Last Modified</TableCell>
-                        <TableCell align="center">Actions</TableCell>
+                        <TableCell  style={{
+                        backgroundColor: "#1976d2",
+                        color: "white",
+                        textAlign: "center",
+                      }}>Logo</TableCell>
+                        <TableCell  style={{
+                        backgroundColor: "#1976d2",
+                        color: "white",
+                        textAlign: "center",
+                      }}>Social Links</TableCell>
+                        <TableCell  style={{
+                        backgroundColor: "#1976d2",
+                        color: "white",
+                        textAlign: "center",
+                      }}>Quick Links</TableCell>
+                        <TableCell  style={{
+                        backgroundColor: "#1976d2",
+                        color: "white",
+                        textAlign: "center",
+                      }}>Support Links</TableCell>
+                        <TableCell  style={{
+                        backgroundColor: "#1976d2",
+                        color: "white",
+                        textAlign: "center",
+                      }}>Last Modified</TableCell>
+                        <TableCell  style={{
+                        backgroundColor: "#1976d2",
+                        color: "white",
+                        textAlign: "center",
+                      }}>Actions</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -200,23 +225,27 @@ const FooterControl = () => {
                               </Typography>
                             </TableCell>
                             <TableCell align="center">
-                              <Box display="flex" justifyContent="center" gap={1}>
-                                <IconButton
+                          <Box sx={{ display: 'flex', gap: 1 }}>
+                            <Tooltip title="Edit">
+                              <Button
                                   component={RouterLink}
                                   to={`/footer-edit/${footer._id}`}
-                                  size="small"
-                                  color="primary"
-                                >
-                                  <EditIcon fontSize="small" />
-                                </IconButton>
-                                <IconButton
-                                  size="small"
-                                  color="error"
+                                color="primary"
+                                variant="outlined"
+                              >
+                                <EditIcon />
+                              </Button>
+                            </Tooltip>
+                            <Tooltip title="Delete">
+                              <Button
                                   onClick={() => handleDeleteClick(footer._id)}
-                                >
-                                  <DeleteIcon fontSize="small" />
-                                </IconButton>
-                              </Box>
+                                  color="error"
+                                variant="outlined"
+                              >
+                                <DeleteIcon />
+                              </Button>
+                            </Tooltip>
+                          </Box>
                             </TableCell>
                           </TableRow>
                         ))}

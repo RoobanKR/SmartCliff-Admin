@@ -17,6 +17,8 @@ import {
   Chip,
   Snackbar,
   Alert,
+  Container,
+  Tooltip,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
@@ -27,6 +29,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { createCourse } from '../../redux/slices/course/course';
 import LeftNavigationBar from '../../navbars/LeftNavigationBar';
+import { HelpOutline } from '@mui/icons-material';
 
 const CourseAddForm = () => {
   const dispatch = useDispatch();
@@ -162,67 +165,6 @@ const CourseAddForm = () => {
     setSnackbarOpen(true);
   };
 
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   const formDataToSend = new FormData();
-
-  //   Object.keys(formData).forEach(key => {
-  //     if (!['courseOutline', 'courseSummary', 'tool_software', 'image'].includes(key)) {
-  //       formDataToSend.append(key, formData[key]);
-  //     }
-  //   });
-
-  //   if (formData.image) {
-  //     formDataToSend.append('image', formData.image);
-  //   }
-
-  //   if (formData.tool_software && Array.isArray(formData.tool_software)) {
-  //     const toolIds = formData.tool_software.map(tool => tool._id);
-  //     formDataToSend.append('tool_software', JSON.stringify(toolIds));
-  //   }
-
-  //   if (formData.courseOutline && Array.isArray(formData.courseOutline)) {
-  //     const modules = formData.courseOutline.map(item => item.module);
-  //     formDataToSend.append('courseOutline', JSON.stringify({ modules }));
-  //   }
-
-  //   if (formData.courseSummary && Array.isArray(formData.courseSummary)) {
-  //     formDataToSend.append('courseSummary', JSON.stringify(formData.courseSummary));
-  //   }
-
-  //   try {
-  //     setLoading(true);
-  //     const response = await dispatch(createCourse(formDataToSend));
-  //     // if (response.status === 201) {
-  //     //   // Show success snackbar instead of alert
-  //     showSnackbar('Course added successfully!', 'success');
-  //     // Redirect after a short delay to allow the user to see the message
-  //     setTimeout(() => {
-  //       navigate('/Course-control');
-  //     }, 2000);
-  //     // }
-  //   } catch (error) {
-  //     console.error('Error submitting form:', error);
-  //     if (error.response && error.response.data && error.response.data.message) {
-  //       const errorMessages = error.response.data.message;
-  //       if (Array.isArray(errorMessages)) {
-  //         const errorMsg = errorMessages.find(msg => msg.key === 'error');
-  //         const errorText = errorMsg ? errorMsg.value : 'An error occurred while adding the course';
-  //         setError(errorText);
-  //         showSnackbar(errorText, 'error');
-  //       } else {
-  //         setError('An error occurred while adding the course');
-  //         showSnackbar('An error occurred while adding the course', 'error');
-  //       }
-  //     } else {
-  //       setError('Network error. Please try again.');
-  //       showSnackbar('Network error. Please try again.', 'error');
-  //     }
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -306,53 +248,33 @@ const CourseAddForm = () => {
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
   };
+  const handleBack = () => {
+    navigate(-1);
+  };
 
   return (
     <LeftNavigationBar
       Content={
-        <Paper elevation={3} style={{ padding: '20px' }}>
-          <Typography variant="h4"
-            sx={{
-              position: "relative",
-              padding: 0,
-              margin: 0,
-              fontWeight: 700, textAlign: 'center',
-              fontWeight: 300,
-              fontSize: { xs: "32px", sm: "40px" },
-              color: "#747474",
-              textAlign: "center",
-              textTransform: "uppercase",
-              paddingBottom: "5px",
-              "&::before": {
-                content: '""',
-                width: "28px",
-                height: "5px",
-                display: "block",
-                position: "absolute",
-                bottom: "3px",
-                left: "50%",
-                transform: "translateX(-50%)",
-                backgroundColor: "#747474",
-              },
-              "&::after": {
-                content: '""',
-                width: "100px",
-                height: "1px",
-                display: "block",
-                position: "relative",
-                marginTop: "5px",
-                left: "50%",
-                transform: "translateX(-50%)",
-                backgroundColor: "#747474",
-              },
-            }}>
-            Create Course
-          </Typography>
+        <Container component="main" maxWidth="md">
+          <Paper elevation={0}>
+            <Box display="flex" alignItems="center" justifyContent="space-between" gap={1} mt={2} mb={2}>
+              <Button variant="outlined" color="primary" onClick={handleBack}>
+                Back
+              </Button>
+              <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', position: 'relative', flex: 1 }}>
+                <Typography variant="h4" sx={{ position: "relative", padding: 0, margin: 0, fontWeight: 300, fontSize: { xs: "32px", sm: "40px" }, color: "#747474", textAlign: "center", textTransform: "uppercase", paddingBottom: "5px", "&::before": { content: '""', width: "28px", height: "5px", display: "block", position: "absolute", bottom: "3px", left: "50%", transform: "translateX(-50%)", backgroundColor: "#747474", }, "&::after ": { content: '""', width: "100px", height: "1px", display: "block", position: "relative", marginTop: "5px", left: "50%", transform: "translateX(-50%)", backgroundColor: "#747474", }, }}>
+                 Course Add From
+                </Typography>
+                <Tooltip title="This is where you can add the Course." arrow>
+                  <HelpOutline sx={{ color: "#747474", fontSize: "24px", cursor: "pointer" }} />
+                </Tooltip>
+              </Box>
+            </Box>
           <Tabs value={activeTab} onChange={handleTabChange}>
             <Tab label="Basic Details" />
             <Tab label="Course Outline & Summary" />
           </Tabs>
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} style={{ border: "2px dotted #D3D3D3", padding: "20px", borderRadius: "8px" }}>
             {activeTab === 0 && (
               <Grid container spacing={2} sx={{ mt: 2 }}>
 
@@ -585,7 +507,7 @@ const CourseAddForm = () => {
                 </Grid>
                 <Grid item xs={12} style={{ display: 'flex', justifyContent: 'space-between' }}>
                   <Button variant="outlined" color="primary" onClick={() => setActiveTab(0)}>
-                    Back
+                    Preview Tab
                   </Button>
                   <Button
                     type="submit"
@@ -618,6 +540,7 @@ const CourseAddForm = () => {
             </Alert>
           </Snackbar>
         </Paper>
+        </Container>
       } />
   );
 };

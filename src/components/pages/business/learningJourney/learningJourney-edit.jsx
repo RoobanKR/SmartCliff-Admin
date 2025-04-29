@@ -4,11 +4,12 @@ import Paper from "@material-ui/core/Paper";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import { DropzoneArea } from "material-ui-dropzone";
-import { Typography, Snackbar, Alert, FormControl, InputLabel, Select, MenuItem } from "@mui/material";
+import { Typography, Snackbar, Alert, FormControl, InputLabel, Select, MenuItem, Tooltip, Container, Box } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams, useNavigate } from "react-router-dom";
 import LeftNavigationBar from "../../../navbars/LeftNavigationBar";
 import { fetchLearningJourneyById, updateLearningJourney } from "../../../redux/slices/business/learningJourney/learningJourney";
+import { HelpOutline } from "@mui/icons-material";
 
 const useStyles = makeStyles((theme) => ({
     paper: {
@@ -36,7 +37,6 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const LearningJourneyEditForm = () => {
-    const classes = useStyles();
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const { id } = useParams();
@@ -134,6 +134,10 @@ const LearningJourneyEditForm = () => {
         setSnackbarOpen(false);
     };
 
+    const handleBack = () => {
+        navigate(-1);
+      };
+    
     if (loading) {
         return <div>Loading...</div>;
     }
@@ -141,51 +145,23 @@ const LearningJourneyEditForm = () => {
     return (
         <LeftNavigationBar
             Content={
-                <Paper className={classes.paper} elevation={3}>
-            <Typography
-              variant="h4"
-              sx={{
-                position: "relative",
-                padding: 0,
-                margin: 0,
-                fontFamily: 'Merriweather, serif',
-                fontWeight: 700, textAlign: 'center',
-                fontWeight: 300,
-                fontSize: { xs: "32px", sm: "40px" },
-                color: "#747474",
-                textAlign: "center",
-                textTransform: "uppercase",
-                paddingBottom: "5px",
-                mb: 5,
-                "&::before": {
-                  content: '""',
-                  width: "28px",
-                  height: "5px",
-                  display: "block",
-                  position: "absolute",
-                  bottom: "3px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
-                "&::after": {
-                  content: '""',
-                  width: "100px",
-                  height: "1px",
-                  display: "block",
-                  position: "relative",
-                  marginTop: "5px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
-              }}
-            >
-                        Edit Learning Journey
-                    </Typography>
-                    <br />
-                    <form className={classes.form} onSubmit={handleSubmit}>
-                        <FormControl fullWidth margin="normal" variant="outlined" required>
+                <Container component="main" maxWidth="md">
+                <Paper elevation={0}>
+                  <Box display="flex" alignItems="center" justifyContent="space-between" gap={1} mt={2} mb={2}>
+                    <Button variant="outlined" color="primary" onClick={handleBack}>
+                      Back
+                    </Button>
+                    <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', position: 'relative', flex: 1 }}>
+                      <Typography variant="h4" sx={{ position: "relative", padding: 0, margin: 0, fontWeight: 300, fontSize: { xs: "32px", sm: "40px" }, color: "#747474", textAlign: "center", textTransform: "uppercase", paddingBottom: "5px", "&::before": { content: '""', width: "28px", height: "5px", display: "block", position: "absolute", bottom: "3px", left: "50%", transform: "translateX(-50%)", backgroundColor: "#747474", }, "&::after ": { content: '""', width: "100px", height: "1px", display: "block", position: "relative", marginTop: "5px", left: "50%", transform: "translateX(-50%)", backgroundColor: "#747474", }, }}>
+                      Edit Learning Journey
+                      </Typography>
+                      <Tooltip title="This is where you can  Edit the Learning Journey." arrow>
+                        <HelpOutline sx={{ color: "#747474", fontSize: "24px", cursor: "pointer" }} />
+                      </Tooltip>
+                    </Box>
+                  </Box>
+                  <form onSubmit={handleSubmit} style={{ border: "2px dotted #D3D3D3", padding: "20px", borderRadius: "8px" }}>
+                              <FormControl fullWidth margin="normal" variant="outlined" required>
                             <InputLabel>Type</InputLabel>
                             <Select
                                 value={type}
@@ -228,7 +204,6 @@ const LearningJourneyEditForm = () => {
                                 <img 
                                     src={existingImage} 
                                     alt="Current Learning Journey" 
-                                    className={classes.imagePreview}
                                     style={{ width: "20%", height: "auto" }}
                                 />
                             </div>
@@ -246,7 +221,17 @@ const LearningJourneyEditForm = () => {
                         <Button 
                             type="submit" 
                             variant="contained" 
-                            className={classes.submit} 
+                            sx={{
+                                backgroundColor: "#ff6d00",
+                                color: "#fff",
+                                padding: "8px 24px",
+                                textTransform: "uppercase",
+                                borderRadius: "4px",
+                                mt: 2,
+                                "&:hover": {
+                                  backgroundColor: "#e65100",
+                                },
+                              }}
                             fullWidth
                         >
                             Update Learning Journey
@@ -263,6 +248,7 @@ const LearningJourneyEditForm = () => {
                         </Alert>
                     </Snackbar>
                 </Paper>
+                </Container>
             }
         />
     );

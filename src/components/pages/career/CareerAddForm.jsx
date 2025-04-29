@@ -14,11 +14,14 @@ import {
   CircularProgress,
   Divider,
   Snackbar,
-  Alert
+  Alert,
+  Container,
+  Tooltip
 } from '@mui/material';
 import PhotoCamera from '@mui/icons-material/PhotoCamera';
 import { createCareer } from '../../redux/slices/career/career';
 import LeftNavigationBar from '../../navbars/LeftNavigationBar';
+import { HelpOutline } from '@mui/icons-material';
 
 const CareerAddForm = () => {
   const navigate = useNavigate();
@@ -113,58 +116,32 @@ const CareerAddForm = () => {
   const handleCloseSnackbar = () => {
     setSnackbar(prev => ({ ...prev, open: false }));
   };
+  const handleBack = () => {
+    navigate(-1);
+  };
 
   return (
     <LeftNavigationBar
       Content={
-        <Box sx={{ maxWidth: 1200, mx: 'auto', p: 2 }}>
-          <Paper elevation={3} sx={{ p: 3 }}>
-            <Typography
-              variant="h4"
-              sx={{
-                position: "relative",
-                padding: 0,
-                margin: 0,
-                fontFamily: 'Merriweather, serif',
-                fontWeight: 700, textAlign: 'center',
-                fontWeight: 300,
-                fontSize: { xs: "32px", sm: "40px" },
-                color: "#747474",
-                textAlign: "center",
-                textTransform: "uppercase",
-                paddingBottom: "5px",
-                mb: 5,
-                "&::before": {
-                  content: '""',
-                  width: "28px",
-                  height: "5px",
-                  display: "block",
-                  position: "absolute",
-                  bottom: "3px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
-                "&::after": {
-                  content: '""',
-                  width: "100px",
-                  height: "1px",
-                  display: "block",
-                  position: "relative",
-                  marginTop: "5px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
-              }}
-            >
-              Create Career
-            </Typography>
+        <Container component="main" maxWidth="md">
+        <Paper elevation={0}>
+          <Box display="flex" alignItems="center" justifyContent="space-between" gap={1} mt={2} mb={2}>
+            <Button variant="outlined" color="primary" onClick={handleBack}>
+              Back
+            </Button>
+            <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', position: 'relative', flex: 1 }}>
+              <Typography variant="h4" sx={{ position: "relative", padding: 0, margin: 0, fontWeight: 300, fontSize: { xs: "32px", sm: "40px" }, color: "#747474", textAlign: "center", textTransform: "uppercase", paddingBottom: "5px", "&::before": { content: '""', width: "28px", height: "5px", display: "block", position: "absolute", bottom: "3px", left: "50%", transform: "translateX(-50%)", backgroundColor: "#747474", }, "&::after ": { content: '""', width: "100px", height: "1px", display: "block", position: "relative", marginTop: "5px", left: "50%", transform: "translateX(-50%)", backgroundColor: "#747474", }, }}>
+               Career Add Form
+              </Typography>
+              <Tooltip title="This is where you can add the Career Page." arrow>
+                <HelpOutline sx={{ color: "#747474", fontSize: "24px", cursor: "pointer" }} />
+              </Tooltip>
+            </Box>
+          </Box>
+                    <Divider sx={{ mb: 3 }} />
 
-            <Divider sx={{ mb: 3 }} />
-
-            <form onSubmit={handleSubmit}>
-              <Grid container spacing={3}>
+                    <form onSubmit={handleSubmit} style={{ border: "2px dotted #D3D3D3", padding: "20px", borderRadius: "8px" }}>
+                    <Grid container spacing={3}>
                 {/* Main Details */}
                 <Grid item xs={12} md={6}>
                   <TextField
@@ -284,7 +261,7 @@ const CareerAddForm = () => {
               {snackbar.message}
             </Alert>
           </Snackbar>
-        </Box>
+        </Container>
       }
     />
   );

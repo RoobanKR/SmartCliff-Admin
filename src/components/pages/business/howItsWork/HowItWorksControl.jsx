@@ -326,26 +326,26 @@ const HowItWorksControl = () => {
                             </Avatar>
                           </TableCell>
                           <TableCell>
-                            <Box sx={{ display: "flex", gap: 1 }}>
-                              <Tooltip title="Edit">
-                                <IconButton
+                          <Box sx={{ display: 'flex', gap: 1 }}>
+                            <Tooltip title="Edit">
+                              <Button
                                   onClick={() => handleEdit(item._id)}
                                   color="primary"
-                                  size={isMobile ? "small" : "medium"}
-                                >
-                                  <EditIcon />
-                                </IconButton>
-                              </Tooltip>
-                              <Tooltip title="Delete">
-                                <IconButton
+                                variant="outlined"
+                              >
+                                <EditIcon />
+                              </Button>
+                            </Tooltip>
+                            <Tooltip title="Delete">
+                              <Button
                                   onClick={() => handleDelete(item._id)}
                                   color="error"
-                                  size={isMobile ? "small" : "medium"}
-                                >
-                                  <DeleteIcon />
-                                </IconButton>
-                              </Tooltip>
-                            </Box>
+                                variant="outlined"
+                              >
+                                <DeleteIcon />
+                              </Button>
+                            </Tooltip>
+                          </Box>
                           </TableCell>
                         </TableRow>
                       ))

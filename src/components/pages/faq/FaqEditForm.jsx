@@ -41,6 +41,7 @@ import {
 import { fetchServices } from "../../redux/slices/services/services/Services";
 import { getAllBussinessServices } from "../../redux/slices/services/bussinessServices/BussinessSerives";
 import { getAllColleges } from "../../redux/slices/mca/college/college";
+import { HelpOutline } from "@mui/icons-material";
 
 const FAQEditForm = () => {
   const { faqId } = useParams();
@@ -280,6 +281,10 @@ const FAQEditForm = () => {
     }
   };
 
+  const handleBack = () => {
+    navigate(-1);
+  };
+
   // Show loading indicator while fetching data
   if (isLoading || isFetching) {
     return (
@@ -301,13 +306,95 @@ const FAQEditForm = () => {
   return (
     <LeftNavigationBar
       Content={
-        <Container component="main" maxWidth="md">
-          <Paper elevation={3} sx={{ p: 4, mt: 4, mb: 4 }}>
-            <Typography variant="h4" align="center" gutterBottom sx={{ fontFamily: "Serif" }}>
-              FAQ Edit Form
-            </Typography>
+        <Box sx={{ maxWidth: 800, margin: "auto", px: 2 }}>
+          {/* Header with Back Button */}
+          <Box
+            display="flex"
+            alignItems="center"
+            justifyContent="space-between"
+            gap={1}
+            mt={3}
+            mb={2}
+          >
+            <Button
+              variant="outlined"
+              color="primary"
+              onClick={handleBack}
+            >
+              Back
+            </Button>
 
-            <form onSubmit={handleSubmit}>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "center",
+                flex: 1,
+              }}
+            >
+              <Typography
+                variant="h4"
+                sx={{
+                  position: "relative",
+                  padding: 0,
+                  margin: 0,
+                  fontWeight: 300,
+                  fontSize: { xs: "28px", sm: "36px" },
+                  color: "#747474",
+                  textAlign: "center",
+                  textTransform: "uppercase",
+                  paddingBottom: "5px",
+                  "&::before": {
+                    content: '""',
+                    width: "28px",
+                    height: "5px",
+                    display: "block",
+                    position: "absolute",
+                    bottom: "3px",
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    backgroundColor: "#747474",
+                  },
+                  "&::after": {
+                    content: '""',
+                    width: "100px",
+                    height: "1px",
+                    display: "block",
+                    position: "relative",
+                    marginTop: "5px",
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    backgroundColor: "#747474",
+                  },
+                }}
+              >
+                About Us Edit Form
+              </Typography>
+
+              <Tooltip
+                title="Edit the faq dataset here. Make sure to fill in all required fields."
+                arrow
+                placement="top"
+              >
+                <HelpOutline
+                  sx={{
+                    color: "#747474",
+                    fontSize: "24px",
+                    cursor: "pointer",
+                    ml: 1,
+                  }}
+                />
+              </Tooltip>
+            </Box>
+          </Box>
+
+
+            <form onSubmit={handleSubmit}  style={{
+                  border: "2px dotted #D3D3D3",
+                  padding: "20px",
+                  borderRadius: "8px",
+                }}>
               {/* FAQ Items Section */}
               <Typography variant="h6" sx={{ mt: 2, mb: 1 }}>
                 FAQ Questions & Answers
@@ -516,28 +603,23 @@ const FAQEditForm = () => {
                   type="submit"
                   variant="contained"
                   fullWidth
-                  sx={{
-                    backgroundColor: "#4CAF50",
-                    color: "white",
+                 sx={{
+                    backgroundColor: "#ff6d00",
+                    color: "#fff",
+                    padding: "8px 24px",
+                    textTransform: "uppercase",
+                    borderRadius: "4px",
+                    mt: 2,
                     "&:hover": {
-                      backgroundColor: "#45a049"
-                    }
+                      backgroundColor: "#e65100",
+                    },
                   }}
                 >
                   Update FAQ
                 </Button>
-                <Button
-                  variant="outlined"
-                  fullWidth
-                  onClick={() => navigate(-1)}
-                  sx={{ color: "#4CAF50", borderColor: "#4CAF50" }}
-                >
-                  Cancel
-                </Button>
               </Box>
             </form>
-          </Paper>
-        </Container>
+        </Box>
       }
     />
   );

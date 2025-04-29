@@ -12,6 +12,7 @@ import {
   MenuItem,
   Snackbar,
   Alert,
+  Tooltip,
 } from "@mui/material";
 import { DropzoneArea } from "material-ui-dropzone";
 import { useDispatch } from "react-redux";
@@ -20,6 +21,7 @@ import LeftNavigationBar from "../../../navbars/LeftNavigationBar";
 import { createClient } from "../../../redux/slices/services/client/Client";
 import * as Yup from "yup";
 import { clearUpdateStatus } from "../../../redux/slices/services/executionHighlights/Execution_Highlights";
+import { HelpOutline } from "@mui/icons-material";
 
 const ClientAddForm = () => {
   const dispatch = useDispatch();
@@ -82,55 +84,30 @@ const ClientAddForm = () => {
     }
   };
 
+  const handleBack = () => {
+    navigate(-1);
+  };
+
   return (
     <LeftNavigationBar
       Content={
-        <Container component="main" maxWidth="sm">
-          <Paper elevation={3} sx={{ padding: 4, marginTop: 4 }}>
-            <Typography
-              variant="h4"
-              sx={{
-                position: "relative",
-                padding: 0,
-                margin: 0,
-                fontFamily: 'Merriweather, serif',
-                fontWeight: 700, textAlign: 'center',
-                fontWeight: 300,
-                fontSize: { xs: "32px", sm: "40px" },
-                color: "#747474",
-                textAlign: "center",
-                textTransform: "uppercase",
-                paddingBottom: "5px",
-                mb: 5,
-                "&::before": {
-                  content: '""',
-                  width: "28px",
-                  height: "5px",
-                  display: "block",
-                  position: "absolute",
-                  bottom: "3px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
-                "&::after": {
-                  content: '""',
-                  width: "100px",
-                  height: "1px",
-                  display: "block",
-                  position: "relative",
-                  marginTop: "5px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
-              }}
-            >
-              Add Client
-            </Typography>
-
-            <form onSubmit={handleSubmit}>
-              {/* Type Selection */}
+ <Container component="main" maxWidth="md">
+          <Paper elevation={0}>
+            <Box display="flex" alignItems="center" justifyContent="space-between" gap={1} mt={2} mb={2}>
+              <Button variant="outlined" color="primary" onClick={handleBack}>
+                Back
+              </Button>
+              <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', position: 'relative', flex: 1 }}>
+                <Typography variant="h4" sx={{ position: "relative", padding: 0, margin: 0, fontWeight: 300, fontSize: { xs: "32px", sm: "40px" }, color: "#747474", textAlign: "center", textTransform: "uppercase", paddingBottom: "5px", "&::before": { content: '""', width: "28px", height: "5px", display: "block", position: "absolute", bottom: "3px", left: "50%", transform: "translateX(-50%)", backgroundColor: "#747474", }, "&::after ": { content: '""', width: "100px", height: "1px", display: "block", position: "relative", marginTop: "5px", left: "50%", transform: "translateX(-50%)", backgroundColor: "#747474", }, }}>
+                  Client Add Form
+                </Typography>
+                <Tooltip title="This is where you can add the Client ." arrow>
+                  <HelpOutline sx={{ color: "#747474", fontSize: "24px", cursor: "pointer" }} />
+                </Tooltip>
+              </Box>
+            </Box>
+            <form onSubmit={handleSubmit} style={{ border: "2px dotted #D3D3D3", padding: "20px", borderRadius: "8px" }}>
+                          {/* Type Selection */}
               <FormControl fullWidth margin="normal">
                 <InputLabel>Type</InputLabel>
                 <Select
@@ -188,7 +165,6 @@ const ClientAddForm = () => {
                 variant="contained"
                 fullWidth
                 sx={{
-                  backgroundColor: "#4CAF50",
                   color: "white",
                   marginTop: 2,
                   padding: 1,

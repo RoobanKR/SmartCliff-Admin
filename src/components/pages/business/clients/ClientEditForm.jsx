@@ -12,15 +12,15 @@ import {
   MenuItem,
   Snackbar,
   Alert,
+  Tooltip,
+  IconButton,
 } from "@mui/material";
 import { DropzoneArea } from "material-ui-dropzone";
 import LeftNavigationBar from "../../../navbars/LeftNavigationBar";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
-import {
-  getClientById,
-  updateClient,
-} from "../../../redux/slices/services/client/Client";
+import { getClientById, updateClient } from "../../../redux/slices/services/client/Client";
+import { HelpOutline, Clear as ClearIcon } from "@mui/icons-material";
 
 const ClientEditForm = () => {
   const { clientId } = useParams();
@@ -30,24 +30,10 @@ const ClientEditForm = () => {
   const [name, setName] = useState("");
   const [type, setType] = useState("");
   const [image, setImage] = useState(null);
-  const [error, setError] = useState(null);
-  const [existingIcon, setExistingIcon] = useState("");
+  const [existingImage, setExistingImage] = useState("");
+  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
 
-  const [errors, setErrors] = useState({ name: "", type: "" });
-  const [touchedFields, setTouchedFields] = useState({
-    name: false,
-    type: false,
-  });
-
-  const [snackbar, setSnackbar] = useState({
-    open: false,
-    message: "",
-    severity: "success",
-  });
-
-  const selectedClientById = useSelector(
-    (state) => state.clients.selectedClientById
-  );
+  const selectedClientById = useSelector((state) => state.clients.selectedClientById);
 
   useEffect(() => {
     dispatch(getClientById(clientId));
@@ -57,127 +43,81 @@ const ClientEditForm = () => {
     if (selectedClientById) {
       setName(selectedClientById.name || "");
       setType(selectedClientById.type || "");
-      setExistingIcon(selectedClientById.image || "");
+      setExistingImage(selectedClientById.image || "");
     }
   }, [selectedClientById]);
 
   const handleNameChange = (event) => {
-    const { value } = event.target;
-    const regex = /^[A-Za-z]+(?: [A-Za-z]+)?$/;
-    if (regex.test(value) || value === "") {
-      setName(value);
-      setErrors((prev) => ({ ...prev, name: "" }));
-    } else {
-      setErrors((prev) => ({
-        ...prev,
-        name: "Name must contain only alphabets with one optional space",
-      }));
+    setName(event.target.value);
+  };
+
+  const handleTypeChange = (event) => {
+    setType(event.target.value);
+  };
+
+  const handleFileChange = (files) => {
+    if (files.length > 0) {
+      setImage(files[0]);
     }
   };
 
-  const validateName = () => {
-    if (!name.trim()) {
-      setErrors((prev) => ({ ...prev, name: "Name is required" }));
-    } else {
-      setErrors((prev) => ({ ...prev, name: "" }));
-    }
+  const handleRemoveImage = () => {
+    setImage(null);
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     setLoading(true);
-    validateName();
 
-    if (!Object.values(errors).some((e) => e)) {
-      const formData = new FormData();
-      formData.append("name", name);
-      formData.append("type", type);
-      if (image) formData.append("image", image);
+    const formData = new FormData();
+    formData.append("name", name);
+    formData.append("type", type);
+    if (image) {
+      formData.append("image", image);
+    }
 
-      try {
-        await dispatch(updateClient({ clientId, formData }));
-
-        setSnackbar({
-          open: true,
-          message: "Client updated successfully!",
-          severity: "success",
-        });
-
-        setTimeout(() => {
-          navigate("/business/Client-control");
-        }, 1500);
-      } catch (err) {
-        setError(err.message);
-        setSnackbar({
-          open: true,
-          message: err.message || "Failed to update client",
-          severity: "error",
-        });
-      } finally {
-        setLoading(false);
-      }
-    } else {
+    try {
+      await dispatch(updateClient({ clientId, formData }));
+      setSnackbar({ open: true, message: "Client updated successfully!", severity: "success" });
+      setTimeout(() => {
+        navigate("/business/Client-control");
+      }, 1500);
+    } catch (error) {
+      setSnackbar({ open: true, message: "Failed to update client", severity: "error" });
+    } finally {
       setLoading(false);
     }
+  };
+
+  const handleCloseSnackbar = () => {
+    setSnackbar((prev) => ({ ...prev, open: false }));
   };
 
   return (
     <LeftNavigationBar
       Content={
         <Container component="main" maxWidth="md">
-          <Paper elevation={3} sx={{ padding: 4, marginTop: 4 }}>
-            <Typography
-              variant="h4"
-              sx={{
-                position: "relative",
-                padding: 0,
-                margin: 0,
-                fontFamily: 'Merriweather, serif',
-                fontWeight: 700, textAlign: 'center',
-                fontWeight: 300,
-                fontSize: { xs: "32px", sm: "40px" },
-                color: "#747474",
-                textAlign: "center",
-                textTransform: "uppercase",
-                paddingBottom: "5px",
-                mb: 5,
-                "&::before": {
-                  content: '""',
-                  width: "28px",
-                  height: "5px",
-                  display: "block",
-                  position: "absolute",
-                  bottom: "3px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
-                "&::after": {
-                  content: '""',
-                  width: "100px",
-                  height: "1px",
-                  display: "block",
-                  position: "relative",
-                  marginTop: "5px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
-              }}
-            >
-              Edit Clients
-            </Typography>
-            <form onSubmit={handleSubmit}>
+          <Paper elevation={0}>
+            <Box display="flex" alignItems="center" justifyContent="space-between" gap={1} mt={2} mb={2}>
+              <Button variant="outlined" color="primary" onClick={() => navigate(-1)}>
+                Back
+              </Button>
+              <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', position: 'relative', flex: 1 }}>
+                <Typography variant="h4" sx={{ position: "relative", padding: 0, margin: 0, fontWeight: 300, fontSize: { xs: "32px", sm: "40px" }, color: "#747474", textAlign: "center", textTransform: "uppercase", paddingBottom: "5px", "&::before": { content: '""', width: "28px", height: "5px", display: "block", position: "absolute", bottom: "3px", left: "50%", transform: "translateX(-50%)", backgroundColor: "#747474", }, "&::after": { content: '""', width: "100px", height: "1px", display: "block", position: "relative", marginTop: "5 px", left: "50%", transform: "translateX(-50%)", backgroundColor: "#747474", }, }}>
+                  Client Edit Form
+                </Typography>
+                <Tooltip title="This is where you can edit the client details." arrow>
+                  <HelpOutline sx={{ color: "#747474", fontSize: "24px", cursor: "pointer" }} />
+                </Tooltip>
+              </Box>
+            </Box>
+            <form onSubmit={handleSubmit} style={{ border: "2px dotted #D3D3D3", padding: "20px", borderRadius: "8px" }}>
               <FormControl fullWidth margin="normal" required>
                 <InputLabel>Type</InputLabel>
                 <Select
                   value={type || ""}
-                  onChange={(e) => {
-                    setType(e.target.value);
-                    setTouchedFields((prev) => ({ ...prev, type: true }));
-                  }}
+                  onChange={handleTypeChange}
                   label="Type"
-                  error={touchedFields.type && Boolean(errors.type)}
                 >
                   <MenuItem value="smartcliff">SmartCliff</MenuItem>
                   <MenuItem value="trainfromus">Train From Us</MenuItem>
@@ -187,7 +127,7 @@ const ClientEditForm = () => {
 
               <Box sx={{ mt: 2 }}>
                 <DropzoneArea
-                  onChange={(fileArray) => setImage(fileArray[0])}
+                  onChange={handleFileChange}
                   acceptedFiles={["image/*"]}
                   filesLimit={1}
                   showPreviewsInDropzone
@@ -195,14 +135,32 @@ const ClientEditForm = () => {
                 />
               </Box>
 
-              {existingIcon && (
-                <Typography
-                  sx={{ mt: 2 }}
-                  variant="subtitle1"
-                  color="textSecondary"
-                >
-                  Existing Image: {existingIcon.split("/").pop()}
-                </Typography>
+              {existingImage && (
+                <Box sx={{ mt: 2, position: "relative" }}>
+                  <Typography variant="subtitle1" color="textSecondary">
+                    Existing Image:
+                  </Typography>
+                  <img
+                    src={existingImage}
+                    alt="Existing Client"
+                    style={{ width: "100%", maxHeight: "300px", objectFit: "contain", borderRadius: "8px" }}
+                  />
+                  <IconButton
+                    sx={{
+                      position: "absolute",
+                      top: 10,
+                      right: 10,
+                      backgroundColor: "rgba(255, 255, 255, 0.7)",
+                      "&:hover": {
+                        backgroundColor: "rgba(255, 255, 255, 0.9)",
+                      },
+                    }}
+                    onClick={handleRemoveImage}
+                    color="secondary"
+                  >
+                    <ClearIcon />
+                  </IconButton>
+                </Box>
               )}
 
               <TextField
@@ -213,35 +171,38 @@ const ClientEditForm = () => {
                 label="Name"
                 name="name"
                 value={name}
-                onChange={(e) => {
-                  setTouchedFields((prev) => ({ ...prev, name: true }));
-                  handleNameChange(e);
-                }}
-                error={touchedFields.name && Boolean(errors.name)}
-                helperText={touchedFields.name && errors.name}
+                onChange={handleNameChange}
               />
 
               <Button
                 type="submit"
                 variant="contained"
-                fullWidth
-                sx={{ backgroundColor: "#4CAF50", color: "white", mt: 2 }}
                 disabled={loading}
+                sx={{
+                  backgroundColor: "#ff6d00",
+                  color: "#fff",
+                  padding: "8px 24px",
+                  textTransform: "uppercase",
+                  borderRadius: "4px",
+                  mt: 2,
+                  "&:hover": {
+                    backgroundColor: "#e65100",
+                  },
+                }}
               >
                 Submit
               </Button>
             </form>
           </Paper>
 
-          {/* Snackbar */}
           <Snackbar
             open={snackbar.open}
             autoHideDuration={3000}
-            onClose={() => setSnackbar({ ...snackbar, open: false })}
+            onClose={handleCloseSnackbar}
             anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
           >
             <Alert
-              onClose={() => setSnackbar({ ...snackbar, open: false })}
+              onClose={handleCloseSnackbar}
               severity={snackbar.severity}
               sx={{ width: "100%" }}
             >

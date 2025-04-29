@@ -6,9 +6,12 @@ import {
   IconButton, Card, CardContent, CardHeader,
   List, ListItem, ListItemText, Dialog, DialogActions,
   DialogContent, DialogTitle, FormControl,
-  InputLabel, MenuItem, Select, CircularProgress
+  InputLabel, MenuItem, Select, CircularProgress,
+  Snackbar,
+  Alert,
+  Tooltip
 } from '@mui/material';
-import { Add as AddIcon, Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
+import { Add as AddIcon, Delete as DeleteIcon, Edit as EditIcon, HelpOutline } from '@mui/icons-material';
 import LeftNavigationBar from '../../navbars/LeftNavigationBar';
 import { getFooterById, updateFooter } from '../../redux/slices/footer/footer';
 
@@ -55,7 +58,10 @@ const FooterEditForm = () => {
   // Edit mode states
   const [editMode, setEditMode] = useState(false);
   const [editIndex, setEditIndex] = useState(null);
-  
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+
   // Fetch footer data on component mount
   useEffect(() => {
     dispatch(getFooterById(id));
@@ -334,7 +340,22 @@ const handleSaveBusiness = () => {
       }
     }));
   };
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setSnackbarOpen(false);
+  };
   
+  const showSnackbar = (message, severity = 'success') => {
+    setSnackbarMessage(message);
+    setSnackbarSeverity(severity);
+    setSnackbarOpen(true);
+  };
+  const handleCloseSnackbar = () => {
+    setSnackbarMessage(prev => ({ ...prev, open: false }));
+  };
+
   // Form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -358,12 +379,19 @@ const handleSaveBusiness = () => {
       formDataToSend.append('contact', JSON.stringify(formData.contact));
       
       await dispatch(updateFooter({ id, formData: formDataToSend })).unwrap();
-      alert('Footer updated successfully!');
-      navigate('/footer-control'); // Navigate to footer list after successful update
+      showSnackbar('Footer updated successfully!');
+      
+      // Redirect after a short delay to allow the user to see the success message
+      setTimeout(() => {
+        navigate('/footer-control');
+      }, 1500);
     } catch (error) {
       console.error('Error updating footer:', error);
       alert(`Error updating footer: ${error.message}`);
     }
+  };
+  const handleBack = () => {
+    navigate(-1);
   };
 
   if (loading) {
@@ -395,53 +423,22 @@ const handleSaveBusiness = () => {
   return (
     <LeftNavigationBar
       Content={
-        <Container maxWidth="lg">
-          <Paper elevation={3} sx={{ p: 4, mt: 4, mb: 4 }}>
-            <Typography
-              variant="h4"
-              sx={{
-                position: "relative",
-                padding: 0,
-                margin: 0,
-                fontFamily: "Merriweather, serif",
-                fontWeight: 700,
-                textAlign: "center",
-                fontWeight: 300,
-                fontSize: { xs: "32px", sm: "40px" },
-                color: "#747474",
-                textAlign: "center",
-                textTransform: "uppercase",
-                paddingBottom: "5px",
-                mb: 3,
-                mt: -1,
-                "&::before": {
-                  content: '""',
-                  width: "28px",
-                  height: "5px",
-                  display: "block",
-                  position: "absolute",
-                  bottom: "3px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
-                "&::after": {
-                  content: '""',
-                  width: "100px",
-                  height: "1px",
-                  display: "block",
-                  position: "relative",
-                  marginTop: "5px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
-              }}
-            >
-              Edit Footer
-            </Typography>
-            
-            <form onSubmit={handleSubmit}>
+        <Container component="main" maxWidth="md">
+          <Paper elevation={0}>
+            <Box display="flex" alignItems="center" justifyContent="space-between" gap={1} mt={2} mb={2}>
+              <Button variant="outlined" color="primary" onClick={handleBack}>
+                Back
+              </Button>
+              <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', position: 'relative', flex: 1 }}>
+                <Typography variant="h4" sx={{ position: "relative", padding: 0, margin: 0, fontWeight: 300, fontSize: { xs: "32px", sm: "40px" }, color: "#747474", textAlign: "center", textTransform: "uppercase", paddingBottom: "5px", "&::before": { content: '""', width: "28px", height: "5px", display: "block", position: "absolute", bottom: "3px", left: "50%", transform: "translateX(-50%)", backgroundColor: "#747474", }, "&::after ": { content: '""', width: "100px", height: "1px", display: "block", position: "relative", marginTop: "5px", left: "50%", transform: "translateX(-50%)", backgroundColor: "#747474", }, }}>
+                  Footer Edit Form
+                </Typography>
+                <Tooltip title="This is where you can edit the Footer data and Links." arrow>
+                  <HelpOutline sx={{ color: "#747474", fontSize: "24px", cursor: "pointer" }} />
+                </Tooltip>
+              </Box>
+            </Box>
+            <form onSubmit={handleSubmit} style={{ border: "2px dotted #D3D3D3", padding: "20px", borderRadius: "8px" }}>
               {/* Logo Upload Section */}
               <Card sx={{ mb: 4, backgroundColor: "gray" }}>
                 <CardHeader title="Logo" />
@@ -884,6 +881,22 @@ const handleSaveBusiness = () => {
               <Button onClick={handleSaveBusinessLink} color="primary">{editMode ? 'Save' : 'Add'}</Button>
             </DialogActions>
           </Dialog>
+                <Snackbar
+                  open={snackbarOpen}
+                  autoHideDuration={3000}
+                  onClose={handleCloseSnackbar}
+                  anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+                >
+                  <Alert 
+                    onClose={handleCloseSnackbar} 
+                    severity={snackbarSeverity} 
+                    variant="filled"
+                    sx={{ width: '100%' }}
+                  >
+                    {snackbarMessage}
+                  </Alert>
+                </Snackbar>
+          
         </Container>
       }
     />

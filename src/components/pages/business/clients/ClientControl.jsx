@@ -17,6 +17,15 @@ import {
   Button as MuiButton,
   Snackbar,
   Alert,
+  TextField,
+  Grid,
+  TablePagination,
+  CircularProgress,
+  useTheme,
+  useMediaQuery,
+  Tooltip,
+  Button,
+  Box,
 } from "@mui/material";
 import LeftNavigationBar from "../../../navbars/LeftNavigationBar";
 import EditIcon from "@mui/icons-material/Edit";
@@ -26,24 +35,23 @@ import {
   deleteClient,
   getAllClient,
 } from "../../../redux/slices/services/client/Client";
-import { Button } from "@material-ui/core";
+import SearchIcon from "@mui/icons-material/Search";
+import AddIcon from "@mui/icons-material/Add";
 
 const ClientControl = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { clients, loading } = useSelector((state) => state.clients);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
-  const clients = useSelector((state) => state.clients.clients);
-
-  const [openDialog, setOpenDialog] = useState(false);
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
-  const [snackbar, setSnackbar] = useState({
-    open: false,
-    message: "",
-    severity: "success",
-  });
-  const handleCloseSnackbar = () => {
-    setSnackbar((prev) => ({ ...prev, open: false }));
-  };
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+
   useEffect(() => {
     dispatch(getAllClient());
   }, [dispatch]);
@@ -52,181 +60,311 @@ const ClientControl = () => {
     navigate(`/business/Client-edit/${clientId}`);
   };
 
-  const handleDelete = (clientId) => {
-    setDeleteId(clientId);
-    setOpenDialog(true);
+  const handleConfirmDeleteOpen = (id) => {
+    setConfirmDeleteOpen(true);
+    setDeleteId(id);
   };
 
-  const handleConfirmDelete = () => {
-    dispatch(deleteClient(deleteId))
-      .then((resultAction) => {
-        if (deleteClient.fulfilled.match(resultAction)) {
-          setSnackbar({
-            open: true,
-            message: "Client deleted successfully!",
-            severity: "success",
-          });
-        } else {
-          setSnackbar({
-            open: true,
-            message: "Failed to delete client!",
-            severity: "error",
-          });
-        }
-        setOpenDialog(false);
-        setDeleteId(null);
-        dispatch(getAllClient());
-      })
-      .catch(() => {
-        setSnackbar({
-          open: true,
-          message: "Something went wrong!",
-          severity: "error",
-        });
-        setOpenDialog(false);
-        setDeleteId(null);
-      });
-  };
-
-  const handleCloseDialog = () => {
-    setOpenDialog(false);
+  const handleConfirmDeleteClose = () => {
+    setConfirmDeleteOpen(false);
     setDeleteId(null);
   };
+
+  const handleDelete = () => {
+    dispatch(deleteClient(deleteId)).then(() => {
+      dispatch(getAllClient());
+      handleConfirmDeleteClose();
+      setSnackbarOpen(true);
+    });
+  };
+
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false);
+  };
+
+  const filteredClients = (clients || []).filter(
+    (client) =>
+      client &&
+      client.name &&
+      client.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
+  if (loading)
+    return (
+      <LeftNavigationBar
+        Content={
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            minHeight="80vh"
+          >
+            <CircularProgress size={60} thickness={4} />
+          </Box>
+        }
+      />
+    );
 
   return (
     <LeftNavigationBar
       Content={
-        <>
-            <Typography
-              variant="h4"
-              sx={{
+        <Box sx={{ p: isMobile ? 1 : 3 }}>
+          <Typography
+            variant="h4"
+            sx={{
+              position: "relative",
+              padding: 0,
+              margin: 0,
+              fontWeight: 700,
+              textAlign: "center",
+              fontWeight: 300,
+              fontSize: { xs: "32px", sm: "40px" },
+              color: "#747474",
+              textAlign: "center",
+              textTransform: "uppercase",
+              paddingBottom: "5px",
+              mb: 3,
+              mt: -1,
+              "&::before": {
+                content: '""',
+                width: "28px",
+                height: "5px",
+                display: "block",
+                position: "absolute",
+                bottom: "3px",
+                left: "50%",
+                transform: "translateX(-50%)",
+                backgroundColor: "#747474",
+              },
+              "&::after": {
+                content: '""',
+                width: "100px",
+                height: "1px",
+                display: "block",
                 position: "relative",
-                padding: 0,
-                margin: 0,
-                fontFamily: 'Merriweather, serif',
-                fontWeight: 700, textAlign: 'center',
-                fontWeight: 300,
-                fontSize: { xs: "32px", sm: "40px" },
-                color: "#747474",
-                textAlign: "center",
-                textTransform: "uppercase",
-                paddingBottom: "5px",
-                mb: 5,
-                "&::before": {
-                  content: '""',
-                  width: "28px",
-                  height: "5px",
-                  display: "block",
-                  position: "absolute",
-                  bottom: "3px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
-                "&::after": {
-                  content: '""',
-                  width: "100px",
-                  height: "1px",
-                  display: "block",
-                  position: "relative",
-                  marginTop: "5px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "#747474",
-                },
-              }}
-            >
+                marginTop: "5px",
+                left: "50%",
+                transform: "translateX(-50%)",
+                backgroundColor: "#747474",
+              },
+            }}
+          >
             Client Control
           </Typography>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={() => navigate("/business/Client-add")}
-            sx={{ mb: 2 }}
-          >
-            Add New Client
-          </Button>
-          <TableContainer component={Paper}>
+          <Grid container spacing={2} alignItems="center" sx={{ mb: 2 }}>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                variant="outlined"
+                size="small"
+                placeholder="Search Clients..."
+                InputProps={{
+                  startAdornment: <SearchIcon color="action" sx={{ mr: 1 }} />,
+                }}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                value={searchTerm}
+              />
+            </Grid>
+            <Grid
+              item
+              xs={12}
+              md={6}
+              sx={{ textAlign: { xs: "left", md: "right" } }}
+            >
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={() => navigate("/business/Client-add")}
+                startIcon={<AddIcon />}
+              >
+                Add New Client
+              </Button>
+            </Grid>
+          </Grid>
+
+          <TableContainer component={Paper} elevation={3}>
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell>Name</TableCell>
-                  <TableCell>Image</TableCell>
-                  <TableCell>Type</TableCell>
-                  <TableCell>Action</TableCell>{" "}
+                  <TableCell
+                    style={{
+                      backgroundColor: "#1976d2",
+                      color: "white",
+                      textAlign: "center",
+                    }}
+                  >
+                    Name
+                  </TableCell>
+                  <TableCell
+                    style={{
+                      backgroundColor: "#1976d2",
+                      color: "white",
+                      textAlign: "center",
+                    }}
+                  >
+                    Image
+                  </TableCell>
+                  <TableCell
+                    style={{
+                      backgroundColor: "#1976d2",
+                      color: "white",
+                      textAlign: "center",
+                    }}
+                  >
+                    Type
+                  </TableCell>
+                  <TableCell
+                    style={{
+                      backgroundColor: "#1976d2",
+                      color: "white",
+                      textAlign: "center",
+                    }}
+                  >
+                    Actions
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {clients &&
-                  clients.map((client) => (
-                    <TableRow key={client._id}>
-                      <TableCell>{client.name}</TableCell>
-                      <TableCell>
-                        {" "}
-                        {client.image && (
-                          <img
-                            src={client.image}
-                            alt={client.name}
-                            style={{ width: "50px", height: "50px" }}
-                          />
-                        )}{" "}
-                      </TableCell>
-                      <TableCell>{client?.type}</TableCell>
-
-                      <TableCell>
-                        <IconButton
-                          onClick={() => handleEdit(client._id)}
-                          color="primary"
-                          aria-label="edit"
-                        >
-                          <EditIcon />
-                        </IconButton>
-                        <IconButton
-                          onClick={() => handleDelete(client._id)}
-                          color="error"
-                          aria-label="delete"
-                        >
-                          <DeleteIcon />
-                        </IconButton>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                {filteredClients.length > 0 ? (
+                  filteredClients
+                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                    .map((client) => (
+                      <TableRow key={client._id}>
+                        <TableCell>{client.name}</TableCell>
+                        <TableCell>
+                          {client.image && (
+                            <img
+                              src={client.image}
+                              alt={client.name}
+                              style={{ width: "50px", height: "50px" }}
+                            />
+                          )}
+                        </TableCell>
+                        <TableCell>{client.type}</TableCell>
+                        <TableCell align="right">
+                          <Box sx={{ display: "flex", gap: 1 }}>
+                            <Tooltip title="Edit">
+                              <Button
+                                onClick={() => handleEdit(client._id)}
+                                color="primary"
+                                variant="outlined"
+                              >
+                                <EditIcon />
+                              </Button>
+                            </Tooltip>
+                            <Tooltip title="Delete">
+                              <Button
+                                onClick={() =>
+                                  handleConfirmDeleteOpen(client._id)
+                                }
+                                color="error"
+                                variant="outlined"
+                              >
+                                <DeleteIcon />
+                              </Button>
+                            </Tooltip>
+                          </Box>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={4} align="center">
+                      <Typography>No entries found</Typography>
+                    </TableCell>
+                  </TableRow>
+                )}
               </TableBody>
             </Table>
           </TableContainer>
+
+          <TablePagination
+            rowsPerPageOptions={[5, 10, 25]}
+            component="div"
+            count={filteredClients.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+          />
+
+          <Dialog
+            open={confirmDeleteOpen}
+            onClose={handleConfirmDeleteClose}
+            PaperProps={{
+              sx: {
+                borderRadius: 2,
+                minWidth: isMobile ? "90%" : 400,
+              },
+            }}
+          >
+            <DialogTitle
+              sx={{
+                backgroundColor: theme.palette.error.light,
+                color: "white",
+                fontWeight: 600,
+              }}
+            >
+              Confirm Deletion
+            </DialogTitle>
+            <DialogContent sx={{ py: 3 }}>
+              <Typography variant="body1">
+                Are you sure you want to delete this client? This action cannot
+                be undone.
+              </Typography>
+            </DialogContent>
+            <DialogActions sx={{ px: 3, pb: 2 }}>
+              <Button
+                onClick={handleConfirmDeleteClose}
+                variant="outlined"
+                sx={{
+                  borderColor: theme.palette.grey[400],
+                  color: theme.palette.text.primary,
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleDelete}
+                variant="contained"
+                color="error"
+                sx={{
+                  backgroundColor: theme.palette.error.main,
+                  "&:hover": {
+                    backgroundColor: theme.palette.error.dark,
+                  },
+                }}
+              >
+                Delete
+              </Button>
+            </DialogActions>
+          </Dialog>
+
           <Snackbar
-            open={snackbar.open}
+            open={snackbarOpen}
             autoHideDuration={4000}
-            onClose={handleCloseSnackbar}
+            onClose={handleSnackbarClose}
             anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
           >
             <Alert
-              onClose={handleCloseSnackbar}
-              severity={snackbar.severity}
+              onClose={handleSnackbarClose}
+              severity="success"
               variant="filled"
               sx={{ width: "100%", fontWeight: 500 }}
             >
-              {snackbar.message}
+              Client deleted successfully!
             </Alert>
           </Snackbar>
-
-          <Dialog open={openDialog} onClose={handleCloseDialog}>
-            <DialogTitle>Confirm Delete</DialogTitle>
-            <DialogContent>
-              Are you sure you want to delete this program?
-            </DialogContent>
-            <DialogActions>
-              <MuiButton onClick={handleCloseDialog}>Cancel</MuiButton>
-              <MuiButton
-                onClick={handleConfirmDelete}
-                variant="contained"
-                color="error"
-              >
-                Delete
-              </MuiButton>
-            </DialogActions>
-          </Dialog>
-        </>
+        </Box>
       }
     />
   );
