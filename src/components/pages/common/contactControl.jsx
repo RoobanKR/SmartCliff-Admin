@@ -521,8 +521,8 @@ const ContactControl = () => {
                     indicatorColor="primary"
                     textColor="primary"
                   >
-                    <Tab label="Application Details" />
-                    <Tab label="Email Details" />
+                    <Tab label="Registered Users" />
+                    <Tab label="Response Mail Send to Users" />
                   </Tabs>
                 </Box>
               </Grid>
@@ -605,7 +605,7 @@ const ContactControl = () => {
                         fontWeight={600}
                         sx={{ mb: 1 }}
                       >
-                        Application Details{" "}
+                        Registered Users{" "}
                       </Typography>
                     </Grid>
 
@@ -720,7 +720,7 @@ const ContactControl = () => {
                         fontWeight={600}
                         sx={{ mb: 1 }}
                       >
-                        Email Details
+                        Response Mail Send to Users
                       </Typography>
                     </Grid>
 

@@ -634,8 +634,8 @@ const CareerControl = () => {
                     indicatorColor="primary"
                     textColor="primary"
                   >
-                    <Tab label="Application Details" />
-                    <Tab label="Email Details" />
+                    <Tab label="Registered Users" />
+                    <Tab label="Response Mail Send to Users" />
                   </Tabs>
                 </Box>
               </Grid>

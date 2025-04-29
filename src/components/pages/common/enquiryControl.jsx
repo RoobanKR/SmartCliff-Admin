@@ -1060,7 +1060,7 @@ const EnquiryControl = () => {
             </Paper>
           )}
 
-          {/* Email Details Tab Content */}
+          {/* Response Mail Send to Users Tab Content */}
           {tabValue === 1 && (
             <Paper elevation={3} sx={{ borderRadius: 2, overflow: "hidden" }}>
               <TableContainer>

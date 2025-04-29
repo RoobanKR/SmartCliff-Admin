@@ -49,9 +49,11 @@ import LeftNavigationBar from '../../../navbars/LeftNavigationBar';
 import * as XLSX from 'xlsx';
 import fi from 'date-fns/locale/fi/index.js';
 import { deleteTrainFromUs, getAllTrainFromUs, sendEmailToTrainFromUsApplicants } from '../../../redux/slices/business/form/trainFormUsForm';
+import { useNavigate } from 'react-router-dom';
 
 const TrainFromUsFormsControl = () => {
     const dispatch = useDispatch();
+    const navigate = useNavigate(); 
     const trainingApplications = useSelector((state) => state.trainFromUs.trainingApplications) || [];
     const [loading, setLoading] = useState(true);
     const [nameSearchTerm, setNameSearchTerm] = useState('');
@@ -78,13 +80,13 @@ const TrainFromUsFormsControl = () => {
   const [emailSubject, setEmailSubject] = useState("");
   const [emailMessage, setEmailMessage] = useState("");
   const [loadingEmail, setLoadingEmail] = useState(false);
-  // For Application Details tab
+  // For Registered Users tab
 
 const [appDateRangeFrom, setAppDateRangeFrom] = useState("");
 
 const [appDateRangeTo, setAppDateRangeTo] = useState("");
  
-// For Email Details tab
+// For Response Mail Send to Users tab
 
 const [emailDateRangeFrom, setEmailDateRangeFrom] = useState("");
 
@@ -97,6 +99,10 @@ const [emailDateRangeTo, setEmailDateRangeTo] = useState("");
   });
 
     const [filtersVisible, setFiltersVisible] = useState(false);
+
+  const handleBack = () => {
+    navigate(-1); 
+  }; 
 
     // Add this function to toggle filter visibility
     const toggleFilters = () => {
@@ -520,6 +526,15 @@ const [emailDateRangeTo, setEmailDateRangeTo] = useState("");
                 <Box sx={{ p: 3 }}>
                     {/* Header Section */}
                     <Box sx={{ mb: 4 }}>
+                                   <Button
+                                    variant="outlined"
+                                    color="primary"
+                                    onClick={handleBack}
+                                    sx={{ mb: 2 }} // Add some margin at the bottom
+                                  >
+                                    Back
+                                  </Button>
+                        
                         <Typography variant="h4"
                             sx={{
                                 position: "relative",
@@ -571,8 +586,8 @@ const [emailDateRangeTo, setEmailDateRangeTo] = useState("");
                                         indicatorColor="primary"
                                         textColor="primary"
                                     >
-                                        <Tab label="Application Details" />
-                                        <Tab label="Email Details" />
+                                        <Tab label="Registered Users" />
+                                        <Tab label="Response Mail Send to Users" />
                                     </Tabs>
                                 </Box>
                             </Grid>
@@ -900,7 +915,7 @@ const [emailDateRangeTo, setEmailDateRangeTo] = useState("");
 
                     </Box>
 
-                    {/* Application Details Tab Content */}
+                    {/* Registered Users Tab Content */}
                     {tabValue === 0 && (
                         <Paper elevation={3} sx={{ borderRadius: 2, overflow: 'hidden' }}>
                             <TableContainer>
@@ -1029,7 +1044,7 @@ const [emailDateRangeTo, setEmailDateRangeTo] = useState("");
                         </Paper>
                     )}
 
-                    {/* Email Details Tab Content */}
+                    {/* Response Mail Send to Users Tab Content */}
                     {tabValue === 1 && (
                         <Paper elevation={3} sx={{ borderRadius: 2, overflow: 'hidden' }}>
                             <TableContainer>

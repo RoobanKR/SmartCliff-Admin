@@ -84,11 +84,11 @@ const HireFromUsFormsControl = () => {
   const [emailSubject, setEmailSubject] = useState("");
   const [emailMessage, setEmailMessage] = useState("");
   const [loadingEmail, setLoadingEmail] = useState(false);
-  // For Application Details tab
+  // For Registered Users tab
   const [appDateRangeFrom, setAppDateRangeFrom] = useState("");
   const [appDateRangeTo, setAppDateRangeTo] = useState("");
 
-  // For Email Details tab
+  // For Response Mail Send to Users tab
   const [emailDateRangeFrom, setEmailDateRangeFrom] = useState("");
   const [emailDateRangeTo, setEmailDateRangeTo] = useState("");
   const [snackbar, setSnackbar] = useState({
@@ -592,8 +592,8 @@ const HireFromUsFormsControl = () => {
                     indicatorColor="primary"
                     textColor="primary"
                   >
-                    <Tab label="Application Details" />
-                    <Tab label="Email Details" />
+                    <Tab label="Registered Users" />
+                    <Tab label="Response Mail Send to Users" />
                   </Tabs>
                 </Box>
               </Grid>
@@ -940,7 +940,7 @@ const HireFromUsFormsControl = () => {
             )}
           </Box>
 
-          {/* Application Details Tab Content */}
+          {/* Registered Users Tab Content */}
           {tabValue === 0 && (
             <Paper elevation={3} sx={{ borderRadius: 2, overflow: "hidden" }}>
               <TableContainer>
@@ -1161,7 +1161,7 @@ const HireFromUsFormsControl = () => {
             </Paper>
           )}
 
-          {/* Email Details Tab Content */}
+          {/* Response Mail Send to Users Tab Content */}
           {tabValue === 1 && (
             <Paper elevation={3} sx={{ borderRadius: 2, overflow: "hidden" }}>
               <TableContainer>
