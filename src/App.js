@@ -190,6 +190,7 @@ import PopUpNotificationEditForm from "./components/pages/home/popUpNotification
 import ContactPageAddForm from "./components/pages/contactPage/ContactPageAddForm";
 import ContactPageControl from "./components/pages/contactPage/ContactpageControl";
 import ContactPageEditForm from "./components/pages/contactPage/ContactPageEditForm";
+import MuiVisitorStats from "./components/pages/visitor/Visior";
 
 function App() {
   const router = createBrowserRouter(
@@ -712,6 +713,8 @@ function App() {
         <Route path="contact-page-add" element={<ContactPageAddForm />} />
         <Route path="contact-page-control" element={<ContactPageControl />} />
         <Route path="contact-page-edit/:id" element={<ContactPageEditForm />} />
+
+        <Route path="visitor-control" element={<MuiVisitorStats />} />
 
       </Route>
     )

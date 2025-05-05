@@ -38,6 +38,7 @@ const FooterEditForm = () => {
     contact: {
       title: 'Contact',
       phone: '',
+      secondaryNumber:'',
       address: ''
     }
   });
@@ -81,6 +82,7 @@ const FooterEditForm = () => {
         contact: selectedFooter.contact || {
           title: 'Contact',
           phone: '',
+          secondaryNumber:'',
           address: ''
         }
       });
@@ -726,6 +728,14 @@ const handleSaveBusiness = () => {
                     onChange={handleContactChange}
                     margin="normal"
                   />
+                   <TextField
+                    fullWidth
+                    label="Secondary Number"
+                    name="secondaryNumber"
+                    value={formData.contact.secondaryNumber}
+                    onChange={handleContactChange}
+                    margin="normal"
+                  />
                   <TextField
                     fullWidth
                     label="Address"
@@ -742,7 +752,7 @@ const handleSaveBusiness = () => {
               <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3, gap: 2 }}>
                 <Button 
                   variant="outlined"
-                  onClick={() => navigate('/admin/footer/list')}
+                  onClick={() => navigate('/footer-control')}
                 >
                   Cancel
                 </Button>

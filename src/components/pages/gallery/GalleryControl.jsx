@@ -223,8 +223,27 @@ const GalleryControl = () => {
                         <TableCell>{item.month}</TableCell>
                         <TableCell>{item.year}</TableCell>
                         <TableCell>
-                          <img src={item.image} alt={item.name} style={{ maxWidth: "80px" }} />
-                        </TableCell>
+  <Box
+    sx={{
+      display: "flex",
+      overflowX: "auto",
+      maxWidth: 200,
+      gap: 1,
+      paddingY: 1,
+      "& img": {
+        width: 80,
+        height: 60,
+        objectFit: "cover",
+        borderRadius: "4px",
+        flexShrink: 0,
+      },
+    }}
+  >
+    {item.images && item.images.map((url, index) => (
+      <img key={index} src={url} alt={`gallery-${index}`} />
+    ))}
+  </Box>
+</TableCell>
                         <TableCell>
                           <Box sx={{ display: 'flex', gap: 1 }}>
                             <Tooltip title="Edit">

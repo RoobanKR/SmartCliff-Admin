@@ -14,8 +14,10 @@ import {
   Tooltip,
   Container,
   Paper,
+  IconButton,
 } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import DeleteIcon from "@mui/icons-material/Delete";
 import {
   getGalleryById,
   updateGallery,
@@ -25,18 +27,8 @@ import LeftNavigationBar from "../../navbars/LeftNavigationBar";
 import { HelpOutline } from "@mui/icons-material";
 
 const months = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December"
 ];
 
 const GalleryEditForm = () => {
@@ -53,21 +45,19 @@ const GalleryEditForm = () => {
     description: "",
     month: "",
     year: new Date().getFullYear(),
-    image: null,
+    images: [],
   });
 
-  const [file, setFile] = useState(null);
-  const [preview, setPreview] = useState(null);
+  const [newFiles, setNewFiles] = useState([]); // New files added
+  const [previews, setPreviews] = useState([]); // URLs of existing + new images
   const [snackbarOpen, setSnackbarOpen] = useState(false);
 
-  // Fetch gallery data when ID changes
   useEffect(() => {
     if (id) {
       dispatch(getGalleryById(id));
     }
   }, [dispatch, id]);
 
-  // Populate form fields when gallery data is available
   useEffect(() => {
     if (gallery && gallery._id) {
       setFormData({
@@ -75,11 +65,12 @@ const GalleryEditForm = () => {
         description: gallery.description || "",
         month: gallery.month || "",
         year: gallery.year || new Date().getFullYear(),
-        image: gallery.image || null,
+        images: gallery.images || [],
       });
 
-      if (gallery.image) {
-        setPreview(gallery.image); // Show existing image
+      // Previews from existing URLs
+      if (gallery.images && Array.isArray(gallery.images)) {
+        setPreviews(gallery.images);
       }
     }
   }, [gallery]);
@@ -94,21 +85,43 @@ const GalleryEditForm = () => {
     }
   }, [updateSuccess, dispatch, navigate]);
 
-  // Dropzone file handling
   const onDrop = useCallback((acceptedFiles) => {
-    const uploadedFile = acceptedFiles[0];
-    setFile(uploadedFile);
-    setPreview(URL.createObjectURL(uploadedFile));
-  }, []);
+    const updatedPreviews = [
+      ...previews,
+      ...acceptedFiles.map((file) => URL.createObjectURL(file)),
+    ];
+    setNewFiles([...newFiles, ...acceptedFiles]);
+    setPreviews(updatedPreviews);
+  }, [newFiles, previews]);
 
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,
     accept: "image/*",
-    maxSize: 3 * 1024 * 1024, // 3MB limit
+    maxSize: 3 * 1024 * 1024,
+    multiple: true,
   });
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleRemovePreview = (index) => {
+    const updatedPreviews = [...previews];
+    updatedPreviews.splice(index, 1);
+    setPreviews(updatedPreviews);
+
+    if (index >= formData.images.length) {
+      // It's a new image
+      const newFileIndex = index - formData.images.length;
+      const updatedNewFiles = [...newFiles];
+      updatedNewFiles.splice(newFileIndex, 1);
+      setNewFiles(updatedNewFiles);
+    } else {
+      // It's an existing image
+      const updatedImages = [...formData.images];
+      updatedImages.splice(index, 1);
+      setFormData({ ...formData, images: updatedImages });
+    }
   };
 
   const handleSubmit = (e) => {
@@ -118,12 +131,18 @@ const GalleryEditForm = () => {
     data.append("description", formData.description);
     data.append("month", formData.month);
     data.append("year", formData.year);
-    if (file) {
-      data.append("image", file);
-    }
+
+    // Append retained image URLs (if applicable in backend)
+    data.append("existingImages", JSON.stringify(formData.images));
+
+    // Append new image files
+    newFiles.forEach((file) => {
+      data.append("images", file);
+    });
 
     dispatch(updateGallery({ id, formData: data }));
   };
+
   const handleBack = () => {
     navigate(-1);
   };
@@ -131,129 +150,85 @@ const GalleryEditForm = () => {
   return (
     <LeftNavigationBar
       Content={
-        <Container component="main" maxWidth="md">
+        <Container maxWidth="md">
           <Paper elevation={0}>
             <Box display="flex" alignItems="center" justifyContent="space-between" gap={1} mt={2} mb={2}>
-              <Button variant="outlined" color="primary" onClick={handleBack}>
-                Back
-              </Button>
-              <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', position: 'relative', flex: 1 }}>
-                <Typography variant="h4" sx={{ position: "relative", padding: 0, margin: 0, fontWeight: 300, fontSize: { xs: "32px", sm: "40px" }, color: "#747474", textAlign: "center", textTransform: "uppercase", paddingBottom: "5px", "&::before": { content: '""', width: "28px", height: "5px", display: "block", position: "absolute", bottom: "3px", left: "50%", transform: "translateX(-50%)", backgroundColor: "#747474", }, "&::after ": { content: '""', width: "100px", height: "1px", display: "block", position: "relative", marginTop: "5px", left: "50%", transform: "translateX(-50%)", backgroundColor: "#747474", }, }}>
+              <Button variant="outlined" onClick={handleBack}>Back</Button>
+              <Box sx={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', position: 'relative' }}>
+                <Typography variant="h4" sx={{
+                  position: "relative", fontWeight: 300, fontSize: { xs: "32px", sm: "40px" },
+                  color: "#747474", textAlign: "center", textTransform: "uppercase", paddingBottom: "5px",
+                  "&::before": {
+                    content: '""', width: "28px", height: "5px", display: "block", position: "absolute",
+                    bottom: "3px", left: "50%", transform: "translateX(-50%)", backgroundColor: "#747474"
+                  },
+                  "&::after": {
+                    content: '""', width: "100px", height: "1px", display: "block", position: "relative",
+                    marginTop: "5px", left: "50%", transform: "translateX(-50%)", backgroundColor: "#747474"
+                  }
+                }}>
                   Gallery Edit Form
                 </Typography>
                 <Tooltip title="This is where you can Edit the Gallery" arrow>
-                  <HelpOutline sx={{ color: "#747474", fontSize: "24px", cursor: "pointer" }} />
+                  <HelpOutline sx={{ color: "#747474", fontSize: "24px", cursor: "pointer", ml: 1 }} />
                 </Tooltip>
               </Box>
             </Box>
-          {loading && <CircularProgress />}
 
-          {error && (
-            <Typography color="error" mb={2}>
-              {error}
-            </Typography>
-          )}
+            {loading && <CircularProgress />}
+            {error && <Typography color="error" mb={2}>{error}</Typography>}
 
-          <form onSubmit={handleSubmit} encType="multipart/form-data" style={{ border: "2px dotted #D3D3D3", padding: "20px", borderRadius: "8px" }}>
-            <TextField
-              label="Name"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              fullWidth
-              margin="normal"
-              required
-            />
-            <TextField
-              label="Description"
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              fullWidth
-              multiline
-              rows={3}
-              margin="normal"
-              required
-            />
-            <TextField
-              select
-              label="Month"
-              name="month"
-              value={formData.month}
-              onChange={handleChange}
-              fullWidth
-              margin="normal"
-              required
-            >
-              {months.map((month) => (
-                <MenuItem key={month} value={month}>
-                  {month}
-                </MenuItem>
-              ))}
-            </TextField>
-            <TextField
-              label="Year"
-              name="year"
-              type="number"
-              value={formData.year}
-              onChange={handleChange}
-              fullWidth
-              margin="normal"
-              required
-            />
+            <form onSubmit={handleSubmit} encType="multipart/form-data" style={{ border: "2px dotted #D3D3D3", padding: "20px", borderRadius: "8px" }}>
+              <TextField label="Name" name="name" value={formData.name} onChange={handleChange} fullWidth margin="normal" required />
+              <TextField label="Description" name="description" value={formData.description} onChange={handleChange} fullWidth multiline rows={3} margin="normal" required />
+              <TextField select label="Month" name="month" value={formData.month} onChange={handleChange} fullWidth margin="normal" required>
+                {months.map((month) => (
+                  <MenuItem key={month} value={month}>{month}</MenuItem>
+                ))}
+              </TextField>
+              <TextField label="Year" name="year" type="number" value={formData.year} onChange={handleChange} fullWidth margin="normal" required />
 
-            {/* Existing Image Preview */}
-            {preview && (
-              <Box mt={2} sx={{ textAlign: "center" }}>
-                <img
-                  src={preview}
-                  alt="Preview"
-                  style={{ width: "50px", height: "50px", borderRadius: "4px" }}
-                />
+              {/* Image Previews */}
+              <Box display="flex" gap={2} flexWrap="wrap" mt={2}>
+                {previews.map((url, index) => (
+                  <Box key={index} position="relative">
+                    <img src={url} alt={`preview-${index}`} style={{ width: 70, height: 70, borderRadius: 4, objectFit: "cover" }} />
+                    <IconButton size="small" onClick={() => handleRemovePreview(index)} sx={{
+                      position: "absolute", top: -10, right: -10, background: "#fff"
+                    }}>
+                      <DeleteIcon fontSize="small" />
+                    </IconButton>
+                  </Box>
+                ))}
               </Box>
-            )}
 
-            {/* Dropzone File Upload */}
-            <Box
-              {...getRootProps()}
-              sx={{
-                border: "2px dashed #1976d2",
-                padding: "20px",
-                textAlign: "center",
-                cursor: "pointer",
-                my: 2,
-                borderRadius: 2,
-              }}
+              {/* Dropzone */}
+              <Box {...getRootProps()} sx={{
+                border: "2px dashed #1976d2", p: 2, textAlign: "center", cursor: "pointer",
+                my: 2, borderRadius: 2
+              }}>
+                <input {...getInputProps()} />
+                <CloudUploadIcon color="primary" fontSize="large" />
+                <Typography variant="body2">Drag & drop images here, or click to select</Typography>
+              </Box>
+
+              <Button type="submit" variant="contained" fullWidth disabled={loading} sx={{ mt: 2 }}>
+                {loading ? <CircularProgress size={24} /> : "Update Gallery"}
+              </Button>
+            </form>
+
+            {/* Snackbar */}
+            <Snackbar
+              open={snackbarOpen}
+              autoHideDuration={2000}
+              onClose={() => setSnackbarOpen(false)}
+              anchorOrigin={{ vertical: "top", horizontal: "right" }}
             >
-              <input {...getInputProps()} />
-              <CloudUploadIcon color="primary" fontSize="large" />
-              <Typography variant="body2">
-                Drag & drop an image here, or click to select
-              </Typography>
-            </Box>
-
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-              fullWidth
-              disabled={loading}
-              sx={{ mt: 2 }}
-            >
-              {loading ? <CircularProgress size={24} /> : "Update Gallery"}
-            </Button>
-          </form>
-
-          {/* Snackbar Notification */}
-          <Snackbar
-            open={snackbarOpen}
-            autoHideDuration={2000}
-            onClose={() => setSnackbarOpen(false)}
-            anchorOrigin={{ vertical: "top", horizontal: "right" }}
-          >
-            <Alert severity="success" variant="filled">Gallery Updated Successfully!</Alert>
-          </Snackbar>
-        </Paper> </Container> }
+              <Alert severity="success" variant="filled">Gallery Updated Successfully!</Alert>
+            </Snackbar>
+          </Paper>
+        </Container>
+      }
     />
   );
 };

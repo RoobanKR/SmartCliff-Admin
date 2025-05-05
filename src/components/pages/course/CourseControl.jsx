@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect } from "react";
 import {
   Table,
@@ -26,7 +24,12 @@ import {
   useMediaQuery,
   Grid,
   Tooltip,
-  CircularProgress
+  CircularProgress,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  OutlinedInput
 } from "@mui/material";
 import {
   Delete as DeleteIcon,
@@ -34,7 +37,8 @@ import {
   Add as AddIcon,
   Search as SearchIcon,
   Visibility as ViewIcon,
-  School as SchoolIcon
+  School as SchoolIcon,
+  FilterList as FilterIcon
 } from "@mui/icons-material";
 import LeftNavigationBar from "../../navbars/LeftNavigationBar";
 import { useNavigate } from "react-router-dom";
@@ -57,11 +61,23 @@ const CourseControl = () => {
   const [deleteId, setDeleteId] = useState(null);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('');
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [loading, setLoading] = useState(true);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
+  // Extract unique categories from courses
+  const categories = React.useMemo(() => {
+    const uniqueCategories = new Set();
+    courses.forEach(course => {
+      if (course.category && course.category.category_name) {
+        uniqueCategories.add(course.category.category_name);
+      }
+    });
+    return Array.from(uniqueCategories).sort();
+  }, [courses]);
 
   useEffect(() => {
     if (!cookies.token) {
@@ -144,10 +160,23 @@ const CourseControl = () => {
     setPage(0);
   };
 
+  const handleCategoryFilterChange = (event) => {
+    setCategoryFilter(event.target.value);
+    setPage(0); // Reset to first page when filter changes
+  };
+
+  const clearFilters = () => {
+    setSearchTerm('');
+    setCategoryFilter('');
+  };
+
   const filteredCourses = courses.filter(course =>
     course && (
-      (course.course_name && course.course_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (course.short_description && course.short_description.toLowerCase().includes(searchTerm.toLowerCase()))
+      (course.course_name && course.course_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (course.short_description && course.short_description.toLowerCase().includes(searchTerm.toLowerCase())))
+      &&
+      (categoryFilter === '' || 
+       (course.category && course.category.category_name === categoryFilter))
     )
   );
 
@@ -175,7 +204,7 @@ const CourseControl = () => {
                 position: "relative",
                 padding: 0,
                 margin: 0,
-                fontWeight: 700, textAlign: 'center',
+                fontWeight: 700,
                 fontWeight: 300,
                 fontSize: { xs: "32px", sm: "40px" },
                 color: "#747474",
@@ -211,8 +240,9 @@ const CourseControl = () => {
               Course Management
             </Typography>
 
+            {/* Search and Filter Section */}
             <Grid container spacing={2} alignItems="center">
-              <Grid item xs={12} md={6}>
+              <Grid item xs={12} md={4}>
                 <TextField
                   fullWidth
                   variant="outlined"
@@ -229,11 +259,50 @@ const CourseControl = () => {
                   value={searchTerm}
                 />
               </Grid>
-              <Grid item xs={12} md={6} sx={{ textAlign: { xs: 'left', md: 'right' } }}>
+              <Grid item xs={12} md={3}>
+                <FormControl fullWidth size="small">
+                  <InputLabel id="category-filter-label">Category</InputLabel>
+                  <Select
+                    labelId="category-filter-label"
+                    id="category-filter"
+                    value={categoryFilter}
+                    onChange={handleCategoryFilterChange}
+                    input={<OutlinedInput label="Category" />}
+                    sx={{ backgroundColor: 'background.paper' }}
+                    startAdornment={<FilterIcon color="action" sx={{ mr: 1 }} />}
+                  >
+                    <MenuItem value="">
+                      <em>All Categories</em>
+                    </MenuItem>
+                    {categories.map((category) => (
+                      <MenuItem key={category} value={category}>
+                        {category}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={6} md={2}>
+                <Button
+                  variant="outlined"
+                  fullWidth
+                  onClick={clearFilters}
+                  disabled={!searchTerm && !categoryFilter}
+                  sx={{
+                    borderColor: theme.palette.grey[400],
+                    color: theme.palette.text.primary,
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  Clear Filters
+                </Button>
+              </Grid>
+              <Grid item xs={6} md={3} sx={{ textAlign: { xs: 'right', md: 'right' } }}>
                 <Button
                   variant="contained"
                   startIcon={<AddIcon />}
                   onClick={handleAddCourse}
+                  fullWidth
                   sx={{
                     backgroundColor: theme.palette.primary.main,
                     color: 'white',
@@ -241,13 +310,36 @@ const CourseControl = () => {
                       backgroundColor: theme.palette.primary.dark
                     },
                     whiteSpace: 'nowrap',
-                    width: { xs: '100%', md: 'auto' }
                   }}
                 >
                   Add New Course
                 </Button>
               </Grid>
             </Grid>
+            
+            {/* Active Filters Display */}
+            {(searchTerm || categoryFilter) && (
+              <Box sx={{ mt: 2, display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                {searchTerm && (
+                  <Chip 
+                    label={`Search: ${searchTerm}`} 
+                    onDelete={() => setSearchTerm('')} 
+                    size="small"
+                    color="primary"
+                    variant="outlined"
+                  />
+                )}
+                {categoryFilter && (
+                  <Chip 
+                    label={`Category: ${categoryFilter}`} 
+                    onDelete={() => setCategoryFilter('')} 
+                    size="small"
+                    color="primary"
+                    variant="outlined"
+                  />
+                )}
+              </Box>
+            )}
           </Box>
 
           {/* Table Section */}
@@ -259,7 +351,10 @@ const CourseControl = () => {
                     <TableCell sx={{ color: 'white', fontWeight: 600 }}>Course</TableCell>
                     <TableCell sx={{ color: 'white', fontWeight: 600 }}>Image</TableCell>
                     {!isMobile && (
-                      <TableCell sx={{ color: 'white', fontWeight: 600 }}>Description</TableCell>
+                      <>
+                        <TableCell sx={{ color: 'white', fontWeight: 600 }}>Description</TableCell>
+                        <TableCell sx={{ color: 'white', fontWeight: 600 }}>Category</TableCell>
+                      </>
                     )}
                     <TableCell sx={{ color: 'white', fontWeight: 600 }}>Status</TableCell>
                     <TableCell sx={{ color: 'white', fontWeight: 600 }}>Actions</TableCell>
@@ -300,20 +395,43 @@ const CourseControl = () => {
                             </Avatar>
                           </TableCell>
                           {!isMobile && (
-                            <TableCell>
-                              <Typography
-                                variant="body2"
-                                sx={{
-                                  display: '-webkit-box',
-                                  WebkitLineClamp: 2,
-                                  WebkitBoxOrient: 'vertical',
-                                  overflow: 'hidden',
-                                  textOverflow: 'ellipsis'
-                                }}
-                              >
-                                {course.short_description || 'No description'}
-                              </Typography>
-                            </TableCell>
+                            <>
+                              <TableCell>
+                                <Typography
+                                  variant="body2"
+                                  sx={{
+                                    display: '-webkit-box',
+                                    WebkitLineClamp: 2,
+                                    WebkitBoxOrient: 'vertical',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis'
+                                  }}
+                                >
+                                  {course.short_description || 'No description'}
+                                </Typography>
+                              </TableCell>
+                              <TableCell>
+                                {course.category && course.category.category_name ? (
+                                  <Chip 
+                                    label={course.category.category_name}
+                                    size="small"
+                                    color="primary"
+                                    onClick={() => setCategoryFilter(course.category.category_name)}
+                                    sx={{ 
+                                      cursor: 'pointer',
+                                      backgroundColor: categoryFilter === course.category.category_name ? 
+                                        theme.palette.primary.main : 
+                                        theme.palette.primary.light,
+                                      color: 'white'
+                                    }}
+                                  />
+                                ) : (
+                                  <Typography variant="body2" color="text.secondary">
+                                    No category
+                                  </Typography>
+                                )}
+                              </TableCell>
+                            </>
                           )}
                           <TableCell>
                             <Tooltip title={course.isOpen ? "Active" : "Inactive"}>
@@ -326,7 +444,15 @@ const CourseControl = () => {
                           </TableCell>
                           <TableCell>
                             <Box sx={{ display: 'flex', gap: 1 }}>
-
+                              <Tooltip title="View">
+                                <IconButton
+                                  onClick={() => handleView(course._id)}
+                                  color="info"
+                                  size={isMobile ? 'small' : 'medium'}
+                                >
+                                  <ViewIcon />
+                                </IconButton>
+                              </Tooltip>
                               <Tooltip title="Edit">
                                 <IconButton
                                   onClick={() => handleEdit(course._id)}
@@ -351,15 +477,15 @@ const CourseControl = () => {
                       ))
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={isMobile ? 4 : 5} align="center" sx={{ py: 4 }}>
+                      <TableCell colSpan={isMobile ? 4 : 6} align="center" sx={{ py: 4 }}>
                         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                           <SchoolIcon color="disabled" sx={{ fontSize: 60, mb: 1 }} />
                           <Typography variant="h6" color="text.secondary">
                             No courses found
                           </Typography>
-                          {searchTerm && (
+                          {(searchTerm || categoryFilter) && (
                             <Typography variant="body2" color="text.secondary">
-                              No results for "{searchTerm}"
+                              Try adjusting your search filters
                             </Typography>
                           )}
                         </Box>

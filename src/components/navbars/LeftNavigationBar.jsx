@@ -58,6 +58,7 @@ import {
   BrowseGallery,
   PowerSettingsNewOutlined,
   ContactPage,
+  VisibilityRounded,
 } from "@mui/icons-material";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import { useNavigate } from "react-router-dom";
@@ -496,6 +497,11 @@ export default function LeftNavigationBar({ Content }) {
           text: "Contact",
           link: "contact-page",
           icon: <ContactPage style={orangeIconStyle} />,
+        },
+        {
+          text: "Visitor",
+          link: "visitor",
+          icon: <VisibilityRounded style={orangeIconStyle} />,
         },
       ],
     },
