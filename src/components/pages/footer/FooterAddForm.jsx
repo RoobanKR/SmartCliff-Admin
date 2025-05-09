@@ -39,7 +39,8 @@ const FooterAddForm = () => {
       title: 'Contact',
       phone: '',
       secondaryNumber:'',
-      address: ''
+      address: '',
+      email:""
     }
   });
   
@@ -515,6 +516,15 @@ const FooterAddForm = () => {
                 onChange={handleContactChange}
                 margin="normal"
               />
+                             <TextField
+                fullWidth
+                label="Email"
+                name="email"
+                value={formData.contact.email}
+                onChange={handleContactChange}
+                margin="normal"
+              />
+
               <TextField
                 fullWidth
                 label="Address"

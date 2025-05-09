@@ -69,7 +69,7 @@ import howItWorksReducer from "./slices/business/howItWorks/howItWorks";
 import footerReducer from "./slices/footer/footer";
 import popUpNotificationReducer from "./slices/home/popUpNotification/popupNotification";
 import contactPageReducer from "./slices/contactPage/contactPage";
-
+import addressReducer from "./slices/contactPage/addressPage";
 export default configureStore({
   reducer: {
     userSignIn: userSignInSlice,
@@ -145,5 +145,6 @@ export default configureStore({
     footer: footerReducer,
     popUpNotification:popUpNotificationReducer,
     contactPage:contactPageReducer,
+    address:addressReducer,
   },
 });

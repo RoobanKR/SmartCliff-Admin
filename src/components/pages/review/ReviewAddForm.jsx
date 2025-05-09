@@ -373,7 +373,6 @@ const ReviewAddForm = () => {
                   fullWidth
                   label="Batch"
                   name="batch"
-                  type="number"
                   value={batch}
                   onChange={handleChange}
                   variant="outlined"

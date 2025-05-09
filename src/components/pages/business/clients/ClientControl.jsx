@@ -26,6 +26,11 @@ import {
   Tooltip,
   Button,
   Box,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Chip,
 } from "@mui/material";
 import LeftNavigationBar from "../../../navbars/LeftNavigationBar";
 import EditIcon from "@mui/icons-material/Edit";
@@ -37,6 +42,7 @@ import {
 } from "../../../redux/slices/services/client/Client";
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
+import FilterListIcon from "@mui/icons-material/FilterList";
 
 const ClientControl = () => {
   const dispatch = useDispatch();
@@ -49,6 +55,7 @@ const ClientControl = () => {
   const [deleteId, setDeleteId] = useState(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [typeFilter, setTypeFilter] = useState(""); // Added type filter state
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
@@ -82,11 +89,17 @@ const ClientControl = () => {
     setSnackbarOpen(false);
   };
 
+  const handleTypeFilterChange = (event) => {
+    setTypeFilter(event.target.value);
+    setPage(0); // Reset to first page when filter changes
+  };
+
   const filteredClients = (clients || []).filter(
     (client) =>
       client &&
       client.name &&
-      client.name.toLowerCase().includes(searchTerm.toLowerCase())
+      client.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
+      (typeFilter === "" || (client.type && client.type === typeFilter))
   );
 
   const handleChangePage = (event, newPage) => {
@@ -95,6 +108,12 @@ const ClientControl = () => {
 
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
+  const handleClearFilters = () => {
+    setSearchTerm("");
+    setTypeFilter("");
     setPage(0);
   };
 
@@ -161,7 +180,7 @@ const ClientControl = () => {
             Client Control
           </Typography>
           <Grid container spacing={2} alignItems="center" sx={{ mb: 2 }}>
-            <Grid item xs={12} md={6}>
+            <Grid item xs={12} md={3}>
               <TextField
                 fullWidth
                 variant="outlined"
@@ -174,17 +193,47 @@ const ClientControl = () => {
                 value={searchTerm}
               />
             </Grid>
+            <Grid item xs={12} md={3}>
+              <FormControl fullWidth size="small">
+                <InputLabel id="type-filter-label">Filter by Type</InputLabel>
+                <Select
+                  labelId="type-filter-label"
+                  id="type-filter"
+                  value={typeFilter}
+                  label="Filter by Type"
+                  onChange={handleTypeFilterChange}
+                  startAdornment={<FilterListIcon color="action" sx={{ mr: 1 }} />}
+                >
+                  <MenuItem value="">All Types</MenuItem>
+                  <MenuItem value="trainfromus">Train From Us</MenuItem>
+                  <MenuItem value="institute">Institute</MenuItem>
+                  <MenuItem value="home">Home</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={6} md={3}>
+              <Button 
+                variant="outlined" 
+                fullWidth 
+                onClick={handleClearFilters}
+                sx={{ height: '40px' }}
+              >
+                Clear Filters
+              </Button>
+            </Grid>
             <Grid
               item
-              xs={12}
-              md={6}
-              sx={{ textAlign: { xs: "left", md: "right" } }}
+              xs={6}
+              md={3}
+              sx={{ textAlign: { xs: "right", md: "right" } }}
             >
               <Button
                 variant="contained"
                 color="primary"
+                fullWidth
                 onClick={() => navigate("/business/Client-add")}
                 startIcon={<AddIcon />}
+                sx={{ height: '40px' }}
               >
                 Add New Client
               </Button>
@@ -240,7 +289,7 @@ const ClientControl = () => {
                     .map((client) => (
                       <TableRow key={client._id}>
                         <TableCell>{client.name}</TableCell>
-                        <TableCell>
+                        <TableCell align="center">
                           {client.image && (
                             <img
                               src={client.image}
@@ -249,14 +298,25 @@ const ClientControl = () => {
                             />
                           )}
                         </TableCell>
-                        <TableCell>{client.type}</TableCell>
-                        <TableCell align="right">
-                          <Box sx={{ display: "flex", gap: 1 }}>
+                        <TableCell align="center">
+                          <Chip 
+                            label={client.type || "N/A"} 
+                            color={
+                              client.type === "trainfromus" ? "primary" :
+                              client.type === "institute" ? "secondary" :
+                              client.type === "home" ? "success" : "default"
+                            }
+                            variant="outlined"
+                          />
+                        </TableCell>
+                        <TableCell align="center">
+                          <Box sx={{ display: "flex", justifyContent: "center", gap: 1 }}>
                             <Tooltip title="Edit">
                               <Button
                                 onClick={() => handleEdit(client._id)}
                                 color="primary"
                                 variant="outlined"
+                                size="small"
                               >
                                 <EditIcon />
                               </Button>
@@ -268,6 +328,7 @@ const ClientControl = () => {
                                 }
                                 color="error"
                                 variant="outlined"
+                                size="small"
                               >
                                 <DeleteIcon />
                               </Button>

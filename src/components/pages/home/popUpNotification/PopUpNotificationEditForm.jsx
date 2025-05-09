@@ -30,6 +30,8 @@ const PopUpNotificationEditForm = () => {
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [button, setButton] = useState("");
+
   const [link, setLink] = useState("");
   const [images, setImages] = useState([]);
   const [existingImageUrl, setExistingImageUrl] = useState("");
@@ -41,12 +43,14 @@ const PopUpNotificationEditForm = () => {
   const [touchedFields, setTouchedFields] = useState({
     title: false,
     description: false,
+    button: false,
     link: false,
     image: false,
   });
   const [errors, setErrors] = useState({
     title: "",
     description: "",
+    button: "",
     link: "",
     image: "",
   });
@@ -59,6 +63,7 @@ const PopUpNotificationEditForm = () => {
         if (data) {
           setTitle(data.title);
           setDescription(data.description);
+          setButton(data.button);
           setLink(data.link);
           setExistingImageUrl(data.image); // Set the existing image URL
         }
@@ -75,6 +80,9 @@ const PopUpNotificationEditForm = () => {
         break;
       case "description":
         setDescription(value);
+        break;
+        case "button":
+        setButton(value);
         break;
       case "link":
         setLink(value);
@@ -104,6 +112,10 @@ const PopUpNotificationEditForm = () => {
       setErrors((prev) => ({ ...prev, description: "Description is required" }));
       return;
     }
+    if (!button.trim()) {
+      setErrors((prev) => ({ ...prev, button: "Button is required" }));
+      return;
+    }
     if (!link.trim()) {
       setErrors((prev) => ({ ...prev, link: "Link is required" }));
       return;
@@ -116,6 +128,7 @@ const PopUpNotificationEditForm = () => {
     const formData = new FormData();
     formData.append("title", title);
     formData.append("description", description);
+    formData.append("button", button);
     formData.append("link", link);
     if (images.length > 0) {
       for (let i = 0; i < images.length; i++) {
@@ -253,6 +266,19 @@ const PopUpNotificationEditForm = () => {
                 error={Boolean(errors.description)}
                 helperText={touchedFields.description && errors.description}
                 onBlur={() => setTouchedFields((prev) => ({ ...prev, description: true }))}
+              />
+               <TextField
+                margin="normal"
+                required
+                fullWidth
+                id="button"
+                label="Button Name"
+                name="button"
+                value={button}
+                onChange={handleChange}
+                error={Boolean(errors.button)}
+                helperText={touchedFields.button && errors.button}
+                onBlur={() => setTouchedFields((prev) => ({ ...prev, button: true }))}
               />
               <TextField
                 margin="normal"

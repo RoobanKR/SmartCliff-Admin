@@ -334,7 +334,6 @@ const ServiceAboutAddForm = () => {
                           name="title"
                           value={feature.title}
                           onChange={(e) => handleFeatureChange(index, e)}
-                          required
                         />
                       </Grid>
 
@@ -345,7 +344,6 @@ const ServiceAboutAddForm = () => {
                           name="description"
                           value={feature.description}
                           onChange={(e) => handleFeatureChange(index, e)}
-                          required
                           multiline
                           rows={2}
                         />

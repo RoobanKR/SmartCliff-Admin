@@ -119,7 +119,7 @@ const ClientEditForm = () => {
                   onChange={handleTypeChange}
                   label="Type"
                 >
-                  <MenuItem value="smartcliff">SmartCliff</MenuItem>
+                  <MenuItem value="home">Home</MenuItem>
                   <MenuItem value="trainfromus">Train From Us</MenuItem>
                   <MenuItem value="institute">Institute</MenuItem>
                 </Select>

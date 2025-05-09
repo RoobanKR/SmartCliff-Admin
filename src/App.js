@@ -191,6 +191,9 @@ import ContactPageAddForm from "./components/pages/contactPage/ContactPageAddFor
 import ContactPageControl from "./components/pages/contactPage/ContactpageControl";
 import ContactPageEditForm from "./components/pages/contactPage/ContactPageEditForm";
 import MuiVisitorStats from "./components/pages/visitor/Visior";
+import AddressAddForm from "./components/pages/address/AddressAddForm";
+import AddressControl from "./components/pages/address/AddressControlPage";
+import AddressEditForm from "./components/pages/address/AddressEditForm";
 
 function App() {
   const router = createBrowserRouter(
@@ -715,6 +718,10 @@ function App() {
         <Route path="contact-page-edit/:id" element={<ContactPageEditForm />} />
 
         <Route path="visitor-control" element={<MuiVisitorStats />} />
+
+        <Route path="address-add" element={<AddressAddForm />} />
+        <Route path="address-control" element={<AddressControl />} />
+        <Route path="address-edit/:id" element={<AddressEditForm />} />
 
       </Route>
     )

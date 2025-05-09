@@ -142,7 +142,7 @@ const AboutUsEditForm = () => {
       setOpenSnackbar(true);
 
       setTimeout(() => navigate("/about/aboutus-control"), 1500);
-    } catch (error) {
+    } catch ( error) {
       setMessage({
         text: error?.message || "Something went wrong",
         type: "error",

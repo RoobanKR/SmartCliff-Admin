@@ -457,7 +457,6 @@ const ReviewsEditForm = () => {
                   label="Batch"
                   name="batch"
                   variant="outlined"
-                  type="number"
                   required
                   value={batch}
                   onChange={(e) => handleChange(e)}
